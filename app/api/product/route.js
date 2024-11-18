@@ -4,12 +4,16 @@ import fs from "fs"
 import path from "path";
 import connectToDB from "@/db/db";
 
-connectToDB()
-
 export const dynamic = "force/dynamic"
+connectToDB()
 
 export async function POST(req) {
     try {
+        const authorizationHeader = req.headers.get('authorization');
+        const token = authorizationHeader ? authorizationHeader.split(' ')[1] : null;
+        if (!token) {
+            return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
+        }
         const data = await req.formData()
         const productName = data.get("productName")
         const hns = data.get("hns")
@@ -46,10 +50,10 @@ export async function POST(req) {
             });
         }
 
-        const newRecord = await Product.create({ productName, hns, category, subCategory, brand, price, discount, warranty, delivery, offers, desc, qty, size:productSizes, filename:imageData })
-        if (newRecord){
-            return NextResponse.json({ success: true,  newRecord })
-        }else{
+        const newRecord = await Product.create({ productName, hns, category, subCategory, brand, price, discount, warranty, delivery, offers, desc, qty, size: productSizes, filename: imageData })
+        if (newRecord) {
+            return NextResponse.json({ success: true, newRecord })
+        } else {
         }
         return NextResponse.json({ success: false, message: "Something Went Wrong Please Try Again!" })
     } catch (error) {
@@ -59,16 +63,16 @@ export async function POST(req) {
 }
 
 
-export async function GET(){
-    try{
+export async function GET(req) {
+    try {
         const getAllProduct = await Product.find()
-        if(!getAllProduct){
-            return NextResponse.json({success:false,message:"Data Not Found!"})
-        }else{
-            return NextResponse.json({success:true,getAllProduct})
+        if (!getAllProduct) {
+            return NextResponse.json({ success: false, message: "Data Not Found!" })
+        } else {
+            return NextResponse.json({ success: true, getAllProduct })
         }
-    }catch(error){
+    } catch (error) {
         console.log(error);
-        return NextResponse.json({success:false,message:"Bad Request"})
+        return NextResponse.json({ success: false, message: "Bad Request" })
     }
 }

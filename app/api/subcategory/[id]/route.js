@@ -1,27 +1,29 @@
 import { NextResponse } from "next/server";
-import connectToDB from "@/db/db";
 import SubCategory from "@/models/subCategory";
-
-connectToDB()
 
 export const dynamic = "force/dynamic"
 
-export async function DELETE(req,{params}){
-    try{
+export async function DELETE(req, { params }) {
+    try {
+        const authorizationHeader = req.headers.get('authorization');
+        const token = authorizationHeader ? authorizationHeader.split(' ')[1] : null;
+        if (!token) {
+            return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
+        }
         const id = params.id
-        if(!id){
-            return NextResponse.json({success:false,message:"Invalid ID!"})
+        if (!id) {
+            return NextResponse.json({ success: false, message: "Invalid ID!" })
         }
-        
-        const checkData = await SubCategory.findOne({_id:id})
-        if(!checkData){
-            return NextResponse.json({success:false,message:"Data Not Found!"})
-        }else{
+
+        const checkData = await SubCategory.findOne({ _id: id })
+        if (!checkData) {
+            return NextResponse.json({ success: false, message: "Data Not Found!" })
+        } else {
             await SubCategory.findByIdAndDelete(id)
-            return NextResponse.json({success:true})
+            return NextResponse.json({ success: true })
         }
-    }catch(error){
+    } catch (error) {
         console.log(error);
-        return NextResponse.json({success:false,message:"Bad Request!"})
+        return NextResponse.json({ success: false, message: "Bad Request!" })
     }
 }

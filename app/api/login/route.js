@@ -10,7 +10,7 @@ export const dynamic = "force/dynamic"
 
 export async function POST(req){
     try{
-        const data = await req.json()
+        const data = await req.json()        
         const {email,password} = data
         if(!email || !password){
             return NextResponse.json({success:false,message:"All Fields Are Required!"})
@@ -23,7 +23,7 @@ export async function POST(req){
                     id : checkEmailID._id,
                     email : checkEmailID.email,
                     role : checkEmailID.role
-                }, "next-ecommrece",{expiresIn : "1d"})
+                }, "next-ecommrece",{expiresIn : "1h"})
                 return NextResponse.json({
                     success:true,
                     token,

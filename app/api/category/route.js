@@ -4,13 +4,17 @@ import { writeFile } from "fs/promises"
 import path from "path";
 import connectToDB from "@/db/db";
 
-connectToDB()
-
 export const dynamic = "force/dynamic"
 
+connectToDB()
 
 export async function POST(req) {
     try {
+        const authorizationHeader = req.headers.get('authorization');
+        const token = authorizationHeader ? authorizationHeader.split(' ')[1] : null;
+        if (!token) {
+            return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
+        }
         const data = await req.formData()
         const category = data.get("category")
         const desc = data.get("desc")
@@ -23,7 +27,7 @@ export async function POST(req) {
         const bufferData = Buffer.from(byteLength)
         const filename = `${new Date().getTime()}${path.extname(image.name)}`;
         const pathOfImage = path.join(process.cwd(), './public/category', filename);
-        
+
         const newRecord = await Category.create({ category, desc, filename })
         if (newRecord) {
             await writeFile(pathOfImage, bufferData)
@@ -38,16 +42,16 @@ export async function POST(req) {
 }
 
 
-export async function GET(req){
-    try{
+export async function GET(req) {
+    try {
         const getAllCategory = await Category.find()
-        if(getAllCategory){
-            return NextResponse.json({success:true,getAllCategory})
-        }else{
-            return NextResponse.json({success:false,message:"Data Not Found!"})
+        if (getAllCategory) {
+            return NextResponse.json({ success: true, getAllCategory })
+        } else {
+            return NextResponse.json({ success: false, message: "Data Not Found!" })
         }
-    }catch(error){
+    } catch (error) {
         console.log(error);
-        return NextResponse.json({success:false,message:"Bad Request!"})
+        return NextResponse.json({ success: false, message: "Bad Request!" })
     }
 }

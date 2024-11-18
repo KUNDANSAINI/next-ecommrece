@@ -1,12 +1,12 @@
-import Navbar from "../component/Navbar";
 import AdminLeftbar from "../component/Admin-Leftbar";
+import AdminHeader from "../component/AdminHeader";
 
 function AdminDashboard() {
     return (
         <>
-            <div>
-                <Navbar />
-                <div className="flex px-2">
+            <div className="border rounded-3xl mx-12 my-4 h-screen bg-[#F0F1F0] p-4">
+                <AdminHeader />
+                <div className="flex mt-4">
                     <div className="hidden md:block md:w-1/4 lg:w-1/6">
                         <AdminLeftbar />
                     </div>

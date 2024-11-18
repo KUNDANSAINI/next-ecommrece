@@ -1,6 +1,6 @@
 'use client'
 
-import { AlignRight, CircleUserRound, LogOut, ShoppingBag } from "lucide-react";
+import { AlignRight, CircleUserRound, LogOut, ShoppingBag, Vegan } from "lucide-react";
 import { useContext, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,9 +19,9 @@ import AdminLeftbar from "../Admin-Leftbar";
 function Navbar() {
     const [openNavbar, setOpenNavbar] = useState(false)
     const router = useRouter()
-    const {user,isLogin,setIsLogin,setUser} = useContext(GlobalContext)
-    
-    function handleLogout(){
+    const { user, isLogin, setIsLogin, setUser } = useContext(GlobalContext)
+
+    function handleLogout() {
         setIsLogin(false)
         setUser(null)
         localStorage.removeItem("user")
@@ -31,67 +31,42 @@ function Navbar() {
 
     return (
         <>
-            <nav className="bg-white fixed w-full z-20 top-0 left-0 border-b border-gray-200">
-                <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
+            <nav className=" sticky top-10 z-50">
+                <div className="w-full flex flex-wrap items-center justify-around">
                     {/* Logo Image */}
-                    <div className="flex items-center cursor-pointer">
-                        <span onClick={()=>{router.push('/')}} className="self-center text-2xl font-semibold whitespace-nowrap">
-                            E-commrecey
-                        </span>
+                    <span className="flex items-center gap-2" >
+                        <Vegan className="bg-white rounded-full p-2 shadow-lg" size={40} /><span className="drop-shadow-lg" style={{ fontFamily: 'Rubik Glitch, sans-serif' }}>BAZZKIT PRO</span>
+                    </span>
+
+                    {/* Navbar items */}
+                    <div className="hidden w-full lg:flex md:w-auto items-center justify-center">
+                        <ul className="flex flex-col mt-4 p-1 font-medium rounded-full md:flex-row md:space-x-8 md:mt-0 md:border-0 bg-[#FCFDFC] shadow-lg">
+                            <li className="cursor-pointer block text-gray-900 bg-[#F0F1F0] rounded-full px-4 py-1">Home</li>
+                            <li className="cursor-pointer block text-gray-900 rounded-full px-4 py-1">Shop</li>
+                            <li className="cursor-pointer block text-gray-900 rounded-full px-4 py-1">Men</li>
+                            <li className="cursor-pointer block text-gray-900 rounded-full px-4 py-1">Women</li>
+                            <li className="cursor-pointer block text-gray-900 rounded-full px-4 py-1">Kids</li>
+                        </ul>
                     </div>
 
-                    <div className="flex md:order-2 gap-4 items-center">
+                    <div className="flex lg:order-2 gap-4 items-center">
                         {
                             isLogin && !user ? (
                                 <>
-                                    <ShoppingBag className="text-gray-800 cursor-pointer" />
-                                    <CircleUserRound className="text-gray-800 cursor-pointer" />
-                                    <LogOut className="text-gray-800 cursor-pointer" onClick={()=>{handleLogout()}} />
+                                    <Button variant="outline" size="icon"><ShoppingBag /></Button>
+                                    <Button variant="outline" size="icon"><CircleUserRound /></Button>
+                                    <Button variant="outline" size="icon" onClick={() => { handleLogout() }}><LogOut /></Button>
                                 </>
-                            ) : null
-                        }
-                        {
-                            user && isLogin ? (
-                                    <LogOut className="text-gray-800 cursor-pointer" onClick={()=>{handleLogout()}} />
                             ) : null
                         }
                         {
                             !isLogin ? (
-                                <>
-                                    <Link href={'/login'}><Button>Login</Button></Link>
-                                    <Link href={"/register"}><Button>Signup</Button></Link>
-                                </>
+                                <Link href={'/login'}><Button className="rounded-full bg-white hover:bg-white text-gray-900 shadow-lg">Login</Button></Link>
                             ) : null
                         }
                     </div>
 
-                    <AlignRight onClick={() => { setOpenNavbar(!openNavbar) }} className="md:hidden cursor-pointer" />
-
-                    {/* Navbar items */}
-                    <div className="hidden w-full md:flex md:w-auto items-center justify-center">
-                        <ul className="flex flex-col p-4 md:p-0 mt-4 font-medium border border-gray-100 rounded-lg md:flex-row md:space-x-8 md:mt-0 md:border-0 bg-white">
-                            {
-                                !user && isLogin ? (
-                                    <>
-                                        <li className="cursor-pointer block py-2 pl-3 pr-4 text-gray-900 rounded md:p-0">Home</li>
-                                        <li className="cursor-pointer block py-2 pl-3 pr-4 text-gray-900 rounded md:p-0">Shop</li>
-                                        <li className="cursor-pointer block py-2 pl-3 pr-4 text-gray-900 rounded md:p-0">Men</li>
-                                        <li className="cursor-pointer block py-2 pl-3 pr-4 text-gray-900 rounded md:p-0">Women</li>
-                                    </>
-                                ) : null
-                            }
-                            {
-                                !isLogin ? (
-                                    <>
-                                        <li className="cursor-pointer block py-2 pl-3 pr-4 text-gray-900 rounded md:p-0">Home</li>
-                                        <li className="cursor-pointer block py-2 pl-3 pr-4 text-gray-900 rounded md:p-0">Shop</li>
-                                        <li className="cursor-pointer block py-2 pl-3 pr-4 text-gray-900 rounded md:p-0">Men</li>
-                                        <li className="cursor-pointer block py-2 pl-3 pr-4 text-gray-900 rounded md:p-0">Women</li>
-                                    </>
-                                ) : null
-                            }
-                        </ul>
-                    </div>
+                    <AlignRight onClick={() => { setOpenNavbar(!openNavbar) }} className="lg:hidden cursor-pointer" />
                 </div>
             </nav>
 
@@ -105,7 +80,7 @@ function Navbar() {
             >
                 <SheetContent>
                     <SheetHeader className={'mt-4'}>
-                        <ul className="flex flex-col p-4 mt-4 font-medium bg-white">
+                        <ul className="flex flex-col p-1 justify-center items-center gap-4">
                             {
                                 user && isLogin ? (
                                     <AdminLeftbar />
@@ -114,20 +89,20 @@ function Navbar() {
                             {
                                 !user && isLogin ? (
                                     <>
-                                        <li className="cursor-pointer block py-2 pl-3 pr-4 text-gray-900 rounded md:p-0">Home</li>
-                                        <li className="cursor-pointer block py-2 pl-3 pr-4 text-gray-900 rounded md:p-0">Shop</li>
-                                        <li className="cursor-pointer block py-2 pl-3 pr-4 text-gray-900 rounded md:p-0">Men</li>
-                                        <li className="cursor-pointer block py-2 pl-3 pr-4 text-gray-900 rounded md:p-0">Women</li>
+                                        <li className="cursor-pointer block text-gray-900 rounded-full">Home</li>
+                                        <li className="cursor-pointer block text-gray-900 rounded-full">Shop</li>
+                                        <li className="cursor-pointer block text-gray-900 rounded-full">Men</li>
+                                        <li className="cursor-pointer block text-gray-900 rounded-full">Women</li>
                                     </>
                                 ) : null
                             }
                             {
                                 !isLogin ? (
                                     <>
-                                        <li className="cursor-pointer block py-2 pl-3 pr-4 text-gray-900 rounded md:p-0">Home</li>
-                                        <li className="cursor-pointer block py-2 pl-3 pr-4 text-gray-900 rounded md:p-0">Shop</li>
-                                        <li className="cursor-pointer block py-2 pl-3 pr-4 text-gray-900 rounded md:p-0">Men</li>
-                                        <li className="cursor-pointer block py-2 pl-3 pr-4 text-gray-900 rounded md:p-0">Women</li>
+                                    <li className="cursor-pointer block text-gray-900 rounded-full">Home</li>
+                                    <li className="cursor-pointer block text-gray-900 rounded-full">Shop</li>
+                                    <li className="cursor-pointer block text-gray-900 rounded-full">Men</li>
+                                    <li className="cursor-pointer block text-gray-900 rounded-full">Women</li>
                                     </>
                                 ) : null
                             }

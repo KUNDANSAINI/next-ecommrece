@@ -1,19 +1,15 @@
-'use client'
+import { fetchBrandData, fetchCategoryData, fetchProduct } from "./component/Fetch-Api";
+import HomePage from "./component/Home";
 
-import Navbar from "@/app/component/Navbar";
-import { GlobalContext } from "@/context";
-import { useContext } from "react";
-
-export default function Home() {
-
-  const {isLogin} = useContext(GlobalContext)
-
-  return (
+async function Home() {
+  const getCategory = await fetchCategoryData()
+  const getBrands = await fetchBrandData()
+  const getProduct = await fetchProduct() 
+  return ( 
     <>
-    <div>
-      <Navbar />
-      <h1>Home</h1>
-    </div>
+      <HomePage getCategory={getCategory} getBrands={getBrands} getProduct={getProduct} />
     </>
-  );
+   );
 }
+
+export default Home;

@@ -8,7 +8,7 @@ const configOptions = {
 
 
 const connectToDB = ()=>{
-    const mongoose_url = "mongodb+srv://kundansaini2311:b6TPryrAKaKG9voM@cluster0.irdjfb0.mongodb.net/"
+    const mongoose_url = process.env.MONGO_URL
 
     mongoose.connect(mongoose_url, configOptions).then(()=>{
         console.log("Connect To DB");
