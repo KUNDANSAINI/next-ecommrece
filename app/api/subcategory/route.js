@@ -6,11 +6,6 @@ export const dynamic = "force/dynamic"
 
 export async function POST(req) {
     try {
-        const authorizationHeader = req.headers.get('authorization');
-        const token = authorizationHeader ? authorizationHeader.split(' ')[1] : null;
-        if (!token) {
-            return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
-        }
         const data = await req.json()
         const { subCategory, desc } = data
 
@@ -33,11 +28,6 @@ export async function POST(req) {
 
 export async function GET(req) {
     try {
-        const authorizationHeader = req.headers.get('authorization');
-        const token = authorizationHeader ? authorizationHeader.split(' ')[1] : null;
-        if (!token) {
-            return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
-        }
         const getAllSubCategory = await SubCategory.find()
         if (getAllSubCategory) {
             return NextResponse.json({ success: true, getAllSubCategory })

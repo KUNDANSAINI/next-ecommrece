@@ -85,8 +85,7 @@ function ProductPage({getProduct,getBrands,getCategory,getSubCategory}) {
                 size: updatedSizes
             };
         });
-    };
-    
+    };    
 
     async function handleProductFrom() {
         try {
@@ -110,11 +109,7 @@ function ProductPage({getProduct,getBrands,getCategory,getSubCategory}) {
             for (let i = 0; i < image.length; i++) {
                 fdata.append('images', image[i]);
             }            
-            const response = await axios.post('/api/product',{
-                headers:{
-                    Authorization: `Bearer ${Cookies.get("token")}`
-                }
-            }, fdata)
+            const response = await axios.post('/api/product', fdata)
             if (response.data.success === true) {
                 setOpenProductDialog(false)
                 setProductFormData({
@@ -133,7 +128,7 @@ function ProductPage({getProduct,getBrands,getCategory,getSubCategory}) {
                     size: []
                 })
                 setImage(null)
-                toast.success("Product Successfully Careated!")
+                toast.success("Product Successfully Created!")
                 router.refresh()
             }
         } catch (error) {

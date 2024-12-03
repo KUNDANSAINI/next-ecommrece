@@ -7,11 +7,6 @@ export const dynamic = "force/dynamic"
 
 export async function DELETE(req, { params }) {
     try {
-        const authorizationHeader = req.headers.get('authorization');
-        const token = authorizationHeader ? authorizationHeader.split(' ')[1] : null;
-        if (!token) {
-            return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
-        }
         const id = params.id
         if (!id) {
             return NextResponse.json({ success: false, message: "Invalid ID!" })
@@ -40,11 +35,6 @@ export async function DELETE(req, { params }) {
 export async function GET(req, { params }) {
     try {
         const id = params.id
-        const authorizationHeader = req.headers.get('authorization');
-        const token = authorizationHeader ? authorizationHeader.split(' ')[1] : null;
-        if (!token) {
-            return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
-        }
         if (!id) {
             return NextResponse.json({ success: false, message: "Invalid ID" })
         }

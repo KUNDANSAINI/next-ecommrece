@@ -21,12 +21,11 @@ export async function fetchCategoryData() {
 
 // Fetch SubCategory Data
 
-export async function fetchSubCategoryData(token) {
+export async function fetchSubCategoryData() {
     try {
         const response = await axios.get('http://localhost:3000/api/subcategory', {
             headers: {
                 'Cache-Control': 'no-store',
-                'Authorization': `Bearer ${token}`,
             }
         })
         if(response.data.success === true){
@@ -60,12 +59,11 @@ export async function fetchBrandData() {
 
 // Fetch Users Data
 
-export async function fetchUsers(token) {
+export async function fetchUsers() {
     try {
         const response = await axios.get('http://localhost:3000/api/register', {
             headers: {
                 'Cache-Control': 'no-store',
-                'Authorization': `Bearer ${token}`,
             }
         })        
         if(response.data.success === true){
@@ -99,12 +97,11 @@ export async function fetchProduct() {
 
 // Fetch Single Product Data
 
-export async function fetchSinglrProduct(id,token) {
+export async function fetchSinglrProduct(id) {
     try {        
         const response = await axios.get(`http://localhost:3000/api/product/${id}`, {
             headers: {
                 'Cache-Control': 'no-store',
-                'Authorization': `Bearer ${token}`,
             }
         })        
         if(response.data.success === true){
@@ -119,12 +116,11 @@ export async function fetchSinglrProduct(id,token) {
 
 // Fetch Single User 
 
-export async function fetchSingleUser(id,token){
+export async function fetchSingleUser(id){
     try {        
         const response = await axios.get(`http://localhost:3000/api/register/${id}`, {
             headers: {
                 'Cache-Control': 'no-store',
-                'Authorization': `Bearer ${token}`,
             }
         })        
         if(response.data.success === true){

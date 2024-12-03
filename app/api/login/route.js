@@ -1,8 +1,8 @@
-import User from "@/models/user";
 import { NextResponse } from "next/server";
 import bcrypt from "bcrypt"
 import connectToDB from "@/db/db";
 import jwt from "jsonwebtoken"
+import User from "@/models/user";
 
 connectToDB()
 

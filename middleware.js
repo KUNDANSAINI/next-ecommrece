@@ -36,6 +36,8 @@ export const config = {
         "/admin-dashboard/:path*",
         "/login",
         "/",
-        "/register"
+        "/register",
+        "/account",
+        "/cart",
     ],
 };

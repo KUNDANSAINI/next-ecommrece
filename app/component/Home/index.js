@@ -2,7 +2,7 @@
 
 import Navbar from "@/app/component/Navbar";
 import { GlobalContext } from "@/context";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import {
   Carousel,
   CarouselContent,
@@ -12,18 +12,39 @@ import {
 } from "@/components/ui/carousel"
 import { Button } from "@/components/ui/button";
 import Footer from "../Footer";
+import axios from "axios";
+import Cookies from "js-cookie";
+import { toast } from "react-toastify";
+import { CartSheet } from "../Cart-Sheet";
 
 export default function HomePage({ getCategory, getBrands, getProduct }) {
+  const [cartSheetOpen, setCartSheetOpen] = useState(false)
+  const { userID } = useContext(GlobalContext)
 
-  const { isLogin } = useContext(GlobalContext)
-
-  console.log(getProduct);
-
+  async function handleCart(product) {
+    try {
+      const data = { productID: product._id, userID }
+      const response = await axios.post('/api/cart', data, {
+        headers: {
+          Authorization: `Bearer ${Cookies.get("token")}`
+        }
+      })
+      if (response.data.success === true) {
+        toast.success("Product Successfully Added In Cart")
+        setCartSheetOpen(true)
+      } else {
+        toast.error(response.data.message)
+      }
+    } catch (error) {
+      toast.error("Bad Request")
+    }
+  }
 
   return (
     <>
       <div className="border rounded-3xl mx-12 my-4 bg-[#F0F1F0] px-4 py-8">
         <Navbar />
+        <CartSheet cartSheetOpen={cartSheetOpen} setCartSheetOpen={setCartSheetOpen} />
         <div className="flex flex-col p-4">
           <div className="my-32">
             <h1 className="text-8xl text-center break-words drop-shadow-xl" style={{ fontFamily: 'Rubik Glitch, sans-serif' }}>BAZZKIT PRO</h1>
@@ -54,14 +75,12 @@ export default function HomePage({ getCategory, getBrands, getProduct }) {
               {
                 getCategory && getCategory.length > 0 ? (
                   getCategory.map((category, index) => (
-                    <>
-                      <div className="flex flex-col items-center gap-2 cursor-pointer" key={index}>
-                        <div className="w-14 border rounded-full p-3">
-                          <img src={`/category/${category.filename}`} alt={category.filename} />
-                        </div>
-                        <h2>{category.category}</h2>
+                    <div className="flex flex-col items-center gap-2 cursor-pointer" key={index}>
+                      <div className="w-14 border rounded-full p-3">
+                        <img src={`/category/${category.filename}`} alt={category.filename} />
                       </div>
-                    </>
+                      <h2>{category.category}</h2>
+                    </div>
                   ))
                 ) : null
               }
@@ -80,27 +99,28 @@ export default function HomePage({ getCategory, getBrands, getProduct }) {
               </div>
             </div>
 
-            {
-              getProduct && getProduct.length > 0 ? (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {getProduct && getProduct.length > 0 ? (
                 getProduct.map((product, index) => (
-                  <div className="grid grid-cols-1 lg:grid-cols-2 w-full gap-6">
-                    <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
-                      <img src={`/product/${product.filename[0].name}`} alt={product.filename[0].name} className="w-56 rounded-3xl my-2" />
-                      <div className="flex flex-col gap-2">
-                        <h2 className="my-4 text-lg">{product.productName}</h2>
-                        <p className="text-gray-600">{product.brand}</p>
-                        <p className="text-gray-600">Price: ${product.price} <span className="text-green-600 italic">{product.discount}%off</span></p>
-                        <p className="text-gray-600">Type: {product.category}</p>
-                        <Button>Add To Cart</Button>
-                        <Button>Buy Now</Button>
-                      </div>
+                  <div className="flex flex-col sm:flex-row gap-2 border rounded-2xl p-4 sm:gap-4" key={index}>
+                    <div className="w-72">
+                    <img src={`/product/${product.filename[0].name}`} alt={product.filename[0].name} className="w-full" />
+                    </div>
+                    <div className="flex flex-col w-full gap-2">
+                      <h2 className="my-4 text-lg">{product.productName}</h2>
+                      <p className="text-gray-600">{product.brand}</p>
+                      <p className="text-gray-600">Price: ${product.price} <span className="text-green-600 italic">{product.discount}%off</span></p>
+                      <p className="text-gray-600">Type: {product.category}</p>
+                      <Button onClick={() => { handleCart(product) }}>Add To Cart</Button>
+                      <Button onClick={() => { handleCart(product) }}>Buy Now</Button>
                     </div>
                   </div>
                 ))
               ) : null
-            }
+              }
+            </div>
 
-            <div className="text-center">
+            <div className="text-center mt-4">
               <Button>More</Button>
             </div>
           </div>

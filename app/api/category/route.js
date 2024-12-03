@@ -10,11 +10,6 @@ connectToDB()
 
 export async function POST(req) {
     try {
-        const authorizationHeader = req.headers.get('authorization');
-        const token = authorizationHeader ? authorizationHeader.split(' ')[1] : null;
-        if (!token) {
-            return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
-        }
         const data = await req.formData()
         const category = data.get("category")
         const desc = data.get("desc")

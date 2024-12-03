@@ -2,6 +2,7 @@ import "./globals.css";
 import GlobalState from "@/context";
 import { ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
+import Loading from "./loading";
 
 export const metadata = {
   title: "Create Next App",
@@ -14,6 +15,7 @@ export default function RootLayout({ children }) {
       <body
         className={`antialiased`}
       >
+        <Loading />
         <GlobalState>
             {children}
           <ToastContainer />

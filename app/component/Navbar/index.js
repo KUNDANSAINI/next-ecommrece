@@ -8,7 +8,7 @@ import {
     SheetContent,
     SheetHeader,
 } from "@/components/ui/sheet"
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { GlobalContext } from "@/context";
 import Cookies from "js-cookie";
@@ -19,6 +19,7 @@ import AdminLeftbar from "../Admin-Leftbar";
 function Navbar() {
     const [openNavbar, setOpenNavbar] = useState(false)
     const router = useRouter()
+    const pathname = usePathname()
     const { user, isLogin, setIsLogin, setUser } = useContext(GlobalContext)
 
     function handleLogout() {
@@ -28,24 +29,25 @@ function Navbar() {
         Cookies.remove("token")
         router.push('/login')
     }
+    
 
     return (
         <>
             <nav className=" sticky top-10 z-50">
                 <div className="w-full flex flex-wrap items-center justify-around">
                     {/* Logo Image */}
-                    <span className="flex items-center gap-2" >
+                    <span className="flex items-center gap-2 cursor-pointer" onClick={()=> router.push('/')} >
                         <Vegan className="bg-white rounded-full p-2 shadow-lg" size={40} /><span className="drop-shadow-lg" style={{ fontFamily: 'Rubik Glitch, sans-serif' }}>BAZZKIT PRO</span>
                     </span>
 
                     {/* Navbar items */}
                     <div className="hidden w-full lg:flex md:w-auto items-center justify-center">
                         <ul className="flex flex-col mt-4 p-1 font-medium rounded-full md:flex-row md:space-x-8 md:mt-0 md:border-0 bg-[#FCFDFC] shadow-lg">
-                            <li className="cursor-pointer block text-gray-900 bg-[#F0F1F0] rounded-full px-4 py-1">Home</li>
-                            <li className="cursor-pointer block text-gray-900 rounded-full px-4 py-1">Shop</li>
-                            <li className="cursor-pointer block text-gray-900 rounded-full px-4 py-1">Men</li>
-                            <li className="cursor-pointer block text-gray-900 rounded-full px-4 py-1">Women</li>
-                            <li className="cursor-pointer block text-gray-900 rounded-full px-4 py-1">Kids</li>
+                            <Link href="/"><li className={`cursor-pointer block text-gray-900 rounded-full px-4 py-1 ${pathname === "/" ? "bg-[#F0F1F0]" : ""}`}>Home</li></Link>
+                            <Link href="/shop"><li className={`cursor-pointer block text-gray-900 rounded-full px-4 py-1 ${pathname === "/shop" ? "bg-[#F0F1F0]" : ""}`}>Shop</li></Link>
+                            <Link href='/men'><li className={`cursor-pointer block text-gray-900 rounded-full px-4 py-1 ${pathname === "/men" ? "bg-[#F0F1F0]" : ""}`}>Men</li></Link>
+                            <Link href="/women"><li className={`cursor-pointer block text-gray-900 rounded-full px-4 py-1 ${pathname === "/women" ? "bg-[#F0F1F0]" : ""}`}>Women</li></Link>
+                            <Link href="/kids"><li className={`cursor-pointer block text-gray-900 rounded-full px-4 py-1 ${pathname === "/kids" ? "bg-[#F0F1F0]" : ""}`}>Kids</li></Link>
                         </ul>
                     </div>
 
@@ -53,8 +55,8 @@ function Navbar() {
                         {
                             isLogin && !user ? (
                                 <>
-                                    <Button variant="outline" size="icon"><ShoppingBag /></Button>
-                                    <Button variant="outline" size="icon"><CircleUserRound /></Button>
+                                    <Link href={'/cart'}><Button variant="outline" size="icon"><ShoppingBag /></Button></Link>
+                                    <Link href={'/account'}><Button variant="outline" size="icon"><CircleUserRound /></Button></Link>
                                     <Button variant="outline" size="icon" onClick={() => { handleLogout() }}><LogOut /></Button>
                                 </>
                             ) : null

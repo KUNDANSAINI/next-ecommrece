@@ -9,7 +9,7 @@ const userSchema = new mongoose.Schema({
     email:{
         type:String,
         required:true,
-        unique:true
+        unique:true,
     },
     password:{
         type:String,
@@ -18,6 +18,52 @@ const userSchema = new mongoose.Schema({
     isAdmin:{
         type:Boolean,
         default:false
+    },
+    personalDetails:{
+        firstName:{
+            type:String,
+            default:null
+        },
+        lastName:{
+            type:String,
+            default:null
+        },
+        dob:{
+            type:Date,
+            default:null
+        },
+        phone:{
+            type:Number,
+            default:null
+        },
+        country:{
+            type:String,
+            default:null
+        },
+        city:{
+            type:String,
+            default:null
+        },
+        pincode:{
+            type:Number,
+            default:null
+        },
+        bankName:{
+            type:String,
+            default:null
+        },
+        ifse:{
+            type:String,
+            default:null
+        },
+        branch:{
+            type:String,
+            default:null
+        },
+        accountNo:{
+            type:String,
+            default:null
+        },
     }
 },{
     timestamps: true

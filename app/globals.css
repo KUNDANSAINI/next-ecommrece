@@ -98,3 +98,19 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+/* Customize NProgress bar color to red */
+#nprogress .bar {
+  height: 4px !important; /* Increase height to make it thicker (e.g., 3px) */
+}
+
+/* Customize the peg */
+#nprogress .peg {
+  box-shadow: 0 0 10px red, 0 0 5px red;
+}
+
+/* Style for the NProgress container */
+#nprogress {
+  pointer-events: none;
+}
+

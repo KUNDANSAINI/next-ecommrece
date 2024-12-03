@@ -3,9 +3,7 @@ import { fetchUsers } from "@/app/component/Fetch-Api";
 import { cookies } from "next/headers";
 
 async function Users() {
-    const cookieStore = cookies();
-    const token = cookieStore.get("token")?.value;
-    const getUsers = await fetchUsers(token)
+    const getUsers = await fetchUsers()
 
     return ( 
         <>
