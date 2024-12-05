@@ -1,6 +1,5 @@
 'use client'
 
-
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import {
@@ -8,6 +7,7 @@ import {
     SheetContent,
 } from "@/components/ui/sheet"
 import { GlobalContext } from "@/context"
+import { API_URL } from "@/env"
 import axios from "axios"
 import Cookies from "js-cookie"
 import { useRouter } from "next/navigation"
@@ -27,7 +27,7 @@ export function CartSheet({ cartSheetOpen, setCartSheetOpen }) {
 
     async function fetchCartItems(userID) {
         try {
-            const response = await axios.get(`http://localhost:3000/api/cart?userID=${userID}`, {
+            const response = await axios.get(`${API_URL}/api/cart?userID=${userID}`, {
                 headers: {
                     Authorization: `Bearer ${Cookies.get("token")}`
                 }

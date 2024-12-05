@@ -38,7 +38,7 @@ export async function GET(req, { params }) {
         if (!id) {
             return NextResponse.json({ success: false, message: "Invalid ID" })
         }
-        const fetchSingleRecord = await Product.find({ _id: id })
+        const fetchSingleRecord = await Product.findOne({ _id: id })
         if (!fetchSingleRecord) {
             return NextResponse.json({ success: false, message: "Data Not Found!" })
         } else {

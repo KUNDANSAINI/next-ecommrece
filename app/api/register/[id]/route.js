@@ -7,11 +7,6 @@ connectToDB()
 export async function GET(req, { params }) {
     try {
         const id = params.id
-        const authorizationHeader = req.headers.get('authorization');
-        const token = authorizationHeader ? authorizationHeader.split(' ')[1] : null;
-        if (!token) {
-            return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
-        }
         if (!id) {
             return NextResponse.json({ success: false, message: "Invalid ID!" })
         }

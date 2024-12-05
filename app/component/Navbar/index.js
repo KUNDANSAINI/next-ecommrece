@@ -55,9 +55,9 @@ function Navbar() {
                         {
                             isLogin && !user ? (
                                 <>
-                                    <Link href={'/cart'}><Button variant="outline" size="icon"><ShoppingBag /></Button></Link>
-                                    <Link href={'/account'}><Button variant="outline" size="icon"><CircleUserRound /></Button></Link>
-                                    <Button variant="outline" size="icon" onClick={() => { handleLogout() }}><LogOut /></Button>
+                                    <Link href={'/cart'}><Button variant="outline" className=" drop-shadow-lg" size="icon"><ShoppingBag /></Button></Link>
+                                    <Link href={'/account'}><Button variant="outline" className=" drop-shadow-lg" size="icon"><CircleUserRound /></Button></Link>
+                                    <Button variant="outline" size="icon" className=" drop-shadow-lg" onClick={() => { handleLogout() }}><LogOut /></Button>
                                 </>
                             ) : null
                         }

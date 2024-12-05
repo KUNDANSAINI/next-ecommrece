@@ -27,7 +27,6 @@ function AdminLeftbar() {
                     <Link href={'/admin-dashboard/product'}><li className="flex items-center gap-2 py-2 px-4 hover:bg-[#8B8DF6] hover:text-white border-b-2 hover:rounded-full font-semibold"><LibraryBig size={18} />Product</li></Link>
                     <Link href={'/admin-dashboard/brands'}><li className="flex items-center gap-2 py-2 px-4 hover:bg-[#8B8DF6] hover:text-white border-b-2 hover:rounded-full font-semibold"><BadgeCheck size={18} />Brands</li></Link>
                     <Link href={'/admin-dashboard/category'}><li className="flex items-center gap-2 py-2 px-4 hover:bg-[#8B8DF6] hover:text-white border-b-2 hover:rounded-full font-semibold"><Layers size={18} />Category</li></Link>
-                    <Link href={'/admin-dashboard/subcategory'}><li className="flex items-center gap-2 py-2 px-4 hover:bg-[#8B8DF6] hover:text-white border-b-2 hover:rounded-full font-semibold"><Layers2 size={18} />SubCategory</li></Link>
                     <li className="flex items-center gap-2 py-2 px-4 hover:bg-[#8B8DF6] hover:text-white border-b-2 hover:rounded-full font-semibold cursor-pointer"  onClick={() => { handleLogout() }}><LogOut />Logout</li>
                 </ul>
             </div>

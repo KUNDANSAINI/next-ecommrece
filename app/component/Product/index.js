@@ -1,16 +1,5 @@
 'use client'
 
-import AdminLeftbar from "@/app/component/Admin-Leftbar";
-import { Button } from "@/components/ui/button";
-import {
-    Table,
-    TableBody,
-    TableCaption,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table";
 import {
     Dialog,
     DialogContent,
@@ -19,7 +8,7 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import {
     Select,
@@ -29,63 +18,55 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import {
-    HoverCard,
-    HoverCardContent,
-    HoverCardTrigger,
-} from "@/components/ui/hover-card"
 import axios from "axios";
+import { Button } from "@/components/ui/button";
+import { useParams, useRouter } from "next/navigation";
 import { toast } from "react-toastify";
-import { Ellipsis, Trash2 } from "lucide-react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import Cookies from "js-cookie";
-import AdminHeader from "../../AdminHeader";
+import { API_URL } from "@/env";
 
-
-function ProductPage({getProduct,getBrands,getCategory,getSubCategory}) {
-    const [openProductDialog, setOpenProductDialog] = useState(false)
+function ProductDialog({ openProductDialog, setOpenProductDialog, openEditProductDialog, setOpenEditProductDialog, data }) {
+    const params = useParams()
+    const id = params.id
     const [productFormData, setProductFormData] = useState({
-        productName: "",
-        hns: "",
-        category: "",
-        subCategory: "",
-        brand: "",
-        price: 0,
-        discount: 0,
-        warranty: "",
-        delivery: "",
-        offers: "",
-        desc: "",
-        qty: 0,
-        size: []
+        productName: data?.productName || "",
+        hns: data?.hns || "",
+        category: data?.category || "",
+        subCategory: data?.subCategory || "",
+        brand: data?.brand || "",
+        price: data?.price || 0,
+        discount: data?.discount || 0,
+        warranty: data?.warranty || "",
+        delivery: data?.delivery || "",
+        offers: data?.offers || "",
+        desc: data?.desc || "",
+        qty: data?.qty || 0,
+        size: data?.size || []
     })
-    const [image, setImage] = useState(null)
+    const [image, setImage] = useState(data?.filename || null)
+    const [getCategory, setGetCategory] = useState([])
+    const [getBrands, setGetBrands] = useState([])
     const router = useRouter()
 
-    const copyToClipboard = (id) => {
-        navigator.clipboard.writeText(id).then(() => {
-            toast.success('Product ID copied to clipboard!');
-        }).catch(err => {
-            console.error('Failed to copy: ', err);
-        });
-    };
+    useEffect(() => {
+        fetchCategoryData()
+        fetchBrandData()
+    }, [])
 
     const handleCheckboxChange = (event) => {
         const { value, checked } = event.target;
-        
+
         setProductFormData((prevData) => {
             // If checkbox is checked, add the size; otherwise, remove it
             const updatedSizes = checked
                 ? [...prevData.size, value]  // Add size if checked
                 : prevData.size.filter((size) => size !== value);  // Remove size if unchecked
-            
+
             return {
                 ...prevData,
                 size: updatedSizes
             };
         });
-    };    
+    };
 
     async function handleProductFrom() {
         try {
@@ -108,152 +89,108 @@ function ProductPage({getProduct,getBrands,getCategory,getSubCategory}) {
             }
             for (let i = 0; i < image.length; i++) {
                 fdata.append('images', image[i]);
-            }            
-            const response = await axios.post('/api/product', fdata)
+            }
+            const response = id ? await axios.put(`/api/product/${id}`, fdata)
+                : await axios.post('/api/product', fdata)
             if (response.data.success === true) {
-                setOpenProductDialog(false)
-                setProductFormData({
-                    productName: "",
-                    hns: "",
-                    category: "",
-                    subCategory: "",
-                    brand: "",
-                    price: 0,
-                    discount: 0,
-                    warranty: "",
-                    delivery: "",
-                    offers: "",
-                    desc: "",
-                    qty: 0,
-                    size: []
-                })
-                setImage(null)
-                toast.success("Product Successfully Created!")
-                router.refresh()
+                id ? (
+                    setOpenEditProductDialog(false),
+                    toast.success("Product Successfully Updated!"),
+                    router.refresh()
+                )
+                    : (
+                        setOpenProductDialog(false),
+                        setProductFormData({
+                            productName: "",
+                            hns: "",
+                            category: "",
+                            subCategory: "",
+                            brand: "",
+                            price: 0,
+                            discount: 0,
+                            warranty: "",
+                            delivery: "",
+                            offers: "",
+                            desc: "",
+                            qty: 0,
+                            size: []
+                        }),
+                        setImage(null),
+                        toast.success("Product Successfully Created!"),
+                        router.refresh()
+                    )
             }
         } catch (error) {
             toast.error("Something Went Wrong. Please try Again!")
         }
     }
 
-    async function handleProductDelete(id) {
+    async function fetchCategoryData() {
         try {
-            const response = await axios.delete(`/api/product/${id}`,{
-                headers:{
-                    Authorization: `Bearer ${Cookies.get("token")}`
+            const response = await axios.get(`${API_URL}/api/category`, {
+                headers: {
+                    'Cache-Control': 'no-store'
                 }
             })
             if (response.data.success === true) {
-                toast.success("Product Successfully Deleted!")
-                router.refresh()
+                setGetCategory(response.data.getAllCategory)
             } else {
-                toast.error(response.data.message)
+                console.log(response.data.message)
             }
         } catch (error) {
-            toast.error("Something Went Wrong. Please Try Again!")
+            console.log(error)
         }
     }
 
+    async function fetchBrandData() {
+        try {
+            const response = await axios.get(`${API_URL}/api/brand`, {
+                headers: {
+                    'Cache-Control': 'no-store'
+                }
+            })
+            if (response.data.success === true) {
+                setGetBrands(response.data.getAllBrand)
+            } else {
+                console.log(response.data.message)
+            }
+        } catch (error) {
+            console.log(error)
+        }
+    }
 
     return (
         <>
-            <div className="border rounded-3xl mx-12 my-4 h-screen bg-[#F0F1F0] p-4">
-            <AdminHeader />
-                <div className="flex mt-4">
-                    <div className="hidden md:block md:w-1/4 lg:w-1/6">
-                        <AdminLeftbar />
-                    </div>
-                    <div className="flex flex-col w-full mx-4 mt-4">
-                        <div>
-                            <h1 className="text-center text-3xl font-semibold">Product page</h1>
-                            <Button className=" float-end" onClick={() => { setOpenProductDialog(true) }} >Add Product</Button>
-                        </div>
-                        <div className="mt-4">
-                            <Table>
-                                <TableCaption>All Product Data.</TableCaption>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead className="w-[100px]">No.</TableHead>
-                                        <TableHead>Image</TableHead>
-                                        <TableHead>ID</TableHead>
-                                        <TableHead>Product Name</TableHead>
-                                        <TableHead>HNS No.</TableHead>
-                                        <TableHead>Category</TableHead>
-                                        <TableHead>Price</TableHead>
-                                        <TableHead>Brand</TableHead>
-                                        <TableHead>Action</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {
-                                        getProduct && getProduct.length > 0 ? (
-                                            getProduct.map((product, index) => (
-                                                <TableRow key={index}>
-                                                    <TableCell className="font-medium">{index + 1}</TableCell>
-                                                    <TableCell><img src={`/product/${product.filename[0].name}`} alt={product.filename[0].name} className="w-[100px]" /></TableCell>
-                                                    <TableCell>{product._id}</TableCell>
-                                                    <TableCell>{product.productName}</TableCell>
-                                                    <TableCell>{product.hns}</TableCell>
-                                                    <TableCell>{product.category}</TableCell>
-                                                    <TableCell>₹ {product.price}</TableCell>
-                                                    <TableCell>{product.brand}</TableCell>
-                                                    <TableCell>
-                                                        <div className="flex gap-2">
-                                                            <Trash2 size={18} className="cursor-pointer" onClick={() => { handleProductDelete(product._id) }} />
-                                                            <HoverCard>
-                                                                <HoverCardTrigger asChild>
-                                                                    <Ellipsis size={18} className="cursor-pointer" />
-                                                                </HoverCardTrigger>
-                                                                <HoverCardContent className="flex flex-col w-56 mr-20 gap-2">
-                                                                    <Link href={`/admin-dashboard/product/${product._id}`}><h3 className="text-center cursor-pointer">Show Details</h3></Link>
-                                                                    <h3 className="text-center cursor-pointer" onClick={() => { copyToClipboard(product._id) }} >Copy Product ID</h3>
-                                                                </HoverCardContent>
-                                                            </HoverCard>
-                                                        </div>
-                                                    </TableCell>
-                                                </TableRow>
-                                            ))
-                                        ) : (
-                                            <TableRow>
-                                                <TableCell colSpan={6}>No Product Found</TableCell>
-                                            </TableRow>
-                                        )
-                                    }
-                                </TableBody>
-                            </Table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-
-            {/* Dialog Start */}
-
             <Dialog
-                open={openProductDialog}
+                open={
+                    id ? openEditProductDialog : openProductDialog
+                }
                 onOpenChange={() => {
-                    setOpenProductDialog(false)
-                    setProductFormData({
-                        productName: "",
-                        hns: "",
-                        category: "",
-                        subCategory: "",
-                        brand: "",
-                        price: 0,
-                        discount: 0,
-                        warranty: "",
-                        delivery: "",
-                        offers: "",
-                        desc: "",
-                        qty: 0,
-                        size: []
-                    })
-                    setImage(null)
+                    id ? setOpenEditProductDialog(false)
+                        : (
+                            setOpenProductDialog(false),
+                            setProductFormData({
+                                productName: "",
+                                hns: "",
+                                category: "",
+                                subCategory: "",
+                                brand: "",
+                                price: 0,
+                                discount: 0,
+                                warranty: "",
+                                delivery: "",
+                                offers: "",
+                                desc: "",
+                                qty: 0,
+                                size: []
+                            }),
+                            setImage(null)
+                        )
                 }}
             >
                 <DialogContent className="max-w-[800px]">
                     <DialogHeader>
-                        <DialogTitle>Add Product</DialogTitle>
+                        <DialogTitle>{id ? "Edit Product" : "Add Product"}</DialogTitle>
                     </DialogHeader>
                     <form className="h-[400px] md:h-auto overflow-y-scroll md:overflow-hidden px-2" action={handleProductFrom}>
                         <div className="grid md:grid-cols-2 gap-2">
@@ -332,19 +269,11 @@ function ProductPage({getProduct,getBrands,getCategory,getSubCategory}) {
                                         <SelectValue placeholder="Select a SubCategory" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        {
-                                            getSubCategory && getSubCategory.length > 0 ? (
-                                                getSubCategory.map((subCategory, index) => (
-                                                    <SelectGroup key={index} >
-                                                        <SelectItem value={subCategory.subCategory}>{subCategory.subCategory}</SelectItem>
-                                                    </SelectGroup>
-                                                ))
-                                            ) : (
-                                                <SelectGroup>
-                                                    <SelectItem>SubCategory Not Found</SelectItem>
-                                                </SelectGroup>
-                                            )
-                                        }
+                                        <SelectGroup>
+                                            <SelectItem value="Men">Men</SelectItem>
+                                            <SelectItem value="Women">Women</SelectItem>
+                                            <SelectItem value="Kids">Kids</SelectItem>
+                                        </SelectGroup>
                                     </SelectContent>
                                 </Select>
                             </div>
@@ -530,9 +459,9 @@ function ProductPage({getProduct,getBrands,getCategory,getSubCategory}) {
                         <Button type="submit" className='mt-2'>Save</Button>
                     </form>
                 </DialogContent>
-            </Dialog>
+            </Dialog >
         </>
     );
 }
 
-export default ProductPage;
+export default ProductDialog;
