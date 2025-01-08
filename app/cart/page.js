@@ -10,7 +10,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
-import { Minus, Plus } from "lucide-react";
+import { IndianRupee, Minus, Plus } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { API_URL } from "@/env";
 
@@ -50,7 +50,10 @@ function Cart() {
             }
             const response = await axios.delete(`/api/cart/${id}`)
             if (response.data.success === true) {
-                router.refresh()
+                const filterData = cartItems.filter((value)=>{
+                    return value._id !== id
+                })
+                setCartItems(filterData)
                 toast.success("Item Successfully Remove")
             }
         } catch (error) {
@@ -71,13 +74,13 @@ function Cart() {
         <>
             {
                 cartItems ? (
-                    <div className="border rounded-3xl mx-12 my-4 bg-[#F0F1F0] px-4 py-8">
+                    <div className="border flex flex-col justify-between rounded-3xl h-full mx-12 my-4 bg-[#F0F1F0] px-4 py-8">
                         <Navbar />
-                        <div className="flex flex-col items-center mt-4">
+                        <div className="flex flex-col items-center gap-4">
                             {
                                 cartItems && cartItems.length > 0 ? (
                                     cartItems.map((item, index) => (
-                                        <Card className="w-1/2 p-4 bg-slate-50 border-none" key={index}>
+                                        <Card className="w-1/2 p-4 bg-slate-50 mt-4 border-none" key={index}>
                                             <div className="flex w-full flex-col sm:flex-row gap-2 sm:gap-4">
                                                 <div className="flex flex-col gap-4 justify-center">
                                                     {
@@ -90,7 +93,7 @@ function Cart() {
                                                 <div className="flex w-full flex-col gap-2">
                                                     <h2 className="my-4 text-lg">{item.productID.productName}</h2>
                                                     <p className="text-gray-600">Brand: {item.productID.brand}</p>
-                                                    <p className="text-gray-600">Price: {item.productID.price}</p>
+                                                    <p className="text-gray-600 flex items-center"><span className="mr-2">Price:</span> <IndianRupee size={15} className="mb-0.5" />{item.productID.price}</p>
                                                     <p className="text-gray-600 flex items-center">Quentity: <Button variant="outline" size="icon" className="mx-4" onClick={() => { handleDercrment(item.qty) }}><Minus /></Button>{item.qty}<Button variant="outline" size="icon" className="ml-4" onClick={() => { handleIncrement(item.qty) }}><Plus /></Button></p>
                                                     <div className="flex w-full gap-4 mt-2">
                                                         <Button variant="destructive" className="w-1/2" onClick={() => { handleRemoveItem(item._id) }}>Remove Item</Button>
@@ -107,7 +110,28 @@ function Cart() {
                                     </>
                                 )
                             }
+
+                            {
+                                cartItems && cartItems.length > 0 ? (
+                                    <>
+                                        <div className="w-1/2 flex justify-between px-4">
+                                            <p className="font-semibold text-lg">Total Amount</p>
+                                            <p className="flex items-center gap-0.5"><IndianRupee size={15} className="mb-0.5" />
+                                                {
+                                                    cartItems && cartItems.length > 0 ? (
+                                                        cartItems.reduce((total, item) =>
+                                                            item.productID.price + total, 0
+                                                        )
+                                                    ) : "0"
+                                                }
+                                            </p>
+                                        </div>
+                                        <Button onClick={()=>{router.push('/checkout')}} className="w-1/2">Checkout</Button>
+                                    </>
+                                ) : null
+                            }
                         </div>
+
                         <Footer />
                     </div>
                 ) : (

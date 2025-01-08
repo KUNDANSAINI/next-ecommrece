@@ -1,6 +1,6 @@
 'use client'
 
-import { AlignRight, CircleUserRound, LogOut, ShoppingBag, Vegan } from "lucide-react";
+import { AlignRight, CircleUserRound, LogOut, ShoppingBag, Truck, Vegan } from "lucide-react";
 import { useContext, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -37,7 +37,7 @@ function Navbar() {
                 <div className="w-full flex flex-wrap items-center justify-around">
                     {/* Logo Image */}
                     <span className="flex items-center gap-2 cursor-pointer" onClick={()=> router.push('/')} >
-                        <Vegan className="bg-white rounded-full p-2 shadow-lg" size={40} /><span className="drop-shadow-lg" style={{ fontFamily: 'Rubik Glitch, sans-serif' }}>BAZZKIT PRO</span>
+                        <Button variant="outline" size="icon" className=" drop-shadow-lg"><Vegan /></Button><span className="hidden md:block drop-shadow-lg" style={{ fontFamily: 'Rubik Glitch, sans-serif' }}>BAZZKIT PRO</span>
                     </span>
 
                     {/* Navbar items */}
@@ -55,6 +55,7 @@ function Navbar() {
                         {
                             isLogin && !user ? (
                                 <>
+                                    <Link href={'/order'}><Button variant="outline" className=" drop-shadow-lg" size="icon"><Truck /></Button></Link>
                                     <Link href={'/cart'}><Button variant="outline" className=" drop-shadow-lg" size="icon"><ShoppingBag /></Button></Link>
                                     <Link href={'/account'}><Button variant="outline" className=" drop-shadow-lg" size="icon"><CircleUserRound /></Button></Link>
                                     <Button variant="outline" size="icon" className=" drop-shadow-lg" onClick={() => { handleLogout() }}><LogOut /></Button>
@@ -68,7 +69,7 @@ function Navbar() {
                         }
                     </div>
 
-                    <AlignRight onClick={() => { setOpenNavbar(!openNavbar) }} className="lg:hidden cursor-pointer" />
+                    <Button variant="outline" size="icon" className=" drop-shadow-lg lg:hidden" onClick={() => { setOpenNavbar(!openNavbar) }} ><AlignRight /></Button>
                 </div>
             </nav>
 

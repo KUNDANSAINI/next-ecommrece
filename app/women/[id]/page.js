@@ -38,13 +38,11 @@ function WomensProduct() {
             })
             if (response.data.success === true) {
                 setGetProduct(response.data.fetchSingleRecord)
-            } else {
-                setLoading(false)
-                toast.error("Something Went Wrong. Please Try Again.")
             }
         } catch (error) {
-            setLoading(false)
             console.log("Product Fetching Error:", error);
+        }finally{
+            setLoading(false)
         }
     }
 

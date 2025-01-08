@@ -16,7 +16,9 @@ export async function middleware(request) {
         try {
             const secretKey = new TextEncoder().encode("next-ecommrece");
             
-            await jwtVerify(token.value, secretKey);
+            await jwtVerify(token.value, secretKey,{
+                algorithms: ['HS512'],
+            });
 
             if (isPublicPath) {
                 return NextResponse.next();
@@ -39,5 +41,7 @@ export const config = {
         "/register",
         "/account",
         "/cart",
+        "/checkout",
+        "/order",
     ],
 };

@@ -26,7 +26,7 @@ function Login() {
             if (response.data.success === true) {
                 setIsLogin(true)
                 setUser(response.data.user.role)
-                Cookies.set("token", response.data.token)
+                Cookies.set("token", response.data.token,{expires: 1/24 })
                 localStorage.setItem("user", JSON.stringify(response.data.user))
                 if(response.data.user.role === true){
                     router.push('/admin-dashboard')

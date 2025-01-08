@@ -1,8 +1,8 @@
-// import crypto from 'crypto';
-const crypto = require('crypto');
-const { ENCRYPTION_KEY } = require('../config/env');
+import crypto from 'crypto';
+const { ENCRYPTION_KEY } = require('@/env');
 
-function encryptPayload(payload) {
+
+export function encryptPayload(payload) {
   const iv = crypto.randomBytes(16);
   const keyBuffer = Buffer.from(ENCRYPTION_KEY, 'hex');
   const cipher = crypto.createCipheriv('aes-256-gcm', keyBuffer, iv);
@@ -13,7 +13,7 @@ function encryptPayload(payload) {
 }
 
 // Decrypt the payload after verifying the JWT
-function decryptPayload(encryptedPayload) {
+export function decryptPayload(encryptedPayload) {
   const parts = encryptedPayload.split(':');
   const iv = Buffer.from(parts.shift(), 'hex');
   const encrypted = parts.shift();
@@ -26,4 +26,4 @@ function decryptPayload(encryptedPayload) {
   return JSON.parse(decrypted);
 }
 
-module.exports = { encryptPayload, decryptPayload };
+

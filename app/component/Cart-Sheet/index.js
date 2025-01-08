@@ -10,6 +10,7 @@ import { GlobalContext } from "@/context"
 import { API_URL } from "@/env"
 import axios from "axios"
 import Cookies from "js-cookie"
+import { ArrowRight, IndianRupee } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useContext, useEffect, useState } from "react"
 import { toast } from "react-toastify"
@@ -20,7 +21,7 @@ export function CartSheet({ cartSheetOpen, setCartSheetOpen }) {
     const router = useRouter()
 
     useEffect(() => {
-        if (userID) {
+        if (userID || cartSheetOpen === true) {
             fetchCartItems(userID)
         }
     }, [cartSheetOpen])
@@ -72,6 +73,7 @@ export function CartSheet({ cartSheetOpen, setCartSheetOpen }) {
                                     </div>
                                     <div>
                                         <h2>{item.productID.productName}</h2>
+                                        <p className="flex items-center mt-2"><IndianRupee size={13} className="mb-0.5" />{item.productID.price}</p>
                                         <Button variant="link" className="p-0 text-red-600" onClick={()=>{handleRemoveItem(item._id)}}>Remove</Button>
                                     </div>
                                 </Card>
@@ -80,8 +82,21 @@ export function CartSheet({ cartSheetOpen, setCartSheetOpen }) {
                     }
                 </div>
                 <div className="flex flex-col gap-4">
+                    <div className="flex justify-between items-center px-2">
+                        <p className="font-semibold">Total Price</p>
+                        <p className="text-sm flex gap-0.5 items-center"><IndianRupee size={13} className="mb-0.5" />
+                            {
+                                cartItems && cartItems.length > 0 ? (
+                                    cartItems.reduce((total,item)=>
+                                        item.productID.price + total,0
+                                    )
+                                ) : "0"
+                            }
+                        </p>
+                    </div>
                     <Button onClick={()=> router.push('/cart') }>Go To Cart</Button>
-                    <Button>ChackOut</Button>
+                    <Button onClick={()=>{router.push('/checkout')}}>ChackOut</Button>
+                    <Button className="flex gap-2" onClick={()=>{setCartSheetOpen(false)}}>Continue<ArrowRight /></Button>
                 </div>
             </SheetContent>
         </Sheet>

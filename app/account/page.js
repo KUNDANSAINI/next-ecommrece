@@ -117,9 +117,9 @@ function Account() {
                 toast.error(response.data.message)
             }
         } catch (error) {
+            setOpen(false)
             console.error(error)
             toast.error("Submitted Failed!")
-            redirect('/account')
         }
     }
 
