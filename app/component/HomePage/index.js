@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/carousel"
 import Footer from "../Footer";
 import { CartSheet } from "../Cart-Sheet";
+import Link from "next/link";
 
 export default function HomePage({ getBrands, getCategory, getProduct }) {
     const [cartSheetOpen, setCartSheetOpen] = useState(false)
@@ -45,7 +46,7 @@ export default function HomePage({ getBrands, getCategory, getProduct }) {
                 }
             })
             if (response.data.success === true) {
-                toast.success("Product Successfully Added In Cart")
+                toast.success(response.data.message)
                 setCartSheetOpen(true)
             } else {
                 toast.error(response.data.message)
@@ -67,11 +68,13 @@ export default function HomePage({ getBrands, getCategory, getProduct }) {
                 <meta name="keywords" content="home, website, SEO" />
             </Head>
 
-            <div className="rounded-3xl mx-4 md:mx-12 my-4 bg-[#F0F1F0] py-8">
+            <div className="mx-4 mt-10">
                 <Navbar />
                 <CartSheet cartSheetOpen={cartSheetOpen} setCartSheetOpen={setCartSheetOpen} />
                 <div className="flex flex-col mt-8">
-                    <div className="hidden md:block h-[700px]">
+
+                    {/* Banner Section */}
+                    <div className="h-[200px] md:h-[700px]">
                         <Carousel
                             plugins={[plugin.current]}
                             className="w-full"
@@ -80,7 +83,7 @@ export default function HomePage({ getBrands, getCategory, getProduct }) {
                                 {imageArray.map((image, index) => (
                                     <CarouselItem key={index}>
                                         <div>
-                                            <img src={image.src} alt={image.alt} className="w-full h-[700px] object-cover object-center" />
+                                            <img src={image.src} alt={image.alt} className="w-full h-[200px] md:h-[700px] object-cover object-center" />
                                         </div>
                                     </CarouselItem>
                                 ))}
@@ -91,15 +94,15 @@ export default function HomePage({ getBrands, getCategory, getProduct }) {
                     </div>
 
                     {/* Category Section */}
-                    <div className="w-full md:w-3/4 mx-auto mt-10">
+                    <div className="w-full md:w-3/4 mx-auto mt-10 px-4 md:px-0">
                         <h2 className="font-semibold mb-2">Category</h2>
-                        <div className="flex gap-10 overflow-x-scroll">
+                        <div className="flex gap-10 overflow-x-scroll md:overflow-hidden">
                             {
                                 getCategory && getCategory.length > 0 ? (
                                     getCategory.map((category, index) => (
                                         <div className="flex flex-col items-center gap-2 cursor-pointer" key={index}>
-                                            <div className="w-14 border rounded-full p-3">
-                                                <img src={`/category/${category.filename}`} alt={category.filename} />
+                                            <div className="w-14 border rounded-full p-3 bg-white">
+                                                <img src={category.filename} alt={category.filename} className="object-cover" />
                                             </div>
                                             <h2>{category.category}</h2>
                                         </div>
@@ -110,7 +113,7 @@ export default function HomePage({ getBrands, getCategory, getProduct }) {
                     </div>
 
                     {/* Product Card */}
-                    <div className="w-full md:w-3/4 mx-auto mt-10 md:mt-20">
+                    <div className="w-full md:w-3/4 mx-auto mt-10 md:mt-20 px-4 md:px-0">
                         <h6 className="text-[#D6AB87]" >PRODUCT</h6>
                         <div className="hidden sm:flex my-8">
                             <div className="w-4/6">
@@ -125,18 +128,18 @@ export default function HomePage({ getBrands, getCategory, getProduct }) {
                             {getProduct && getProduct.length > 0 ? (
                                 getProduct.slice(0, itemsToShow).map((product, index) => (
                                     <div className="flex flex-col sm:flex-row gap-2 border rounded-2xl p-4 sm:gap-4" key={index}>
-                                        <div className="flex items-center justify-center">
-                                            <img src={`/product/${product.filename[0].name}`} alt={product.filename[0].name} className="w-52 md:w-72" />
-                                        </div>
+                                        <Link href={`/shop/${product._id}`} className="flex items-center justify-center w-[208px] md:w-[288px] overflow-hidden">
+                                            <img src={product.filename[0].name} alt={product.filename[0].name} className="object-cover rounded-lg" />
+                                        </Link>
                                         <div className="flex flex-col w-full gap-2">
-                                            <h2 className="my-4 text-lg">{product.productName}</h2>
+                                            <Link href={`/shop/${product._id}`}><h2 className="my-4 text-lg">{product.productName}</h2></Link>
                                             <p className="text-gray-600">{product.brand}</p>
                                             <p className="text-gray-600 flex items-center gap-0.5">
                                                 Price: <IndianRupee size={15} className="mb-0.5" />{product.price} <span className="text-green-600 text-sm italic">{product.discount}% off</span>
                                             </p>
                                             <p className="text-gray-600">Type: {product.category}</p>
-                                            <Button onClick={() => handleCart(product)}>Add To Cart</Button>
-                                            <Button>Buy Now</Button>
+                                            <Button variant="outline" onClick={() => handleCart(product)}>Add To Cart</Button>
+                                            <Button variant="outline" >Buy Now</Button>
                                         </div>
                                     </div>
                                 ))
@@ -152,31 +155,33 @@ export default function HomePage({ getBrands, getCategory, getProduct }) {
                     </div>
 
                     {/* Brand Section */}
-                    <div className="border-t-2 border-b-2 my-10 overflow-hidden">
-                        <ul className="flex justify-center items-center gap-10">
+                    <div className="border-t-2 border-b-2 my-10 overflow-hidden ">
+                        <ul className="flex justify-center items-center gap-10 animate-scroll">
                             {
                                 getBrands && getBrands.length > 0 ? (
-                                    getBrands.map((brand, index) => (
-                                        <li className="min-w-40 animate-scroll" key={index}>
-                                            <img src={`/brand/${brand.filename}`} alt={brand.filename} className="w-40 p-8" />
+                                    [...getBrands, ...getBrands, ...getBrands, ...getBrands, ...getBrands, ...getBrands, ...getBrands, ...getBrands].map((brand, index) => (
+                                        <li className="min-w-32 p-8" key={index}>
+                                            <img src={brand.filename} alt={brand.filename} className="object-cover" />
                                         </li>
                                     ))
                                 ) : null
                             }
                         </ul>
                         <style jsx>{`
-                @keyframes scroll {
-                  0% {
-                    transform: translateX(1000%);
-                  }
-                  100% {
-                    transform: translateX(-100%);
-                  }
-                }
-              .animate-scroll {
-                animation: scroll 10s linear infinite;
-              }
-            `}</style>
+                            @keyframes scroll {
+                                from {
+                                    transform: translateX(100%);
+                                }
+                                to {
+                                    transform: translateX(-100%);
+                                }
+                            }
+                            .animate-scroll {
+                                display: flex;
+                                animation: scroll 20s linear infinite;
+                                will-change: transform;
+                            }
+                        `}</style>
                     </div>
 
                 </div>

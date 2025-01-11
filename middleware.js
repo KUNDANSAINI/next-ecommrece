@@ -1,5 +1,6 @@
 import { jwtVerify } from 'jose';
 import { NextResponse } from 'next/server';
+import Cookies from 'js-cookie';
 
 export async function middleware(request) {
     const path=request.nextUrl.pathname
@@ -26,6 +27,7 @@ export async function middleware(request) {
 
             return NextResponse.next();
         } catch (error) {
+            Cookies.remove("token")
             return NextResponse.redirect(new URL('/login', request.url));
         }
     }

@@ -128,10 +128,10 @@ function Account() {
             {
                 getUser !== null ? (
                     <>
-                        <div className="border rounded-3xl mx-12 my-4 bg-[#F0F1F0] px-4 py-8">
+                        <div className="mx-4 mt-10">
                             <Navbar />
 
-                            <div className="flex p-4 border-b">
+                            <div className="flex p-4 border-b mt-8">
                                 <div className="w-3/4 mx-auto">
 
                                     <div className="flex items-center justify-between space-x-4 p-6 border-b">

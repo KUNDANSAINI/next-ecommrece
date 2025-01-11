@@ -1,32 +1,23 @@
 import Brand from "@/models/brand";
-import { writeFile } from "fs/promises";
 import { NextResponse } from "next/server";
-import path from "path"
 
 export const dynamic = "force/dynamic"
 
 
 export async function POST(req) {
     try {
-        const data = await req.formData()
-        const brand = data.get("brand")
-        const desc = data.get("desc")
-        const image = data.get("image")
-        if (!brand || !image) {
-            return NextResponse.json({ success: false, message: "All Field Are Required!" })
+        const data = await req.json()
+        const { brand, filename} = data
+        if (!brand || !filename) {
+            return NextResponse.json({ success: false, message: "Name and Image Are Required!" })
         }
-        const byteLength = await image.arrayBuffer()
-        const bufferData = Buffer.from(byteLength)
-        const filename = `${new Date().getTime()}${path.extname(image.name)}`;
-        const pathOfImage = path.join(process.cwd(), "./public/brand", filename)
 
-        const newRecord = await Brand.create({ brand, desc, filename })
-        if (newRecord) {
-            await writeFile(pathOfImage, bufferData)
-            return NextResponse.json({ success: true, newRecord })
-        } else {
+        const newRecord = await Brand.create(data)
+        if (!newRecord) {
             return NextResponse.json({ success: false, message: "Something Went Wrong. Please Try Again!" })
         }
+
+        return NextResponse.json({ success: true, message:"New Brand Successfully Added!" })
     } catch (error) {
         console.log(error);
         return NextResponse.json({ success: false, message: "Bad Request!" })

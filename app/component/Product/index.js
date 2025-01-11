@@ -1,126 +1,116 @@
 'use client'
 
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-} from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { useEffect, useState } from "react";
-import { Textarea } from "@/components/ui/textarea";
-import {
-    Select,
-    SelectContent,
-    SelectGroup,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select"
 import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { useParams, useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { API_URL } from "@/env";
+import AdminHeader from "../../../components/admin/AdminHeader";
+import AdminLeftbar from "../../../components/admin/Admin-Leftbar";
+import Tiptap from "../Tiptap/Tiptap";
+import { IconX } from "@tabler/icons-react";
 
-function ProductDialog({ openProductDialog, setOpenProductDialog, openEditProductDialog, setOpenEditProductDialog, data }) {
-    const params = useParams()
-    const id = params.id
+function Product({ data, id }) {
     const [productFormData, setProductFormData] = useState({
         productName: data?.productName || "",
         hns: data?.hns || "",
         category: data?.category || "",
         subCategory: data?.subCategory || "",
         brand: data?.brand || "",
-        price: data?.price || 0,
-        discount: data?.discount || 0,
-        warranty: data?.warranty || "",
-        delivery: data?.delivery || "",
-        offers: data?.offers || "",
-        desc: data?.desc || "",
-        qty: data?.qty || 0,
-        size: data?.size || []
+        price: data?.price || null,
+        discount: data?.discount || '',
+        qty: data?.qty || null,
     })
-    const [image, setImage] = useState(data?.filename || null)
+    const [desc, setDesc] = useState(data?.desc || "")
+    const [addSize, setAddSize] = useState("")
+    const [size, setSize] = useState(data?.size || [])
+    const [offers, setOffers] = useState(data?.offers || "")
+    const [warranty, setWarranty] = useState(data?.warranty || "")
+    const [delivery, setDelivery] = useState(data?.delivery || "")
+    const [image, setImage] = useState(data?.filename || [])
+    const [images, setImages] = useState([])
+    const [filename, setFilename] = useState(data?.filename || [])
     const [getCategory, setGetCategory] = useState([])
     const [getBrands, setGetBrands] = useState([])
     const router = useRouter()
+
+    function handleAddClick(e) {
+        e.preventDefault()
+        if (addSize.trim() !== '') {
+            setSize([...size, addSize]);
+            setAddSize('');
+        }
+    }    
+
+    function handleRemoveSize(value) {
+        const removeSize = size.filter((size) => size !== value)
+        setSize(removeSize)
+    }
+
+    async function upload(e) {
+        e.preventDefault()
+        try {
+            if (!images.length) {
+                toast.error("Pelase Select A Image")
+            }
+            const fdata = new FormData()
+            for (let i = 0; i < images.length; i++) {
+                fdata.append('images', images[i]);
+            }
+
+            const response = await axios.post('/api/upload-product-image', fdata)
+            if (response.data.success === true) {
+                const filesArray = response.data.imageData
+                for(let file of filesArray){
+                    filename.push(file)
+                }
+                setImage([])
+                setImages([])
+                toast.success(response.data.message)
+            } else {
+                toast.error(response.data.message)
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    const handleRemovePreview = (index) => {
+        setImage((prev) => prev.filter((_, i) => i !== index));
+        setFilename((prev) => prev.filter((_, i) => i !== index));
+    };
+
+    const uploadImages = (e) => {
+        const filesArray = e.target.files
+        if (filesArray) {
+            setImages(filesArray)
+            const files = Array.from(filesArray);
+            const imageUrls = files.map((file) => URL.createObjectURL(file));
+            setImage((prev) => [...prev, ...imageUrls]);
+        }
+    };
 
     useEffect(() => {
         fetchCategoryData()
         fetchBrandData()
     }, [])
 
-    const handleCheckboxChange = (event) => {
-        const { value, checked } = event.target;
-
-        setProductFormData((prevData) => {
-            // If checkbox is checked, add the size; otherwise, remove it
-            const updatedSizes = checked
-                ? [...prevData.size, value]  // Add size if checked
-                : prevData.size.filter((size) => size !== value);  // Remove size if unchecked
-
-            return {
-                ...prevData,
-                size: updatedSizes
-            };
-        });
-    };
-
-    async function handleProductFrom() {
+    async function handleProductFrom(e) {
+        e.preventDefault()
         try {
-            const { productName, hns, category, subCategory, brand, price, discount, warranty, delivery, offers, desc, qty, size } = productFormData
-            const fdata = new FormData()
-            fdata.append("productName", productName)
-            fdata.append("hns", hns)
-            fdata.append("category", category)
-            fdata.append("subCategory", subCategory)
-            fdata.append("brand", brand)
-            fdata.append("price", price)
-            fdata.append("discount", discount)
-            fdata.append("warranty", warranty)
-            fdata.append("delivery", delivery)
-            fdata.append("offers", offers)
-            fdata.append("desc", desc)
-            fdata.append("qty", qty)
-            for (let i = 0; i < size.length; i++) {
-                fdata.append('size', size[i]);
-            }
-            for (let i = 0; i < image.length; i++) {
-                fdata.append('images', image[i]);
-            }
-            const response = id ? await axios.put(`/api/product/${id}`, fdata)
-                : await axios.post('/api/product', fdata)
+            const { productName, hns, category, subCategory, brand, price, discount, qty } = productFormData
+            const data = { productName, hns, category, subCategory, brand, price, discount, qty, filename, desc, offers, warranty, delivery, size }
+            const response = id ? await axios.put(`/api/product/${id}`, data)
+                : await axios.post('/api/product', data)
+
             if (response.data.success === true) {
-                id ? (
-                    setOpenEditProductDialog(false),
-                    toast.success("Product Successfully Updated!"),
-                    router.refresh()
-                )
-                    : (
-                        setOpenProductDialog(false),
-                        setProductFormData({
-                            productName: "",
-                            hns: "",
-                            category: "",
-                            subCategory: "",
-                            brand: "",
-                            price: 0,
-                            discount: 0,
-                            warranty: "",
-                            delivery: "",
-                            offers: "",
-                            desc: "",
-                            qty: 0,
-                            size: []
-                        }),
-                        setImage(null),
-                        toast.success("Product Successfully Created!"),
-                        router.refresh()
-                    )
+                router.push('/admin-dashboard/product')
+                toast.success(response.data.message)
             }
         } catch (error) {
+            console.log("Product Submit Error:", error);
             toast.error("Something Went Wrong. Please try Again!")
         }
     }
@@ -161,307 +151,266 @@ function ProductDialog({ openProductDialog, setOpenProductDialog, openEditProduc
 
     return (
         <>
-            <Dialog
-                open={
-                    id ? openEditProductDialog : openProductDialog
-                }
-                onOpenChange={() => {
-                    id ? setOpenEditProductDialog(false)
-                        : (
-                            setOpenProductDialog(false),
-                            setProductFormData({
-                                productName: "",
-                                hns: "",
-                                category: "",
-                                subCategory: "",
-                                brand: "",
-                                price: 0,
-                                discount: 0,
-                                warranty: "",
-                                delivery: "",
-                                offers: "",
-                                desc: "",
-                                qty: 0,
-                                size: []
-                            }),
-                            setImage(null)
-                        )
-                }}
-            >
-                <DialogContent className="max-w-[800px]">
-                    <DialogHeader>
-                        <DialogTitle>{id ? "Edit Product" : "Add Product"}</DialogTitle>
-                    </DialogHeader>
-                    <form className="h-[400px] md:h-auto overflow-y-scroll md:overflow-hidden px-2" action={handleProductFrom}>
-                        <div className="grid md:grid-cols-2 gap-2">
-                            <div>
-                                <Label>Name</Label>
-                                <Input
-                                    type="text"
-                                    value={productFormData.productName}
-                                    onChange={(e) => {
-                                        setProductFormData({
-                                            ...productFormData,
-                                            productName: e.target.value
-                                        })
-                                    }}
-                                />
+            <div className="mt-10 mx-4">
+                <AdminHeader />
+                <div className="flex mt-8">
+                    <div className="hidden md:block md:w-1/4 lg:w-1/6">
+                        <AdminLeftbar />
+                    </div>
+                    <div className="w-full px-4">
+                        <h1 className="text-center text-2xl font-bold">
+                            {
+                                id ? "EDIT PRODUCT" : "ADD PRODUCT"
+                            }
+                        </h1>
+                        <form className="mt-4">
+                            {/* Product And HNS Code Input  */}
+                            <div className="grid md:grid-cols-2 gap-4">
+                                <div>
+                                    <Input
+                                        type="text"
+                                        placeholder="Enter Product Name"
+                                        value={productFormData.productName}
+                                        onChange={(e) => {
+                                            setProductFormData({
+                                                ...productFormData,
+                                                productName: e.target.value
+                                            })
+                                        }}
+                                    />
+                                </div>
+                                <div>
+                                    <Input
+                                        type="text"
+                                        placeholder="Enter HNS Code"
+                                        value={productFormData.hns}
+                                        onChange={(e) => {
+                                            setProductFormData({
+                                                ...productFormData,
+                                                hns: e.target.value
+                                            })
+                                        }}
+                                    />
+                                </div>
                             </div>
-                            <div>
-                                <Label>Product Code</Label>
-                                <Input
-                                    type="text"
-                                    value={productFormData.hns}
-                                    onChange={(e) => {
-                                        setProductFormData({
-                                            ...productFormData,
-                                            hns: e.target.value
-                                        })
-                                    }}
-                                />
-                            </div>
-                        </div>
 
-                        <div className="grid md:grid-cols-2 gap-4">
-                            <div>
-                                <Label>Category</Label>
-                                <Select
-                                    value={productFormData.category}
-                                    onValueChange={(value) => {
-                                        setProductFormData((prevData) => ({
-                                            ...prevData,
-                                            category: value,
-                                        }));
-                                    }}
-                                >
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select a Category" />
-                                    </SelectTrigger>
-                                    <SelectContent>
+                            {/* category and subCategory Input */}
+                            <div className="grid md:grid-cols-2 gap-4 mt-4">
+                                <div>
+                                    <select
+                                        value={productFormData.category}
+                                        onChange={(e) => {
+                                            setProductFormData((prevData) => ({
+                                                ...prevData,
+                                                category: e.target.value,
+                                            }));
+                                        }}
+                                        className="border h-10 rounded-md w-full px-2 text-sm"
+                                    >
+                                        <option value="">Select Category</option>
                                         {
                                             getCategory && getCategory.length > 0 ? (
                                                 getCategory.map((category, index) => (
-                                                    <SelectGroup key={index} >
-                                                        <SelectItem value={category.category}>{category.category}</SelectItem>
-                                                    </SelectGroup>
+                                                    <option value={category.category} key={index}>{category.category}</option>
                                                 ))
-                                            ) : (
-                                                <SelectGroup>
-                                                    <SelectItem>Category Not Found</SelectItem>
-                                                </SelectGroup>
-                                            )
+                                            ) : null
                                         }
-                                    </SelectContent>
-                                </Select>
+                                    </select>
+                                </div>
+                                <div>
+                                    <select
+                                        value={productFormData.subCategory}
+                                        onChange={(e) => {
+                                            setProductFormData((prevData) => ({
+                                                ...prevData,
+                                                subCategory: e.target.value,
+                                            }));
+                                        }}
+                                        className="border h-10 rounded-md w-full px-2 text-sm"
+                                    >
+                                        <option value="">Select SubCategory</option>
+                                        <option value="Men">Men</option>
+                                        <option value="Women">Women</option>
+                                        <option value="Kids">Kids</option>
+                                    </select>
+                                </div>
                             </div>
-                            <div>
-                                <Label>Sub Category</Label>
-                                <Select
-                                    value={productFormData.subCategory}
-                                    onValueChange={(value) => {
-                                        setProductFormData((prevData) => ({
-                                            ...prevData,
-                                            subCategory: value,
-                                        }));
-                                    }}
-                                >
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select a SubCategory" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectGroup>
-                                            <SelectItem value="Men">Men</SelectItem>
-                                            <SelectItem value="Women">Women</SelectItem>
-                                            <SelectItem value="Kids">Kids</SelectItem>
-                                        </SelectGroup>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                        </div>
 
-                        <div className="grid md:grid-cols-2 gap-4">
-                            <div>
-                                <Label>Price</Label>
-                                <Input
-                                    type="number"
-                                    value={productFormData.price}
-                                    onChange={(e) => {
-                                        setProductFormData({
-                                            ...productFormData,
-                                            price: e.target.value
-                                        })
-                                    }}
-                                />
-                            </div>
-                            <div>
-                                <Label>Brand</Label>
-                                <Select
-                                    value={productFormData.brand}
-                                    onValueChange={(value) => {
-                                        setProductFormData((prevData) => ({
-                                            ...prevData,
-                                            brand: value,
-                                        }));
-                                    }}
-                                >
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select a Brand" />
-                                    </SelectTrigger>
-                                    <SelectContent>
+                            {/* Price And brand Input */}
+                            <div className="grid md:grid-cols-2 gap-4 mt-4">
+                                <div>
+                                    <Input
+                                        type="number"
+                                        placeholder="Enter Price"
+                                        value={productFormData.price}
+                                        onChange={(e) => {
+                                            setProductFormData({
+                                                ...productFormData,
+                                                price: e.target.value
+                                            })
+                                        }}
+                                    />
+                                </div>
+                                <div>
+                                    <select
+                                        value={productFormData.brand}
+                                        onChange={(e) => {
+                                            setProductFormData((prevData) => ({
+                                                ...prevData,
+                                                brand: e.target.value,
+                                            }));
+                                        }}
+                                        className="border h-10 rounded-md w-full px-2 text-sm"
+                                    >
+                                        <option value="">Select Brand</option>
                                         {
                                             getBrands && getBrands.length > 0 ? (
                                                 getBrands.map((brand, index) => (
-                                                    <SelectGroup key={index} >
-                                                        <SelectItem value={brand.brand}>{brand.brand}</SelectItem>
-                                                    </SelectGroup>
+                                                    <option value={brand.brand} key={index}>{brand.brand}</option>
                                                 ))
-                                            ) : (
-                                                <SelectGroup>
-                                                    <SelectItem>Brand Not Found</SelectItem>
-                                                </SelectGroup>
-                                            )
+                                            ) : null
                                         }
-                                    </SelectContent>
-                                </Select>
+                                    </select>
+                                </div>
                             </div>
-                        </div>
 
-                        <div className="grid md:grid-cols-2 gap-4">
-                            <div>
-                                <Label>Discount</Label>
-                                <Input
-                                    type="number"
-                                    value={productFormData.discount}
-                                    onChange={(e) => {
-                                        setProductFormData({
-                                            ...productFormData,
-                                            discount: e.target.value
-                                        })
-                                    }}
-                                />
+                            {/* Discount and stocks Input  */}
+                            <div className="grid md:grid-cols-2 gap-4 mt-4">
+                                <div>
+                                    <Input
+                                        type="text"
+                                        placeholder="Enter Discount"
+                                        value={productFormData.discount}
+                                        onChange={(e) => {
+                                            setProductFormData({
+                                                ...productFormData,
+                                                discount: e.target.value
+                                            })
+                                        }}
+                                    />
+                                </div>
+                                <div>
+                                    <Input
+                                        type="number"
+                                        placeholder="Stocks"
+                                        value={productFormData.qty}
+                                        onChange={(e) => {
+                                            setProductFormData({
+                                                ...productFormData,
+                                                qty: e.target.value
+                                            })
+                                        }}
+                                    />
+                                </div>
                             </div>
-                            <div>
-                                <Label>Images</Label>
-                                <Input
-                                    type="file"
-                                    multiple
-                                    onChange={(e) => { setImage(e.target.files) }}
-                                />
-                                <p className="text-end italic text-xs">(Multiple File Selected.)</p>
-                            </div>
-                        </div>
 
-                        <div className="grid md:grid-cols-2 gap-4 items-center">
-                            <div>
-                                <Label>Size</Label>
-                                <div className="flex items-center space-x-2">
-                                    <div className="flex justify-center items-center gap-1">
-                                        <Input type="checkbox" id="1" value="S" onChange={handleCheckboxChange} />
-                                        <label
-                                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                                        >S</label>
+                            {/* Warranty And Delivery Editor */}
+                            <div className="grid md:grid-cols-2 gap-4 mt-4">
+                                <div>
+                                    <h2 className="font-semibold">Warranty Details</h2>
+                                    <Tiptap
+                                        content={warranty}
+                                        onChange={(newContent) => { setWarranty(newContent) }}
+                                    />
+                                </div>
+                                <div>
+                                    <h2 className="font-semibold">Delivery Details</h2>
+                                    <Tiptap
+                                        content={delivery}
+                                        onChange={(newContent) => setDelivery(newContent)}
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Offers and Product Details */}
+                            <div className="grid md:grid-cols-2 gap-4 mt-4">
+                                <div>
+                                    <h2 className="font-semibold">Offers Details</h2>
+                                    <Tiptap
+                                        content={offers}
+                                        onChange={(newContent) => { setOffers(newContent) }}
+                                        immediatelyRender={false}
+                                    />
+                                </div>
+                                <div>
+                                    <h2 className="font-semibold">Product Details</h2>
+                                    <Tiptap
+                                        content={desc}
+                                        onChange={(newContent) => { setDesc(newContent) }}
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Product Images and Size Input */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                                <div className="space-y-2">
+                                    <div className="flex gap-4">
+                                        <Input
+                                            type="text"
+                                            placeholder="Enter Size"
+                                            value={addSize}
+                                            onChange={(e) => { setAddSize(e.target.value) }}
+                                        />
+                                        <Button onClick={handleAddClick}>ADD</Button>
                                     </div>
-                                    <div className="flex justify-center items-center gap-1">
-                                        <Input type="checkbox" id="2" value="M" onChange={handleCheckboxChange} />
-                                        <label
-                                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                                        >M</label>
+                                    <div className="border w-full h-[175px] rounded-lg space-y-1 p-4">
+                                        {
+                                            size && size.length > 0 ? (
+                                                size.map((value, index) => (
+                                                    <div className="flex justify-between items-center" key={index}>
+                                                        <p>{value}</p>
+                                                        <p className="text-sm text-red-600 cursor-pointer hover:underline" onClick={() => { handleRemoveSize(value) }}>Remove</p>
+                                                    </div>
+                                                ))
+                                            ) : null
+                                        }
                                     </div>
-                                    <div className="flex justify-center items-center gap-1">
-                                        <Input type="checkbox" id="3" value="L" onChange={handleCheckboxChange} />
-                                        <label
-                                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                                        >L</label>
+                                </div>
+                                <div>
+                                    <div className="flex gap-4">
+                                        <Input
+                                            type="file"
+                                            multiple
+                                            onChange={uploadImages}
+                                        />
+                                        <Button onClick={upload}>Upload</Button>
                                     </div>
-                                    <div className="flex justify-center items-center gap-1">
-                                        <Input type="checkbox" id="4" value="XL" onChange={handleCheckboxChange} />
-                                        <label
-                                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                                        >XL</label>
-                                    </div>
-                                    <div className="flex justify-center items-center gap-1">
-                                        <Input type="checkbox" id="5" value="XXL" onChange={handleCheckboxChange} />
-                                        <label
-                                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                                        >XXL</label>
+                                    <p className=" italic text-xs text-end mt-2">(Multiple Files Uploads)</p>
+                                    <div className="mt-4 flex flex-wrap gap-3">
+                                        {
+                                            image && image.length > 0 ? (
+                                                image.map((preview, index) => (
+                                                    <div key={index} className="relative w-[140px] h-[140px] p-2 border rounded-lg grid items-center overflow-hidden ">
+                                                        <img
+                                                            src={typeof preview === 'string' ? preview : preview.name}
+                                                            alt={typeof preview === 'string' ? preview : preview.name}
+                                                            className="object-cover rounded-lg"
+                                                        />
+                                                        <span
+                                                            className="absolute top-0 right-0 bg-black text-white rounded-full w-6 h-6 flex justify-center items-center cursor-pointer p-1"
+                                                            onClick={() => handleRemovePreview(index)}
+                                                        >
+                                                            <IconX stroke={2} />
+                                                        </span>
+                                                    </div>
+                                                ))
+                                            ) : null
+                                        }
                                     </div>
                                 </div>
                             </div>
-                            <div>
-                                <Label>Stock</Label>
-                                <Input
-                                    type="number"
-                                    value={productFormData.qty}
-                                    onChange={(e) => {
-                                        setProductFormData({
-                                            ...productFormData,
-                                            qty: e.target.value
-                                        })
-                                    }}
-                                />
-                            </div>
-                        </div>
 
-                        <div className="grid md:grid-cols-2 gap-4">
-                            <div>
-                                <Label>Warranty</Label>
-                                <Input
-                                    type="text"
-                                    value={productFormData.warranty}
-                                    onChange={(e) => {
-                                        setProductFormData({
-                                            ...productFormData,
-                                            warranty: e.target.value
-                                        })
-                                    }}
-                                />
-                            </div>
-                            <div>
-                                <Label>Delivery</Label>
-                                <Input
-                                    type="text"
-                                    value={productFormData.delivery}
-                                    onChange={(e) => {
-                                        setProductFormData({
-                                            ...productFormData,
-                                            delivery: e.target.value
-                                        })
-                                    }}
-                                />
-                            </div>
-                        </div>
-
-                        <div>
-                            <Label>Offers</Label>
-                            <Textarea
-                                value={productFormData.offers}
-                                onChange={(e) => {
-                                    setProductFormData({
-                                        ...productFormData,
-                                        offers: e.target.value
-                                    })
-                                }}
-                            />
-                        </div>
-
-                        <div>
-                            <Label>Descripation</Label>
-                            <Textarea
-                                value={productFormData.desc}
-                                onChange={(e) => {
-                                    setProductFormData({
-                                        ...productFormData,
-                                        desc: e.target.value
-                                    })
-                                }}
-                            />
-                        </div>
-                        <Button type="submit" className='mt-2'>Save</Button>
-                    </form>
-                </DialogContent>
-            </Dialog >
+                            <Button className='mt-2' onClick={handleProductFrom}>
+                                {
+                                    id ? "Update" : "Add"
+                                }
+                            </Button>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </>
     );
 }
 
-export default ProductDialog;
+export default Product;

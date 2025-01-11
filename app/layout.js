@@ -2,14 +2,17 @@
 
 import "./globals.css";
 import GlobalState from "@/context";
-import { ToastContainer } from "react-toastify";
-import 'react-toastify/dist/ReactToastify.css';
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { API_URL } from "@/env";
 import Cookies from "js-cookie";
 import axios from "axios";
 import NextTopLoader from 'nextjs-toploader';
+import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer } from "react-toastify";
+import { ThemeProvider } from "@/components/includes/theme-provider";
+import { useTheme } from "next-themes";
+
 
 export default function RootLayout({ children }) {
   const [userEmail, setUserEmail] = useState('')
@@ -17,6 +20,7 @@ export default function RootLayout({ children }) {
   const [role, setRole] = useState('')
   const router = useRouter()
   const token = Cookies.get("token")
+  const { theme } = useTheme();
 
   useEffect(() => {
 
@@ -49,18 +53,18 @@ export default function RootLayout({ children }) {
       >
         <GlobalState>
           <NextTopLoader />
-          {children}
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            {children}
+          </ThemeProvider>
           <ToastContainer
-            position="top-right"
-            autoClose={5000}
-            hideProgressBar={false}
-            newestOnTop={false}
-            closeOnClick
-            rtl={false}
-            pauseOnFocusLoss
-            draggable
-            pauseOnHover
-            style={{ zIndex: 9999 }}
+            theme={theme === "dark" ? "dark" : "light"} // Dynamically set theme
+            position="top-right" // Optional: Toast position
+            autoClose={5000} // Auto-close in 5 seconds
           />
         </GlobalState>
       </body>

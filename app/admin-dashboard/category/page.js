@@ -1,6 +1,6 @@
 'use client'
 
-import AdminLeftbar from "@/app/component/Admin-Leftbar";
+import AdminLeftbar from "@/components/admin/Admin-Leftbar";
 import { Button } from "@/components/ui/button";
 import {
     Table,
@@ -18,7 +18,6 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { useEffect, useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import axios from "axios";
@@ -26,8 +25,10 @@ import { toast } from "react-toastify";
 import { Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
-import AdminHeader from "@/app/component/AdminHeader";
+import AdminHeader from "@/components/admin/AdminHeader";
 import { API_URL } from "@/env";
+import { IconPencil, IconX } from "@tabler/icons-react";
+import Loading from "@/app/Loading";
 
 
 function Category() {
@@ -36,44 +37,72 @@ function Category() {
         category: "",
         desc: "",
     })
+    const [file, setFile] = useState(null)
     const [image, setImage] = useState(null)
-    const [getCategory,setGetCategory] = useState([])
+    const [filename, setFilename] = useState(null)
+    const [getCategory, setGetCategory] = useState([])
+    const [edit, setEdit] = useState("")
+    const [loading, setLoading] = useState(false)
     const router = useRouter()
+    const [currentPage, setCurrentPage] = useState(1)
+    const recordPerPages = 4
+    const lastPage = currentPage * recordPerPages
+    const firstPage = lastPage - recordPerPages
+    const records = getCategory.slice(firstPage, lastPage)
+    const totalPages = Math.ceil(getCategory.length / recordPerPages)
 
-    useEffect(()=>{
+    useEffect(() => {
 
         async function fetchCategoryData() {
-            try {        
+            try {
+                setLoading(true)
                 const response = await axios.get(`${API_URL}/api/category`, {
                     headers: {
                         'Cache-Control': 'no-store'
                     }
                 })
-                if(response.data.success === true){
+                if (response.data.success === true) {
                     setGetCategory(response.data.getAllCategory)
-                }else{
+                } else {
                     console.log(response.data.message)
-                }        
+                }
             } catch (error) {
                 console.log(error)
+            } finally {
+                setLoading(false)
             }
         }
 
         fetchCategoryData()
-    },[])
+    }, [])
 
+    async function handleImage(e) {
+        e.preventDefault()
+        try {
+            if (!file) {
+                return toast.error("File Not Selected!")
+            }
+            const fdata = new FormData()
+            fdata.append("file", file)
+
+            const response = await axios.post('/api/upload-category-image', fdata)
+            if (response.data.success === true) {
+                setFilename(response.data.imageName)
+                toast.success(response.data.message)
+            } else {
+                toast.error(response.data.message)
+            }
+        } catch (error) {
+            console.log("Uploading Error:", error);
+        }
+    }
 
     async function handleCategoryFrom() {
         try {
-            const fdata = new FormData()
-            fdata.append("category", categoryFormData.category)
-            fdata.append("desc", categoryFormData.desc)
-            fdata.append("image", image)
-            const response = await axios.post('/api/category', fdata,{
-                headers:{
-                    Authorization: `Bearer ${Cookies.get("token")}`
-                }
-            })
+            const { category, desc } = categoryFormData
+            const data = { category, desc, filename }
+            const response = edit ? await axios.put(`/api/category/${edit}`, data)
+                : await axios.post('/api/category', data)
             if (response.data.success === true) {
                 setOpenCategoryDialog(false)
                 setCategoryFormData({
@@ -81,7 +110,9 @@ function Category() {
                     desc: "",
                 })
                 setImage(null)
-                toast.success("Category Successfully Created!")
+                setFile(null)
+                setFilename(null)
+                toast.success(response.data.message)
                 router.refresh()
             } else {
                 toast.error(response.data.message)
@@ -90,12 +121,12 @@ function Category() {
             setOpenCategoryDialog(false)
             toast.error("Something Went Wrong. Please Try Again!")
         }
-    }    
+    }
 
     async function handleCategoryDelete(id) {
         try {
-            const response = await axios.delete(`/api/category/${id}`,{
-                headers:{
+            const response = await axios.delete(`/api/category/${id}`, {
+                headers: {
                     Authorization: `Bearer ${Cookies.get("token")}`
                 }
             })
@@ -110,51 +141,142 @@ function Category() {
         }
     }
 
+    function handleRenderImage(e) {
+        const file = e.target.files[0]
+        if (file) {
+            setFile(file)
+            const preview = URL.createObjectURL(file)
+            setImage(preview);
+        }
+    }
+
+    function handleRemovePreview() {
+        setImage(null)
+        setFilename(null)
+    }
+
+    function EditCategory(category) {
+        setOpenCategoryDialog(true)
+        setEdit(category._id)
+        setCategoryFormData({
+            category: category.category,
+            desc: category.desc
+        })
+        setImage(category.filename)
+        setFilename(category.filename)
+    }
+
+    // Next page handler
+    const handleNext = () => {
+        if (currentPage < totalPages) {
+            setCurrentPage(currentPage + 1)
+        }
+    }
+
+    // Previous page handler
+    const handlePrevious = () => {
+        if (currentPage > 1) {
+            setCurrentPage(currentPage - 1)
+        }
+    }
+
+    // Page change handler
+    const handlePageChange = (page) => {
+        setCurrentPage(page)
+    }
+
     return (
         <>
-            <div className="border rounded-3xl mx-12 my-4 h-screen bg-[#F0F1F0] p-4">
-            <AdminHeader />
-                <div className="flex mt-4">
+            <div className="mt-10 mx-4">
+                <AdminHeader />
+                <div className="flex mt-8">
                     <div className="hidden md:block md:w-1/4 lg:w-1/6">
                         <AdminLeftbar />
                     </div>
                     <div className="flex flex-col w-full mx-4 mt-4">
-                        <div>
+                        <div className="grid gap-4">
                             <h1 className="text-center text-3xl font-semibold">Category page</h1>
-                            <Button className=" float-end" onClick={() => { setOpenCategoryDialog(true) }} >Add Category</Button>
+                            <p><Button className=" float-end mr-2" onClick={() => { setOpenCategoryDialog(true) }} >Add Category</Button></p>
                         </div>
                         <div className="mt-4">
-                            <Table>
-                                <TableCaption>All Category Data</TableCaption>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead className="w-[100px]">No.</TableHead>
-                                        <TableHead>Category Name</TableHead>
-                                        <TableHead>Image</TableHead>
-                                        <TableHead>Descripation</TableHead>
-                                        <TableHead>Action</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {
-                                        getCategory && getCategory.length > 0 ? (
-                                            getCategory.map((category, index) => (
-                                                <TableRow key={index}>
-                                                    <TableCell className="font-medium">{index + 1}</TableCell>
-                                                    <TableCell>{category.category}</TableCell>
-                                                    <TableCell><img src={`/category/${category.filename}`} alt={category.filename} className="w-[100px]" /></TableCell>
-                                                    <TableCell>{category.desc}</TableCell>
-                                                    <TableCell onClick={()=>{handleCategoryDelete(category._id)}} ><Trash2 className="cursor-pointer" size={18} /></TableCell>
-                                                </TableRow>
-                                            ))
-                                        ) : (
+                            {
+                                loading ? (
+                                    <Loading />
+                                ) : (
+                                    <Table>
+                                        <TableCaption>All Category Data</TableCaption>
+                                        <TableHeader>
                                             <TableRow>
-                                                <TableCell colSpan={5} className="text-center text-xl font-semibold">No Record Found!</TableCell>
+                                                <TableHead className="w-[100px]">No.</TableHead>
+                                                <TableHead>Category Name</TableHead>
+                                                <TableHead>Image</TableHead>
+                                                <TableHead>Descripation</TableHead>
+                                                <TableHead>Edit</TableHead>
+                                                <TableHead>Delete</TableHead>
                                             </TableRow>
-                                        )
-                                    }
-                                </TableBody>
-                            </Table>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {
+                                                records && records.length > 0 ? (
+                                                    records.map((category, index) => (
+                                                        <TableRow key={index}>
+                                                            <TableCell className="font-medium">{index + 1}</TableCell>
+                                                            <TableCell>{category.category}</TableCell>
+                                                            <TableCell>
+                                                                <div className="w-[80px] h-[80px] grid items-center overflow-hidden">
+                                                                    <img src={category.filename} alt={category.filename} className="object-cover" />
+                                                                </div>
+                                                            </TableCell>
+                                                            <TableCell>{category.desc}</TableCell>
+                                                            <TableCell><IconPencil stroke={2} className="cursor-pointer" onClick={() => { EditCategory(category) }} /></TableCell>
+                                                            <TableCell onClick={() => { handleCategoryDelete(category._id) }} ><Trash2 className="cursor-pointer" size={18} /></TableCell>
+                                                        </TableRow>
+                                                    ))
+                                                ) : (
+                                                    <TableRow>
+                                                        <TableCell colSpan={6} className="text-center">No Record Found!</TableCell>
+                                                    </TableRow>
+                                                )
+                                            }
+                                        </TableBody>
+                                    </Table>
+                                )
+                            }
+                        </div>
+                        {/* Pagination Controls */}
+                        <div className="flex justify-between items-center mt-6 mr-2">
+                            <div></div>
+                            <div className="flex items-center space-x-4">
+                                <Button
+                                    onClick={handlePrevious}
+                                    disabled={currentPage === 1}
+                                >
+                                    Previous
+                                </Button>
+
+                                {/* Display page numbers */}
+                                <span className="flex space-x-2">
+                                    {Array.from({ length: totalPages }, (_, index) => (
+                                        <span
+                                            key={index + 1}
+                                            className={`px-2 py-1 rounded-md cursor-pointer text-sm ${currentPage === index + 1
+                                                ? 'bg-blue-500 font-bold'
+                                                : ' hover:bg-blue-500'
+                                                } transition duration-200 ease-in-out`}
+                                            onClick={() => handlePageChange(index + 1)}
+                                        >
+                                            {index + 1}
+                                        </span>
+                                    ))}
+                                </span>
+
+                                <Button
+                                    onClick={handleNext}
+                                    disabled={currentPage === totalPages}
+                                >
+                                    Next
+                                </Button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -172,18 +294,25 @@ function Category() {
                         desc: "",
                     })
                     setImage(null)
+                    setFile(null)
+                    setFilename(null)
+                    setEdit(null)
                 }}
             >
-                <DialogContent className="max-w-[400px]">
+                <DialogContent className="max-w-[400px] rounded-lg md:max-w-[800px]">
                     <DialogHeader>
-                        <DialogTitle>Add Category</DialogTitle>
+                        <DialogTitle>
+                            {
+                                edit ? "Edit Category" : "Add Category"
+                            }
+                        </DialogTitle>
                     </DialogHeader>
                     <form action={handleCategoryFrom}>
-                        <div className="grid gap-2">
+                        <div className="grid gap-4">
                             <div>
-                                <Label>Name</Label>
                                 <Input
                                     type="text"
+                                    placeholder="Enter Category Name"
                                     value={categoryFormData.category}
                                     onChange={(e) => {
                                         setCategoryFormData({
@@ -194,8 +323,8 @@ function Category() {
                                 />
                             </div>
                             <div>
-                                <Label>Descripation</Label>
                                 <Textarea
+                                    placeholder="Descripation"
                                     value={categoryFormData.desc}
                                     onChange={(e) => {
                                         setCategoryFormData({
@@ -206,14 +335,37 @@ function Category() {
                                 />
                             </div>
                             <div>
-                                <Label>Image</Label>
-                                <Input
-                                    type="file"
-                                    onChange={(e) => { setImage(e.target.files[0]) }}
-                                />
+                                <div className="flex gap-4">
+                                    <Input
+                                        type="file"
+                                        onChange={handleRenderImage}
+                                    />
+                                    <Button onClick={handleImage} disabled={!file} >Upload</Button>
+                                </div>
                             </div>
+                            {
+                                image && (
+                                    <div className="relative w-[140px] h-[140px] p-2 border rounded-lg grid items-center overflow-hidden ">
+                                        <img
+                                            src={image}
+                                            alt="Brand Image"
+                                            className="object-cover rounded-lg"
+                                        />
+                                        <span
+                                            className="absolute top-0 right-0 bg-black text-white rounded-full w-6 h-6 flex justify-center items-center cursor-pointer p-1"
+                                            onClick={handleRemovePreview}
+                                        >
+                                            <IconX stroke={2} />
+                                        </span>
+                                    </div>
+                                )
+                            }
                         </div>
-                        <Button type="submit" className='mt-2' disabled={!categoryFormData.category || !image} >Save</Button>
+                        <Button type="submit" className='mt-2' disabled={!categoryFormData.category || !image} >
+                            {
+                                edit ? "Edit" : "Add"
+                            }
+                        </Button>
                     </form>
                 </DialogContent>
             </Dialog>

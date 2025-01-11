@@ -14,6 +14,7 @@ import { API_URL } from "@/env";
 import { Checkbox } from "@/components/ui/checkbox";
 import { IndianRupee } from "lucide-react";
 import Loading from "../Loading";
+import Link from "next/link";
 
 
 function Women() {
@@ -47,7 +48,7 @@ function Women() {
 
     useEffect(() => {
         filterBlogs();
-        
+
     }, [selectCategory, womens]);
 
     const filterBlogs = () => {
@@ -84,12 +85,12 @@ function Women() {
 
     return (
         <>
-            <div className="border rounded-3xl mx-12 my-4 bg-[#F0F1F0] px-4 py-8">
+            <div className="mx-4 mt-10">
                 <Navbar />
 
-                <div className="flex flex-wrap lg:flex-nowrap mt-4">
+                <div className="flex flex-wrap lg:flex-nowrap my-8">
                     {/* Sidebar */}
-                    <aside className="w-full lg:w-1/5 px-4 py-6 rounded-lg bg-gray-50">
+                    <aside className="w-full lg:w-1/5 px-4 py-6 rounded-lg border">
                         <h2 className="font-semibold text-lg mb-4">Filter By</h2>
                         <ul className="space-y-2">
                             <li>
@@ -151,26 +152,28 @@ function Women() {
                     </aside>
 
                     {/* Main Content */}
-                    <main className="w-full lg:w-3/4 px-4 py-6">
+                    <main className="w-full lg:w-3/4 md:px-4 py-4 md:py-0">
                         {
                             loading ? (
                                 <Loading />
                             ) : (
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                                <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-6">
                                     {
                                         filtered && filtered.length > 0 ? (
                                             filtered.map((product, index) => (
                                                 <Card key={index} className="p-4 flex flex-col gap-2">
-                                                    <div className="flex justify-center items-center border rounded-lg p-2 w-full">
-                                                        <img src={`/product/${product.filename[0].name}`} alt={product.filename[0].name} className="w-1/2" />
+                                                    <div className="flex justify-center items-center border rounded-lg ">
+                                                        <Link href={`/women/${product._id}`} className="flex justify-center items-center w-[200px] h-[300px] overflow-hidden">
+                                                            <img src={product.filename[0].name} alt={product.filename[0].name} className=" object-cover" />
+                                                        </Link>
                                                     </div>
                                                     <div>
-                                                        <h3 className="font-semibold text-lg truncate ...">{product.productName}</h3>
+                                                        <Link href={`/women/${product._id}`}><h3 className="font-semibold text-lg">{product.productName}</h3></Link>
                                                         <p className="text-gray-500 text-sm mt-2">Type: {product.subCategory}</p>
                                                         <p className="text-gray-500 text-sm mt-2">Brand: {product.brand}</p>
                                                         <p className="mt-2 flex items-center gap-0.5"><span className="font-bold">Price:</span> <IndianRupee size={15} className="mb-0.5" />{product.price}<span className="text-sm font-semibold italic text-green-600">{product.discount}% off</span></p>
-                                                        <Button className=" w-full mt-4" onClick={() => { handleCart(product) }}>Add To Cart</Button>
-                                                        <Button className=" w-full mt-2" onClick={() => router.push(`/women/${product._id}`)}>See Item</Button>
+                                                        <Button variant="outline" className=" w-full mt-4" onClick={() => { handleCart(product) }}>Add To Cart</Button>
+                                                        <Button variant="outline" className=" w-full mt-2" >Buy Now</Button>
                                                     </div>
                                                 </Card>
                                             ))

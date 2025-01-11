@@ -1,7 +1,7 @@
 'use client'
 
-import AdminLeftbar from "../component/Admin-Leftbar";
-import AdminHeader from "../component/AdminHeader";
+import AdminLeftbar from "../../components/admin/Admin-Leftbar";
+import AdminHeader from "../../components/admin/AdminHeader";
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts"
 import {
     Card,
@@ -60,9 +60,9 @@ function AdminDashboard() {
 
     return (
         <>
-            <div className="border rounded-3xl mx-12 my-4 h-screen bg-[#F0F1F0] p-4">
+            <div className="mt-10 mx-4">
                 <AdminHeader />
-                <div className="flex mt-4">
+                <div className="flex mt-10">
                     <div className="hidden md:block md:w-1/4 lg:w-1/6">
                         <AdminLeftbar />
                     </div>

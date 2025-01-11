@@ -12,7 +12,14 @@ import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { GlobalContext } from "@/context";
 import Cookies from "js-cookie";
-import AdminLeftbar from "../Admin-Leftbar";
+import { Moon, Sun } from "lucide-react"
+import { useTheme } from "next-themes"
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 
 
@@ -21,6 +28,7 @@ function Navbar() {
     const router = useRouter()
     const pathname = usePathname()
     const { user, isLogin, setIsLogin, setUser } = useContext(GlobalContext)
+    const { setTheme } = useTheme()
 
     function handleLogout() {
         setIsLogin(false)
@@ -29,46 +37,65 @@ function Navbar() {
         Cookies.remove("token")
         router.push('/login')
     }
-    
+
 
     return (
         <>
-            <nav className=" sticky top-10 z-50">
+            <nav>
                 <div className="w-full flex flex-wrap items-center justify-around">
                     {/* Logo Image */}
-                    <span className="flex items-center gap-2 cursor-pointer" onClick={()=> router.push('/')} >
+                    <span className="flex items-center gap-2 cursor-pointer" onClick={() => router.push('/')} >
                         <Button variant="outline" size="icon" className=" drop-shadow-lg"><Vegan /></Button><span className="hidden md:block drop-shadow-lg" style={{ fontFamily: 'Rubik Glitch, sans-serif' }}>BAZZKIT PRO</span>
                     </span>
 
                     {/* Navbar items */}
                     <div className="hidden w-full lg:flex md:w-auto items-center justify-center">
-                        <ul className="flex flex-col mt-4 p-1 font-medium rounded-full md:flex-row md:space-x-8 md:mt-0 md:border-0 bg-[#FCFDFC] shadow-lg">
-                            <Link href="/"><li className={`cursor-pointer block text-gray-900 rounded-full px-4 py-1 ${pathname === "/" ? "bg-[#F0F1F0]" : ""}`}>Home</li></Link>
-                            <Link href="/shop"><li className={`cursor-pointer block text-gray-900 rounded-full px-4 py-1 ${pathname === "/shop" ? "bg-[#F0F1F0]" : ""}`}>Shop</li></Link>
-                            <Link href='/men'><li className={`cursor-pointer block text-gray-900 rounded-full px-4 py-1 ${pathname === "/men" ? "bg-[#F0F1F0]" : ""}`}>Men</li></Link>
-                            <Link href="/women"><li className={`cursor-pointer block text-gray-900 rounded-full px-4 py-1 ${pathname === "/women" ? "bg-[#F0F1F0]" : ""}`}>Women</li></Link>
-                            <Link href="/kids"><li className={`cursor-pointer block text-gray-900 rounded-full px-4 py-1 ${pathname === "/kids" ? "bg-[#F0F1F0]" : ""}`}>Kids</li></Link>
+                        <ul className="flex flex-col mt-4 p-1 font-medium rounded-full md:flex-row md:space-x-8 md:mt-0 md:border shadow-lg">
+                            <Link href="/"><li className={`cursor-pointer block rounded-full px-4 py-1 ${pathname === "/" ? "bg-blue-400" : ""}`}>Home</li></Link>
+                            <Link href="/shop"><li className={`cursor-pointer block rounded-full px-4 py-1 ${pathname === "/shop" ? "bg-blue-400" : ""}`}>Shop</li></Link>
+                            <Link href='/men'><li className={`cursor-pointer block rounded-full px-4 py-1 ${pathname === "/men" ? "bg-blue-400" : ""}`}>Men</li></Link>
+                            <Link href="/women"><li className={`cursor-pointer block rounded-full px-4 py-1 ${pathname === "/women" ? "bg-blue-400" : ""}`}>Women</li></Link>
+                            <Link href="/kids"><li className={`cursor-pointer block rounded-full px-4 py-1 ${pathname === "/kids" ? "bg-blue-400" : ""}`}>Kids</li></Link>
                         </ul>
                     </div>
 
-                    <div className="flex lg:order-2 gap-4 items-center">
+                    <div className="flex gap-4 items-center">
                         {
                             isLogin && !user ? (
                                 <>
-                                    <Link href={'/order'}><Button variant="outline" className=" drop-shadow-lg" size="icon"><Truck /></Button></Link>
+                                    <Link href={'/order'}><Button variant="outline" className="hidden md:flex items-center drop-shadow-lg" size="icon"><Truck /></Button></Link>
                                     <Link href={'/cart'}><Button variant="outline" className=" drop-shadow-lg" size="icon"><ShoppingBag /></Button></Link>
-                                    <Link href={'/account'}><Button variant="outline" className=" drop-shadow-lg" size="icon"><CircleUserRound /></Button></Link>
-                                    <Button variant="outline" size="icon" className=" drop-shadow-lg" onClick={() => { handleLogout() }}><LogOut /></Button>
+                                    <Link href={'/account'}><Button variant="outline" className="hidden md:flex items-center drop-shadow-lg" size="icon"><CircleUserRound /></Button></Link>
+                                    <Button variant="outline" size="icon" className="hidden md:flex items-center drop-shadow-lg" onClick={() => { handleLogout() }}><LogOut /></Button>
                                 </>
                             ) : null
                         }
                         {
                             !isLogin ? (
-                                <Link href={'/login'}><Button className="rounded-full bg-white hover:bg-white text-gray-900 shadow-lg">Login</Button></Link>
+                                <Link href={'/login'}><Button variant="outline" className="rounded-full shadow-lg">Login</Button></Link>
                             ) : null
                         }
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="outline" size="icon" className="shadow-lg">
+                                    <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                                    <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                                    <span className="sr-only">Toggle theme</span>
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => setTheme("light")}>
+                                    Light
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => setTheme("dark")}>
+                                    Dark
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => setTheme("system")}>
+                                    System
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
                     </div>
-
                     <Button variant="outline" size="icon" className=" drop-shadow-lg lg:hidden" onClick={() => { setOpenNavbar(!openNavbar) }} ><AlignRight /></Button>
                 </div>
             </nav>
@@ -85,27 +112,23 @@ function Navbar() {
                     <SheetHeader className={'mt-4'}>
                         <ul className="flex flex-col p-1 justify-center items-center gap-4">
                             {
-                                user && isLogin ? (
-                                    <AdminLeftbar />
-                                ) : null
-                            }
-                            {
-                                !user && isLogin ? (
+                                !user ? (
                                     <>
-                                        <li className="cursor-pointer block text-gray-900 rounded-full">Home</li>
-                                        <li className="cursor-pointer block text-gray-900 rounded-full">Shop</li>
-                                        <li className="cursor-pointer block text-gray-900 rounded-full">Men</li>
-                                        <li className="cursor-pointer block text-gray-900 rounded-full">Women</li>
+                                        <Link href="/" className="w-full"><li className={`cursor-pointer block rounded-lg py-2 ${pathname === "/" ? "bg-blue-400" : ""}`}>Home</li></Link>
+                                        <Link href="/shop" className="w-full"><li className={`cursor-pointer block rounded-lg py-2 ${pathname === "/shop" ? "bg-blue-400" : ""}`}>Shop</li></Link>
+                                        <Link href="/men" className="w-full"><li className={`cursor-pointer block rounded-lg py-2 ${pathname === "/men" ? "bg-blue-400" : ""}`}>Men</li></Link>
+                                        <Link href="/women" className="w-full"><li className={`cursor-pointer block rounded-lg py-2 ${pathname === "/women" ? "bg-blue-400" : ""}`}>Women</li></Link>
+                                        <Link href="/kids" className="w-full"><li className={`cursor-pointer block rounded-lg py-2 ${pathname === "/kids" ? "bg-blue-400" : ""}`}>Kids</li></Link>
                                     </>
                                 ) : null
                             }
+
                             {
-                                !isLogin ? (
+                                isLogin && !user ? (
                                     <>
-                                    <li className="cursor-pointer block text-gray-900 rounded-full">Home</li>
-                                    <li className="cursor-pointer block text-gray-900 rounded-full">Shop</li>
-                                    <li className="cursor-pointer block text-gray-900 rounded-full">Men</li>
-                                    <li className="cursor-pointer block text-gray-900 rounded-full">Women</li>
+                                        <Link href="/account" className="w-full"><li className={`md:hidden cursor-pointer block rounded-lg py-2 ${pathname === "/account" ? "bg-blue-400" : ""}`}>Account</li></Link>
+                                        <Link href="/order" className="w-full"><li className={`md:hidden cursor-pointer block rounded-lg py-2 ${pathname === "/order" ? "bg-blue-400" : ""}`}>Order</li></Link>
+                                        <li onClick={() => { handleLogout() }} className={`md:hidden cursor-pointer block rounded-lg py-2 w-full`}>Logout</li>
                                     </>
                                 ) : null
                             }

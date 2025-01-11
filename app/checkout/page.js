@@ -118,16 +118,16 @@ function Checkout() {
         <>
             {
                 cartItems && userAddress ? (
-                    <div className="border flex flex-col justify-between rounded-3xl mx-12 my-4 bg-[#F0F1F0] px-4 py-8">
+                    <div className="mx-4 mt-10 flex flex-col justify-between">
                         <Navbar />
-                        <div className="flex mx-auto mt-4 gap-4 w-3/4">
+                        <div className="flex mx-auto mt-8 gap-4 w-3/4">
                             <div className="flex flex-col gap-4 w-3/4">
                                 {
                                     cartItems && cartItems.length > 0 ? (
                                         cartItems.map((item, index) => (
-                                            <Card className="p-4 bg-slate-50 border-none" key={index}>
+                                            <Card className="p-4 border" key={index}>
                                                 <div className="flex w-full flex-col sm:flex-row gap-2 sm:gap-4">
-                                                    <img src={`/product/${item.productID.filename[0].name}`} alt={`${item.productID.filename[0].name}`} className="w-32 rounded" />
+                                                    <img src={item.productID.filename[0].name} alt={item.productID.filename[0].name} className="w-32 rounded" />
                                                     <div className="flex w-full flex-col gap-2">
                                                         <h2 className="my-4 text-lg">{item.productID.productName}</h2>
                                                         <p className="text-gray-600">Brand: {item.productID.brand}</p>
@@ -161,7 +161,7 @@ function Checkout() {
                                 </div>
                             </div>
 
-                            <Card className="w-1/4 p-4 bg-[#F8FAFC]">
+                            <Card className="w-1/4 p-4 border">
                                 <div className="border-b pb-4">
                                     <h4 className="font-semibold text-lg">Shipping Address Details:</h4>
                                     <p className="text-gray-600 text-sm my-2">Complete Your Order By Address. Please Provide A Valid Address</p>
@@ -202,12 +202,12 @@ function Checkout() {
                                         <p>{userAddress.ifse}</p>
                                     </div>
                                 </div>
-                                <Button disabled={confirmAddress !== null} onClick={() => router.push('/account')} className="mt-4 w-full">Edit Details</Button>
-                                <Button disabled={cartItems.length === 0 || confirmAddress !== null} onClick={handleAddress} className="mt-2 w-full">Confirm</Button>
+                                <Button variant="outline" disabled={confirmAddress !== null} onClick={() => router.push('/account')} className="mt-4 w-full">Edit Details</Button>
+                                <Button variant="outline" disabled={cartItems.length === 0 || confirmAddress !== null} onClick={handleAddress} className="mt-2 w-full">Confirm</Button>
                             </Card>
 
                         </div>
-                        <Button disabled={confirmAddress === null || cartItems.length === 0} onClick={handleCheckOut} className="w-3/4 mx-auto mt-4">Checkout</Button>
+                        <Button variant="outline" disabled={confirmAddress === null || cartItems.length === 0} onClick={handleCheckOut} className="w-3/4 mx-auto mt-4 mb-8">Checkout</Button>
                         <Footer />
                     </div>
                 ) : (

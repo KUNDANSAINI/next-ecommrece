@@ -69,7 +69,7 @@ export function CartSheet({ cartSheetOpen, setCartSheetOpen }) {
                             cartItems.map((item, index) => (
                                 <Card className="flex gap-4 p-4 mt-4" key={index}>
                                     <div>
-                                        <img src={`/product/${item.productID.filename[0].name}`} alt={item.productID.filename[0].name} className="w-[100px] border rounded" />
+                                        <img src={item.productID.filename[0].name} alt={item.productID.filename[0].name} className="w-[100px] border rounded" />
                                     </div>
                                     <div>
                                         <h2>{item.productID.productName}</h2>

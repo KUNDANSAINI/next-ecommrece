@@ -19,7 +19,7 @@ export async function DELETE(req, { params }) {
             const deleteRecord = await Product.findByIdAndDelete(id)
             const deleteImages = deleteRecord.filename
             for (const imageName of deleteImages) {
-                const filePath = path.join(process.cwd(), './public/product', imageName.name);
+                const filePath = path.join(process.cwd(), './public', imageName.name);
                 if (fs.existsSync(filePath)) {
                     fs.unlinkSync(filePath);
                 }
@@ -53,8 +53,8 @@ export async function GET(req, { params }) {
 
 export async function PUT(req, { params }) {
     try {
-        const id = params.id
-        const data = await req.json()
+        const {id} = params
+        const data = await req.json()        
         if (!id) {
             return NextResponse.json({ success: false, message: "Invalid ID" })
         }
@@ -64,9 +64,8 @@ export async function PUT(req, { params }) {
         const updateRecord = await Product.findByIdAndUpdate(id, data)
         if (!updateRecord) {
             return NextResponse.json({ success: false, message: "Something Went Wrong. Please Try Again!" })
-        } else {
-            return NextResponse.json({ success: true, updateRecord })
         }
+        return NextResponse.json({ success: true, message:"Product Successfully Updated!" })
     } catch (error) {
         console.log(error);
         return NextResponse.json({ success: false, message: "Bad Request" })

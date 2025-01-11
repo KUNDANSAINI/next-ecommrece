@@ -12,6 +12,8 @@ import Footer from "@/app/component/Footer";
 import { Skeleton } from "@/components/ui/skeleton";
 import { GlobalContext } from "@/context";
 import { API_URL } from "@/env";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import Link from "next/link";
 
 
 function MensProduct() {
@@ -44,7 +46,7 @@ function MensProduct() {
             }
         } catch (error) {
             console.log("Product Fetching Error:", error);
-        }finally{
+        } finally {
             setLoading(false)
         }
     }
@@ -52,10 +54,10 @@ function MensProduct() {
     async function handleCart(product) {
         try {
             const data = { productID: product._id, userID }
-            if(!userID){
+            if (!userID) {
                 router.push('/login')
                 return toast.error("You Are Not Login. Please Login Here")
-            }            
+            }
             const response = await axios.post('/api/cart', data, {
                 headers: {
                     Authorization: `Bearer ${Cookies.get("token")}`
@@ -74,29 +76,37 @@ function MensProduct() {
     return (
         <>{
             getProduct !== null ? (
-                <div className="border rounded-3xl mx-12 my-4 bg-[#F0F1F0] px-4 py-8">
+                <div className="mx-4 mt-10">
                     <Navbar />
-                    <Card className="mt-6 p-4">
+                    <Card className="mt-8 p-4">
                         <div className="w-full flex flex-col lg:flex-row">
-                            <div className="w-full lg:w-2/5 flex flex-col gap-4">
-                                <div className="flex flex-col lg:flex-row items-center lg:justify-evenly gap-4">
-                                    <div className="flex lg:flex-col gap-4">
-                                        {
-                                            getProduct.filename && getProduct.filename.length > 0 ? (
-                                                getProduct.filename.map((image, index) => (
-                                                    <div key={index}>
-                                                        <img src={`/product/${image.name}`} alt={image.name} className="w-[100px]" onClick={() => { setSideImage(image.name) }} />
-                                                    </div>
-                                                ))
-                                            ) : (
-                                                null
-                                            )
-                                        }
-                                    </div>
-                                    <div>
-                                        <img src={`/product/${getProduct.filename[0].name}`} alt={getProduct.filename[0].name} className="h-[300px] lg:h-[500px]" />
-                                    </div>
+                            <div className="w-full lg:w-2/5 flex flex-col lg:flex-row items-center lg:justify-evenly gap-4">
+                                <div className="flex lg:flex-col gap-4">
+                                    {
+                                        getProduct.filename && getProduct.filename.length > 0 ? (
+                                            getProduct.filename.map((image, index) => (
+                                                <div key={index}>
+                                                    <img src={image.name} alt={image.name} className="w-[70px]" onClick={() => { setSideImage(image.name) }} />
+                                                </div>
+                                            ))
+                                        ) : (
+                                            null
+                                        )
+                                    }
                                 </div>
+                                <Carousel className="w-[350px] h-[500px]">
+                                    <CarouselContent>
+                                        {getProduct.filename.map((image, index) => (
+                                            <CarouselItem key={index}>
+                                                <div className="flex justify-center items-center overflow-hidden h-[500px] w-[350px]">
+                                                    <img src={image.name} alt={image.name} className="object-cover" />
+                                                </div>
+                                            </CarouselItem>
+                                        ))}
+                                    </CarouselContent>
+                                    <CarouselPrevious />
+                                    <CarouselNext />
+                                </Carousel>
                             </div>
                             <div className="w-full lg:w-3/5">
                                 <h2 className="text-2xl">{getProduct.productName}</h2>
@@ -127,7 +137,7 @@ function MensProduct() {
                                 </div>
                                 <div className="flex justify-between gap-4 mt-6">
                                     <Button className="w-full" onClick={() => { handleCart(getProduct) }} >Add To Cart</Button>
-                                    <Button className="w-full">Buy Now</Button>
+                                    <Link href={`/checkout`}><Button className="w-full">Buy Now</Button></Link>
                                 </div>
                             </div>
                         </div>
