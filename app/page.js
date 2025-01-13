@@ -3,11 +3,10 @@
 import Head from 'next/head'
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { Skeleton } from "@/components/ui/skeleton";
 import { API_URL } from "@/env";
-import HomePage from "./component/HomePage";
 import { useRouter } from 'next/navigation';
-import Loading from './Loading';
+import HomePage from '@/components/includes/HomePage';
+import Loading from '@/components/Loading';
 
 export default function Home() {
   const [getBrands, setGetBrands] = useState([])

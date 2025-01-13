@@ -1,7 +1,7 @@
 'use client'
 import AdminLeftbar from "@/components/admin/Admin-Leftbar";
 import AdminHeader from "@/components/admin/AdminHeader";
-import Loading from "@/app/Loading";
+import Loading from "@/components/Loading";
 import { Button } from "@/components/ui/button";
 import {
     Table,
@@ -70,10 +70,10 @@ function UsersDetails() {
 
     return (
         <>
-            <div className="mt-10 mx-4">
+            <div className="my-10 mx-4">
                 <AdminHeader />
                 <div className="flex mt-8">
-                    <div className="hidden md:block md:w-1/4 lg:w-1/6">
+                    <div className="hidden md:block md:w-[450px]">
                         <AdminLeftbar />
                     </div>
                     <div className="flex flex-col w-full mx-4 mt-4 gap-4">

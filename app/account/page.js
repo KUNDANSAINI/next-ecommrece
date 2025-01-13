@@ -1,7 +1,5 @@
 'use client'
 
-import Footer from "../component/Footer";
-import Navbar from "../component/Navbar";
 import { useContext, useEffect, useState } from "react";
 import { useRouter, redirect } from "next/navigation";
 import { toast } from "react-toastify";
@@ -30,6 +28,8 @@ import {
     PopoverTrigger,
 } from "@/components/ui/popover"
 import { API_URL } from "@/env";
+import Navbar from "@/components/includes/Navbar";
+import Footer from "@/components/includes/Footer";
 
 
 function Account() {

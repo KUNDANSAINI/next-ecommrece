@@ -32,7 +32,7 @@ export function SignupForm({ className, ...props }) {
     async function handleUserForm(e) {
         e.preventDefault()
         try {
-            const data = {email, fullName, password, confirm_password }
+            const data = { email, fullName, password, confirm_password }
             if (password === confirm_password) {
                 const response = await axios.post('/api/register', data)
                 if (response.data.success === true) {
@@ -61,9 +61,9 @@ export function SignupForm({ className, ...props }) {
     return (
         <>
             <div className={cn("flex flex-col gap-6", className)} {...props}>
-                <Card className="overflow-hidden h-[530px]">
-                    <CardContent className="grid p-0 md:grid-cols-2 h-full">
-                        <form className="p-6 md:p-8 grid items-center">
+                <Card className="overflow-hidden shadow-xl h-[700px]">
+                    <CardContent className="flex p-0 h-full">
+                        <form className="p-6 md:p-8 w-full md:w-2/5 grid items-center">
                             <div className="flex flex-col gap-6">
                                 <div className="flex flex-col items-center text-center">
                                     <h1 className="text-2xl font-bold">
@@ -132,7 +132,7 @@ export function SignupForm({ className, ...props }) {
                                         emailID ? "Create Account" : "Signup"
                                     }
                                 </Button>
-                                <hr/>
+                                <hr />
                                 <div className={`text-center text-sm`}>
                                     I have an account?{" "}
                                     <Link href="/login" className="underline underline-offset-4">
@@ -141,12 +141,22 @@ export function SignupForm({ className, ...props }) {
                                 </div>
                             </div>
                         </form>
-                        <div className="relative hidden bg-muted md:block">
-                            <img
-                                src="https://images.pexels.com/photos/8490072/pexels-photo-8490072.jpeg?auto=compress&cs=tinysrgb&w=600"
-                                alt="Image"
-                                className="absolute inset-0 h-full w-full object-cover"
-                            />
+                        <div className="relative hidden w-3/5 bg-muted md:block border-l">
+                            {
+                                emailID ? (
+                                    <img
+                                        src="https://img.freepik.com/free-vector/secure-login-concept-illustration_114360-4685.jpg?t=st=1736768449~exp=1736772049~hmac=b366af111296af21cd94c984307ed9a5f66c0c714679bf3d1c0df4e2dea51246&w=826"
+                                        alt="Image"
+                                        className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.5]"
+                                    />
+                                ) : (
+                                    <img
+                                        src="https://img.freepik.com/free-vector/sign-up-concept-illustration_114360-7865.jpg?t=st=1736753005~exp=1736756605~hmac=de507cf5be1a9cda366af1cb6a3b5e83321d84a722253faa41a35fde6752ed10&w=826"
+                                        alt="Image"
+                                        className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.5]"
+                                    />
+                                )
+                            }
                         </div>
                     </CardContent>
                 </Card >

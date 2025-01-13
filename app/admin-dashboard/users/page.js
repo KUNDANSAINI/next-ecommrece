@@ -17,23 +17,26 @@ import { useEffect, useState } from "react";
 import AdminHeader from "@/components/admin/AdminHeader";
 import axios from "axios";
 import { API_URL } from "@/env";
-import { IconEye, IconPencil } from "@tabler/icons-react";
+import { IconEye } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import Loading from "@/app/Loading";
+import Loading from "@/components/Loading";
 import { Button } from "@/components/ui/button";
-
+import { Input } from "@/components/ui/input";
 
 function User() {
     const [getUsers, setGetUsers] = useState([])
+    const [filteredUser, setFilteredUser] = useState([])
     const router = useRouter()
     const [loading, setLoading] = useState(false)
     const [currentPage, setCurrentPage] = useState(1)
     const recordPerPages = 10
     const lastPage = currentPage * recordPerPages
     const firstPage = lastPage - recordPerPages
-    const records = getUsers.slice(firstPage, lastPage)
-    const totalPages = Math.ceil(getUsers.length / recordPerPages)
+    const records = filteredUser.slice(firstPage, lastPage)
+    const totalPages = Math.ceil(filteredUser.length / recordPerPages)
+    const [searchEmail, setSearchEmail] = useState('')
+    const [searchUser, setSearchUser] = useState('')
 
     useEffect(() => {
         fetchUsers()
@@ -77,6 +80,26 @@ function User() {
         }
     }
 
+    useEffect(() => {
+        filterUserData()
+    }, [getUsers, searchUser, searchEmail])
+
+    function filterUserData() {
+        let filtered = getUsers;
+
+        // Search By Username
+        if (searchUser) {
+            filtered = filtered.filter(item => item.fullName.toLowerCase().includes(searchUser.trim().toLowerCase()));
+        }
+
+        // Search By email
+        if (searchEmail) {
+            filtered = filtered.filter(item => item.email.toLowerCase().includes(searchEmail.trim().toLowerCase()));
+        }
+
+        setFilteredUser(filtered)
+    }
+
     // Next page handler
     const handleNext = () => {
         if (currentPage < totalPages) {
@@ -98,17 +121,34 @@ function User() {
 
     return (
         <>
-            <div className="mt-10 mx-4">
+            <div className="my-10 mx-4">
                 <AdminHeader />
                 <div className="flex mt-8">
-                    <div className="hidden md:block md:w-1/4 lg:w-1/6">
+                    <div className="hidden md:block md:w-[450px]">
                         <AdminLeftbar />
                     </div>
-                    <div className="flex flex-col w-full mx-4 mt-4">
-                        <div>
+                    <div className="flex flex-col w-full px-1 md:px-4 mt-4">
+                        <div className="space-y-4">
                             <h1 className="text-center text-3xl font-semibold">Users page</h1>
+                            <div className="p-4 rounded-lg shadow-md space-y-1">
+                                <h4 className="text-lg font-semibold">Filter</h4>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <Input
+                                        type="text"
+                                        placeholder="Search By Username"
+                                        value={searchUser}
+                                        onChange={(e) => { setSearchUser(e.target.value) }}
+                                    />
+                                    <Input
+                                        type="text"
+                                        placeholder="Search By Email"
+                                        value={searchEmail}
+                                        onChange={(e) => { setSearchEmail(e.target.value) }}
+                                    />
+                                </div>
+                            </div>
                         </div>
-                        <div className="mt-4">
+                        <div className="mt-10">
                             {
                                 loading ? (
                                     <Loading />
@@ -152,7 +192,7 @@ function User() {
                             }
                         </div>
                         {/* Pagination Controls */}
-                        <div className="flex justify-between items-center mt-6 mr-2">
+                        <div className="flex justify-between items-center mt-6">
                             <div></div>
                             <div className="flex items-center space-x-4">
                                 <Button

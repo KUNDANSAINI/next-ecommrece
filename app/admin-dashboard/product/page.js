@@ -20,23 +20,50 @@ import Link from "next/link";
 import AdminHeader from "@/components/admin/AdminHeader";
 import { API_URL } from "@/env";
 import { IconPencil } from "@tabler/icons-react";
-import Loading from "@/app/Loading";
+import Loading from "@/components/Loading";
+import { Input } from "@/components/ui/input";
 
 
 function Product() {
     const [getProduct, setGetProduct] = useState([])
+    const [filteredProduct, setFilteredProduct] = useState([])
     const [loading, setLoading] = useState(false)
     const router = useRouter()
     const [currentPage, setCurrentPage] = useState(1)
-    const recordPerPages = 4
+    const recordPerPages = 5
     const lastPage = currentPage * recordPerPages
     const firstPage = lastPage - recordPerPages
-    const records = getProduct.slice(firstPage, lastPage)
-    const totalPages = Math.ceil(getProduct.length / recordPerPages)
+    const records = filteredProduct.slice(firstPage, lastPage)
+    const totalPages = Math.ceil(filteredProduct.length / recordPerPages)
+    const [searchName, setSearchName] = useState("")
+    const [searchHns, setSearchHns] = useState("")
+    const [searchCategory, setSearchCategory] = useState("")
+    const [searchType, setSearchType] = useState("")
+    const [searchBrand, setSearchBrand] = useState("")
+    const [brand, setBrand] = useState([])
+    const [category, setCategory] = useState([])
 
     useEffect(() => {
         fetchProduct()
+        fetchData()
     }, [])
+
+    async function fetchData() {
+        try {
+            const [response1, response2] = await Promise.all([
+                axios.get(`${API_URL}/api/category`),
+                axios.get(`${API_URL}/api/brand`)
+            ]);
+
+            if (response1.data.success === true || response2.data.success === true) {
+                setCategory(response1.data.getAllCategory)
+                setBrand(response2.data.getAllBrand)
+            }
+
+        } catch (error) {
+            console.log("Fetching Error:", error);
+        }
+    }
 
     async function fetchProduct() {
         try {
@@ -73,6 +100,41 @@ function Product() {
         }
     }
 
+    useEffect(() => {
+        filterProductData()
+    }, [getProduct, searchHns, searchCategory, searchType, searchBrand, searchName])
+
+    function filterProductData() {
+        let filtered = getProduct;
+
+        // Search By Name
+        if (searchName) {
+            filtered = filtered.filter(item => item.productName.toLowerCase().includes(searchName.trim().toLowerCase()));
+        }
+
+        // Search By Hns Code
+        if (searchHns) {
+            filtered = filtered.filter(item => item.hns.toLowerCase().includes(searchHns.trim().toLowerCase()));
+        }
+
+        // Search By Category
+        if (searchCategory) {
+            filtered = filtered.filter(item => item.category.toLowerCase() === searchCategory.toLowerCase());
+        }
+
+        // Search By Type
+        if (searchType) {
+            filtered = filtered.filter(item => item.subCategory.toLowerCase() === searchType.toLowerCase());
+        }
+
+        // Search By Brand
+        if (searchBrand) {
+            filtered = filtered.filter(item => item.brand.toLowerCase() === searchBrand.toLowerCase());
+        }
+
+        setFilteredProduct(filtered)
+    }
+
     // Next page handler
     const handleNext = (e) => {
         e.preventDefault()
@@ -97,18 +159,75 @@ function Product() {
 
     return (
         <>
-            <div className="mt-10 mx-4">
+            <div className="my-10 mx-4">
                 <AdminHeader />
                 <div className="flex mt-8">
-                    <div className="hidden md:block md:w-1/4 lg:w-1/6">
+                    <div className="hidden md:block md:w-[450px]">
                         <AdminLeftbar />
                     </div>
-                    <div className="flex flex-col w-full mx-4 mt-4">
+                    <div className="flex flex-col w-full px-1 md:px-4 mt-4">
                         <div className="grid gap-4">
                             <h1 className="text-center text-3xl font-semibold">Product page</h1>
-                            <Link href={"/admin-dashboard/product/add"}><Button className=" float-end mr-2">Add Product</Button></Link>
+                            <div className="text-end">
+                                <Link href={"/admin-dashboard/product/add"}><Button>Add Product</Button></Link>
+                            </div>
+                            <div className="p-4 rounded-lg shadow-md space-y-1">
+                                <h4 className="text-lg font-semibold">Filter</h4>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <Input
+                                        type="text"
+                                        placeholder="Search By Product Name"
+                                        value={searchName}
+                                        onChange={(e) => { setSearchName(e.target.value) }}
+                                    />
+                                    <Input
+                                        type="text"
+                                        placeholder="Search By HNS Code"
+                                        value={searchHns}
+                                        onChange={(e) => { setSearchHns(e.target.value) }}
+                                    />
+                                    <select
+                                        value={searchCategory}
+                                        onChange={(e) => { setSearchCategory(e.target.value) }}
+                                        className="border h-10 px-2 rounded-lg text-sm"
+                                    >
+                                        <option value="">Search By Category</option>
+                                        {
+                                            category && category.length > 0 ? (
+                                                category.map((item, index) => (
+                                                    <option value={item.category} key={index}>{item.category}</option>
+                                                ))
+                                            ) : null
+                                        }
+                                    </select>
+                                    <select
+                                        value={searchType}
+                                        onChange={(e) => { setSearchType(e.target.value) }}
+                                        className="border h-10 px-2 rounded-lg text-sm"
+                                    >
+                                        <option value="">Search By Category</option>
+                                        <option value="Men">Men</option>
+                                        <option value="Women">Women</option>
+                                        <option value="Kids">Kids</option>
+                                    </select>
+                                    <select
+                                        value={searchBrand}
+                                        onChange={(e) => { setSearchBrand(e.target.value) }}
+                                        className="border h-10 px-2 rounded-lg text-sm"
+                                    >
+                                        <option value="">Search By Brand</option>
+                                        {
+                                            brand && brand.length > 0 ? (
+                                                brand.map((item, index) => (
+                                                    <option value={item.brand} key={index}>{item.brand}</option>
+                                                ))
+                                            ) : null
+                                        }
+                                    </select>
+                                </div>
+                            </div>
                         </div>
-                        <div className="mt-4">
+                        <div className="mt-10">
                             {
                                 loading ? (
                                     <Loading />
@@ -166,7 +285,7 @@ function Product() {
                             }
                         </div>
                         {/* Pagination Controls */}
-                        <div className="flex justify-between items-center mt-6 mr-2">
+                        <div className="flex justify-between items-center mt-6">
                             <div></div>
                             <div className="flex items-center space-x-4">
                                 <Button

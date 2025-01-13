@@ -6,8 +6,9 @@ const categorySchema = new mongoose.Schema({
         type:String,
         required:true
     },
-    desc:{
+    type:{
         type:String,
+        required:true
     },
     filename:{
         type:String,

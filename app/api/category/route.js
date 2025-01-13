@@ -9,8 +9,8 @@ connectToDB()
 export async function POST(req) {
     try {
         const data = await req.json()
-        const { category, filename } = data
-        if (!category || !filename) {
+        const { category, filename, type } = data
+        if (!category || !filename || !type) {
             return NextResponse.json({ success: false, message: "All Fields Are Required!" })
         }
 

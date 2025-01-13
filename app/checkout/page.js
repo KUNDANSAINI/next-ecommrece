@@ -1,7 +1,5 @@
 'use client'
 
-import Footer from "../component/Footer";
-import Navbar from "../component/Navbar";
 import { GlobalContext } from "@/context";
 import { useContext, useEffect, useState } from "react";
 import axios from "axios";
@@ -14,6 +12,9 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { IndianRupee } from "lucide-react";
 import { loadStripe } from "@stripe/stripe-js";
+import Navbar from "@/components/includes/Navbar";
+import Footer from "@/components/includes/Footer";
+import Loading from "@/components/Loading";
 
 
 function Checkout() {
@@ -211,13 +212,7 @@ function Checkout() {
                         <Footer />
                     </div>
                 ) : (
-                    <div className="flex flex-col h-screen justify-center items-center space-y-3">
-                        <Skeleton className="h-[125px] w-[250px] rounded-xl" />
-                        <div className="space-y-2">
-                            <Skeleton className="h-4 w-[250px]" />
-                            <Skeleton className="h-4 w-[200px]" />
-                        </div>
-                    </div>
+                    <Loading />
                 )
             }
         </>

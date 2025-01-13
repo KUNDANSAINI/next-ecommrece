@@ -29,7 +29,7 @@ import Cookies from "js-cookie";
 import AdminHeader from "@/components/admin/AdminHeader";
 import { API_URL } from "@/env";
 import { IconPencil, IconX } from "@tabler/icons-react";
-import Loading from "@/app/Loading";
+import Loading from "@/components/Loading";
 
 function Brand() {
     const [openBrandDialog, setOpenBrandDialog] = useState(false)
@@ -37,19 +37,21 @@ function Brand() {
         brand: "",
         desc: "",
     })
+    const [getBrands, setGetBrand] = useState([])
+    const [filteredBrands, setFilteredBrands] = useState([])
     const [file, setFile] = useState(null)
     const [loading, setLoading] = useState(false)
+    const [searchName, setSearchName] = useState("")
     const [image, setImage] = useState(null)
     const [filename, setFilename] = useState(null)
     const [editId, setEditId] = useState(null)
-    const [getBrands, setGetBrand] = useState([])
     const router = useRouter()
     const [currentPage, setCurrentPage] = useState(1)
-    const recordPerPages = 4
+    const recordPerPages = 5
     const lastPage = currentPage * recordPerPages
     const firstPage = lastPage - recordPerPages
-    const records = getBrands.slice(firstPage, lastPage)
-    const totalPages = Math.ceil(getBrands.length / recordPerPages)
+    const records = filteredBrands.slice(firstPage, lastPage)
+    const totalPages = Math.ceil(filteredBrands.length / recordPerPages)
 
     useEffect(() => {
 
@@ -166,6 +168,21 @@ function Brand() {
         }
     }
 
+    useEffect(() => {
+        filterProductData()
+    }, [getBrands, searchName])
+
+    function filterProductData() {
+        let filtered = getBrands;
+
+        // Search By Name
+        if (searchName) {
+            filtered = filtered.filter(item => item.brand.toLowerCase().includes(searchName.trim().toLowerCase()));
+        }
+
+        setFilteredBrands(filtered)
+    }
+
     // Next page handler
     const handleNext = () => {
         if (currentPage < totalPages) {
@@ -187,16 +204,27 @@ function Brand() {
 
     return (
         <>
-            <div className="mt-10 mx-4">
+            <div className="my-10 mx-4">
                 <AdminHeader />
                 <div className="flex mt-8">
-                    <div className="hidden md:block md:w-1/4 lg:w-1/6">
+                    <div className="hidden md:block md:w-[450px]">
                         <AdminLeftbar />
                     </div>
-                    <div className="flex flex-col w-full mx-4 mt-4">
+                    <div className="flex flex-col w-full px-1 md:px-4 mt-4">
                         <div className="grid gap-4">
                             <h1 className="text-center text-3xl font-semibold">Brand page</h1>
                             <p><Button className=" float-end mr-2" onClick={() => { setOpenBrandDialog(true) }} >Add Brand</Button></p>
+                            <div className="p-4 rounded-lg shadow-md space-y-1">
+                                <h4 className="text-lg font-semibold">Filter</h4>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <Input
+                                        type="text"
+                                        placeholder="Search By Name"
+                                        value={searchName}
+                                        onChange={(e) => { setSearchName(e.target.value) }}
+                                    />
+                                </div>
+                            </div>
                         </div>
                         <div className="mt-4">
                             {

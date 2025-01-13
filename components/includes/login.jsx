@@ -55,9 +55,9 @@ export function LoginForm({ className, ...props }) {
 
     return (
         <div className={cn("flex flex-col gap-6 bg-transparent")} {...props}>
-            <Card className="overflow-hidden h-[530px]">
-                <CardContent className="grid p-0 md:grid-cols-2 h-full">
-                    <form className="p-6 md:p-8 grid items-center">
+            <Card className="overflow-hidden h-[700px] shadow-xl">
+                <CardContent className="flex p-0  h-full">
+                    <form className="p-6 md:p-8 w-full md:w-2/5 grid items-center">
                         <div className="flex flex-col gap-6">
                             <div className="flex flex-col items-center text-center">
                                 <h1 className="text-2xl font-bold">Welcome back</h1>
@@ -117,11 +117,11 @@ export function LoginForm({ className, ...props }) {
                             </div>
                         </div>
                     </form>
-                    <div className="relative hidden bg-muted md:block">
+                    <div className="relative w-3/5 hidden bg-muted md:block border-l">
                         <img
-                            src="https://images.pexels.com/photos/19613153/pexels-photo-19613153/free-photo-of-screen-of-a-smartphone-held-by-a-person-sitting-at-a-desk.jpeg?auto=compress&cs=tinysrgb&w=600"
+                            src="https://img.freepik.com/free-vector/tablet-login-concept-illustration_114360-7863.jpg?t=st=1736753045~exp=1736756645~hmac=2ba194e6395c343d1009c20e81933a0647c938a119168c4cb60a5dc0d992124a&w=826"
                             alt="Image"
-                            className="absolute inset-0 h-full w-full object-cover"
+                            className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.5]"
                         />
                     </div>
                 </CardContent>

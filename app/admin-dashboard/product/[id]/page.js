@@ -4,8 +4,8 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { API_URL } from "@/env";
-import Loading from "@/app/Loading";
-import Product from "@/app/component/Product";
+import Loading from "@/components/Loading";
+import Product from "@/components/includes/Product";
 
 function ProductDetails() {
     const params = useParams()

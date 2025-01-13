@@ -1,8 +1,6 @@
 'use client'
 
 import { Card } from "@/components/ui/card";
-import Footer from "../component/Footer";
-import Navbar from "../component/Navbar";
 import { Button } from "@/components/ui/button";
 import { GlobalContext } from "@/context";
 import { useContext, useEffect, useState } from "react";
@@ -14,6 +12,9 @@ import { IndianRupee, Minus, Plus } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { API_URL } from "@/env";
 import Link from "next/link";
+import Navbar from "@/components/includes/Navbar";
+import Footer from "@/components/includes/Footer";
+import Loading from "@/components/Loading";
 
 
 function Cart() {
@@ -93,7 +94,7 @@ function Cart() {
                                                     }
                                                 </div>
                                                 <div className="grid justify-center">
-                                                <Link href={`/shop/${item.productID._id}`} className="flex items-center justify-center w-56">
+                                                <Link href={`/shop/${item.productID._id}`} className="flex items-center justify-center w-40">
                                                     <img src={item.productID.filename[0].name} alt={item.productID.filename[0].name} className="object-cover rounded" />
                                                 </Link>
                                                 </div>
@@ -112,8 +113,8 @@ function Cart() {
                                     ))
                                 ) : (
                                     <>
-                                        <img src="https://cdn-icons-png.flaticon.com/512/15814/15814884.png " alt="empaty cart" className="w-full md:w-1/4" />
-                                        <Button onClick={() => router.push('/')}>Go To Home</Button>
+                                        <img src="https://img.freepik.com/free-vector/questions-concept-illustration_114360-1513.jpg?t=st=1736797388~exp=1736800988~hmac=aa4fe1b3aa013f3a609d5f0e670f75bc93ecbe2fd14118a1aaf32c7cabb873ea&w=826" alt="empaty cart" className="w-full md:w-1/4 rounded-lg dark:brightness-[0.5]" />
+                                        <Button variant="outline" onClick={() => router.push('/')}>Go To Home</Button>
                                     </>
                                 )
                             }
@@ -142,13 +143,7 @@ function Cart() {
                         <Footer />
                     </div>
                 ) : (
-                    <div className="flex flex-col space-y-3">
-                        <Skeleton className="h-[125px] w-[250px] rounded-xl" />
-                        <div className="space-y-2">
-                            <Skeleton className="h-4 w-[250px]" />
-                            <Skeleton className="h-4 w-[200px]" />
-                        </div>
-                    </div>
+                    <Loading />
                 )
             }
         </>

@@ -36,12 +36,12 @@ export async function PUT(req, { params }){
     try{
         const data = await req.json()
         const id = params.id
-        const {category, filename} = data
+        const {category, filename, type} = data
         if(!id){
             return NextResponse.json({ success: false, message:"Invalid ID!" })
         }
-        if(!category || !filename){
-            return NextResponse.json({ success: false, message:"Name And Image Are required!" })
+        if(!category || !filename || !type){
+            return NextResponse.json({ success: false, message:"Name, Type And Image Are required!" })
         }
         
         const update = await Category.findByIdAndUpdate(id,data)

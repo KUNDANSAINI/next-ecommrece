@@ -19,7 +19,6 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { useEffect, useState } from "react";
-import { Textarea } from "@/components/ui/textarea";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { Trash2 } from "lucide-react";
@@ -28,28 +27,31 @@ import Cookies from "js-cookie";
 import AdminHeader from "@/components/admin/AdminHeader";
 import { API_URL } from "@/env";
 import { IconPencil, IconX } from "@tabler/icons-react";
-import Loading from "@/app/Loading";
+import Loading from "@/components/Loading";
 
 
 function Category() {
     const [openCategoryDialog, setOpenCategoryDialog] = useState(false)
     const [categoryFormData, setCategoryFormData] = useState({
         category: "",
-        desc: "",
+        type: "",
     })
     const [file, setFile] = useState(null)
     const [image, setImage] = useState(null)
     const [filename, setFilename] = useState(null)
     const [getCategory, setGetCategory] = useState([])
+    const [filteredCategory, setFilteredCategory] = useState([])
     const [edit, setEdit] = useState("")
     const [loading, setLoading] = useState(false)
     const router = useRouter()
     const [currentPage, setCurrentPage] = useState(1)
-    const recordPerPages = 4
+    const recordPerPages = 5
     const lastPage = currentPage * recordPerPages
     const firstPage = lastPage - recordPerPages
-    const records = getCategory.slice(firstPage, lastPage)
-    const totalPages = Math.ceil(getCategory.length / recordPerPages)
+    const records = filteredCategory.slice(firstPage, lastPage)
+    const totalPages = Math.ceil(filteredCategory.length / recordPerPages)
+    const [searchType, setSearchType] = useState("")
+    const [searchName, setSearchName] = useState("")
 
     useEffect(() => {
 
@@ -99,15 +101,15 @@ function Category() {
 
     async function handleCategoryFrom() {
         try {
-            const { category, desc } = categoryFormData
-            const data = { category, desc, filename }
+            const { category, type } = categoryFormData
+            const data = { category, type, filename }
             const response = edit ? await axios.put(`/api/category/${edit}`, data)
                 : await axios.post('/api/category', data)
             if (response.data.success === true) {
                 setOpenCategoryDialog(false)
                 setCategoryFormData({
                     category: "",
-                    desc: "",
+                    type: "",
                 })
                 setImage(null)
                 setFile(null)
@@ -160,10 +162,30 @@ function Category() {
         setEdit(category._id)
         setCategoryFormData({
             category: category.category,
-            desc: category.desc
+            type: category.type
         })
         setImage(category.filename)
         setFilename(category.filename)
+    }
+
+    useEffect(() => {
+        filterProductData()
+    }, [getCategory, searchType, searchName])
+
+    function filterProductData() {
+        let filtered = getCategory;
+
+        // Search By Name
+        if (searchName) {
+            filtered = filtered.filter(item => item.category.toLowerCase().includes(searchName.trim().toLowerCase()));
+        }
+
+        // Search By Type
+        if (searchType) {
+            filtered = filtered.filter(item => item.type.toLowerCase() === searchType.toLowerCase());
+        }
+
+        setFilteredCategory(filtered)
     }
 
     // Next page handler
@@ -187,16 +209,37 @@ function Category() {
 
     return (
         <>
-            <div className="mt-10 mx-4">
+            <div className="my-10 mx-4">
                 <AdminHeader />
                 <div className="flex mt-8">
-                    <div className="hidden md:block md:w-1/4 lg:w-1/6">
+                    <div className="hidden md:block md:w-[450px]">
                         <AdminLeftbar />
                     </div>
-                    <div className="flex flex-col w-full mx-4 mt-4">
+                    <div className="flex flex-col w-full px-1 md:px-4 mt-4">
                         <div className="grid gap-4">
                             <h1 className="text-center text-3xl font-semibold">Category page</h1>
                             <p><Button className=" float-end mr-2" onClick={() => { setOpenCategoryDialog(true) }} >Add Category</Button></p>
+                            <div className="p-4 rounded-lg shadow-md space-y-1">
+                                <h4 className="text-lg font-semibold">Filter</h4>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <Input
+                                        type="text"
+                                        placeholder="Search By Name"
+                                        value={searchName}
+                                        onChange={(e) => { setSearchName(e.target.value) }}
+                                    />
+                                    <select
+                                        value={searchType}
+                                        onChange={(e) => { setSearchType(e.target.value) }}
+                                        className="border h-10 px-2 rounded-lg text-sm"
+                                    >
+                                        <option value="">Search By Category</option>
+                                        <option value="Men">Men</option>
+                                        <option value="Women">Women</option>
+                                        <option value="Kids">Kids</option>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
                         <div className="mt-4">
                             {
@@ -210,7 +253,7 @@ function Category() {
                                                 <TableHead className="w-[100px]">No.</TableHead>
                                                 <TableHead>Category Name</TableHead>
                                                 <TableHead>Image</TableHead>
-                                                <TableHead>Descripation</TableHead>
+                                                <TableHead>Type</TableHead>
                                                 <TableHead>Edit</TableHead>
                                                 <TableHead>Delete</TableHead>
                                             </TableRow>
@@ -227,7 +270,7 @@ function Category() {
                                                                     <img src={category.filename} alt={category.filename} className="object-cover" />
                                                                 </div>
                                                             </TableCell>
-                                                            <TableCell>{category.desc}</TableCell>
+                                                            <TableCell>{category.type}</TableCell>
                                                             <TableCell><IconPencil stroke={2} className="cursor-pointer" onClick={() => { EditCategory(category) }} /></TableCell>
                                                             <TableCell onClick={() => { handleCategoryDelete(category._id) }} ><Trash2 className="cursor-pointer" size={18} /></TableCell>
                                                         </TableRow>
@@ -291,7 +334,7 @@ function Category() {
                     setOpenCategoryDialog(false)
                     setCategoryFormData({
                         category: "",
-                        desc: "",
+                        type: "",
                     })
                     setImage(null)
                     setFile(null)
@@ -323,16 +366,21 @@ function Category() {
                                 />
                             </div>
                             <div>
-                                <Textarea
-                                    placeholder="Descripation"
-                                    value={categoryFormData.desc}
+                                <select
+                                    className="w-full border rounded-lg px-2 h-10"
+                                    value={categoryFormData.type}
                                     onChange={(e) => {
                                         setCategoryFormData({
                                             ...categoryFormData,
-                                            desc: e.target.value
+                                            type: e.target.value
                                         })
                                     }}
-                                />
+                                >
+                                    <option value="">Select Type</option>
+                                    <option value="Men">Men</option>
+                                    <option value="Women">Women</option>
+                                    <option value="Kids">Kids</option>
+                                </select>
                             </div>
                             <div>
                                 <div className="flex gap-4">
@@ -361,7 +409,7 @@ function Category() {
                                 )
                             }
                         </div>
-                        <Button type="submit" className='mt-2' disabled={!categoryFormData.category || !image} >
+                        <Button type="submit" className='mt-2' disabled={!categoryFormData.category || !categoryFormData.type || !image} >
                             {
                                 edit ? "Edit" : "Add"
                             }

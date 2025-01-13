@@ -1,6 +1,6 @@
 'use client'
 
-import Product from "@/app/component/Product";
+import Product from "@/components/includes/Product";
 
 function AddProduct() {
     return ( 
