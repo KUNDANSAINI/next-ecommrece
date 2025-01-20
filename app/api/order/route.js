@@ -4,69 +4,59 @@ import Order from "@/models/order";
 import { NextResponse } from "next/server";
 
 connectToDB()
+
 export const dynamic = "force/dynamic"
 
-export async function POST(req){
-    try{
+export async function POST(req) {
+    try {
         const data = await req.json()
-        const {user} = data
+        const { userId } = data
 
         const newRecord = await Order.create(data)
 
-        if(newRecord){
-            await Cart.deleteMany({userID: user})
+        if (newRecord) {
+            await Cart.deleteMany({ userID: userId })
 
             return NextResponse.json({
-                success:true,
-                message:"Products Are On The Way."
+                success: true,
+                message: "Products Are On The Way."
             })
-        }else{
+        } else {
             return NextResponse.json({
-                success:false,
-                message:"Failed To Create To Order ! Please Try Again."
+                success: false,
+                message: "Failed To Create To Order ! Please Try Again."
             })
         }
-    }catch(error){
-        console.log("Submission Error",error);
+    } catch (error) {
+        console.log("Submission Error", error);
         return NextResponse.json({
-            success:false,
-            message:"Something Went Wrong, Please Try Again."
-        })   
+            success: false,
+            message: "Something Went Wrong, Please Try Again."
+        })
     }
 }
 
-
 export async function GET(req){
     try{
-        const { searchParams } = new URL(req.url)
-        const id = searchParams.get("id")
+        const getOrders = await Order.find().populate("orderItems.product")
 
-        if(!id){
+        if (!getOrders) {
             return NextResponse.json({
-                success:false,
-                message:"Invalid ID"
-            })
-        }
-        
-        const getAllOrder = await Order.find({userId : id}).populate("orderItems.product")
-        
-        if(!getAllOrder){
-            return NextResponse.json({
-                success:false,
-                message:"Error Fetching To Ordered Products"
+                success: false,
+                message: "Error Fetching To Ordered Products"
             })
         }
 
         return NextResponse.json({
-            success:true,
-            getAllOrder
+            success: true,
+            getOrders
         })
 
     }catch(error){
         console.log(error);
         return NextResponse.json({
-            success:false,
-            message:"Something Went Wrong, Please Try Again."
+            success: false,
+            message: "Something Went Wrong, Please Try Again."
         })
     }
 }

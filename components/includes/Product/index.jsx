@@ -20,8 +20,12 @@ function Product({ data, id }) {
         subCategory: data?.subCategory || "",
         brand: data?.brand || "",
         price: data?.price || null,
-        discount: data?.discount || '',
-        qty: data?.qty || null,
+        discount: data?.discount || null,
+        stock: data?.stock || "",
+        color: data?.color || "",
+        mrp: data?.mrp || null,
+        service: data?.service || "",
+        pocket: data?.pocket || null,
     })
     const [desc, setDesc] = useState(data?.desc || "")
     const [addSize, setAddSize] = useState("")
@@ -36,13 +40,48 @@ function Product({ data, id }) {
     const [getBrands, setGetBrands] = useState([])
     const router = useRouter()
 
+    console.log(data);
+    
+
+    function handleMrp(e) {
+        e.preventDefault();
+
+        // Validate that both price and discount are provided and are numbers
+        if (!productFormData.price || !productFormData.discount) {
+            return toast.error("Price and Discount are required to calculate MRP.");
+        }
+
+        // Ensure price and discount are valid numbers
+        const price = parseFloat(productFormData.price);
+        const discount = parseFloat(productFormData.discount);
+
+        if (isNaN(price) || isNaN(discount) || price <= 0 || discount < 0 || discount > 100) {
+            return toast.error("Invalid input. Price must be positive and discount should be between 0 and 100.");
+        }
+
+        // Calculate discount and MRP
+        const discountAmount = (price * discount) / 100;
+        const calculateMrp = price - discountAmount;
+
+        if (calculateMrp >= 0) {
+            setProductFormData((prevFormData) => ({
+                ...prevFormData,
+                mrp: Math.round(calculateMrp), // Update MRP
+            }));
+            toast.success("MRP calculated successfully.");
+        } else {
+            toast.error("Error in calculation.");
+        }
+    }
+
+
     function handleAddClick(e) {
         e.preventDefault()
         if (addSize.trim() !== '') {
             setSize([...size, addSize]);
             setAddSize('');
         }
-    }    
+    }
 
     function handleRemoveSize(value) {
         const removeSize = size.filter((size) => size !== value)
@@ -53,7 +92,7 @@ function Product({ data, id }) {
         e.preventDefault()
         try {
             if (!images.length) {
-                toast.error("Pelase Select A Image")
+                return toast.error("Pelase Select A Image")
             }
             const fdata = new FormData()
             for (let i = 0; i < images.length; i++) {
@@ -63,7 +102,7 @@ function Product({ data, id }) {
             const response = await axios.post('/api/upload-product-image', fdata)
             if (response.data.success === true) {
                 const filesArray = response.data.imageData
-                for(let file of filesArray){
+                for (let file of filesArray) {
                     filename.push(file)
                 }
                 setImage([])
@@ -100,8 +139,32 @@ function Product({ data, id }) {
     async function handleProductFrom(e) {
         e.preventDefault()
         try {
-            const { productName, hns, category, subCategory, brand, price, discount, qty } = productFormData
-            const data = { productName, hns, category, subCategory, brand, price, discount, qty, filename, desc, offers, warranty, delivery, size }
+            const { productName, hns, category, subCategory, brand, price, discount, stock, mrp, color, service, pocket  } = productFormData
+            if(!productName){
+                return toast.error("Product Name Are Required!")
+            }
+            if(!hns){
+                return toast.error("Hns Code Are Required!")
+            }
+            if(!category){
+                return toast.error("Category Are Required!")
+            }
+            if(!subCategory){
+                return toast.error("Subcategory Are Required!")
+            }
+            if(!brand){
+                return toast.error("Brand Are Required!")
+            }
+            if(!stock){
+                return toast.error("Please Select Stock Type!")
+            }
+            if(!mrp){
+                return toast.error("Please Calculate a Mrp!")
+            }
+            if(!filename){
+                return toast.error("Please Upload a Image!")
+            }
+            const data = { productName, hns, category, subCategory, brand, price, discount, stock, mrp, color, service, pocket, filename, desc, offers, warranty, delivery, size }
             const response = id ? await axios.put(`/api/product/${id}`, data)
                 : await axios.post('/api/product', data)
 
@@ -236,21 +299,8 @@ function Product({ data, id }) {
                                 </div>
                             </div>
 
-                            {/* Price And brand Input */}
+                            {/* Stock And brand Input */}
                             <div className="grid md:grid-cols-2 gap-4 mt-4">
-                                <div>
-                                    <Input
-                                        type="number"
-                                        placeholder="Enter Price"
-                                        value={productFormData.price}
-                                        onChange={(e) => {
-                                            setProductFormData({
-                                                ...productFormData,
-                                                price: e.target.value
-                                            })
-                                        }}
-                                    />
-                                </div>
                                 <div>
                                     <select
                                         value={productFormData.brand}
@@ -272,13 +322,54 @@ function Product({ data, id }) {
                                         }
                                     </select>
                                 </div>
+                                <div>
+                                    <select
+                                        value={productFormData.stock}
+                                        onChange={(e) => {
+                                            setProductFormData((prevData) => ({
+                                                ...prevData,
+                                                stock: e.target.value,
+                                            }));
+                                        }}
+                                        className="border h-10 rounded-md w-full px-2 text-sm"
+                                    >
+                                        <option value="">Select Stock</option>
+                                        <option value="In-stock">In Stock</option>
+                                        <option value="Out-stock">Out Stock</option>
+                                    </select>
+                                </div>
                             </div>
 
-                            {/* Discount and stocks Input  */}
+                            {/* MRP and Price Input  */}
                             <div className="grid md:grid-cols-2 gap-4 mt-4">
                                 <div>
                                     <Input
-                                        type="text"
+                                        type="number"
+                                        placeholder="MRP(Auto Genrate)"
+                                        value={productFormData.mrp}
+                                        readOnly
+                                    />
+                                </div>
+                                <div>
+                                    <Input
+                                        type="number"
+                                        placeholder="Enter Price"
+                                        value={productFormData.price}
+                                        onChange={(e) => {
+                                            setProductFormData({
+                                                ...productFormData,
+                                                price: e.target.value
+                                            })
+                                        }}
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Color and Discount Input  */}
+                            <div className="grid md:grid-cols-2 gap-4 mt-4">
+                                <div>
+                                    <Input
+                                        type="number"
                                         placeholder="Enter Discount"
                                         value={productFormData.discount}
                                         onChange={(e) => {
@@ -291,13 +382,43 @@ function Product({ data, id }) {
                                 </div>
                                 <div>
                                     <Input
-                                        type="number"
-                                        placeholder="Stocks"
-                                        value={productFormData.qty}
+                                        type="text"
+                                        placeholder="Enter Color Name"
+                                        value={productFormData.color}
                                         onChange={(e) => {
                                             setProductFormData({
                                                 ...productFormData,
-                                                qty: e.target.value
+                                                color: e.target.value
+                                            })
+                                        }}
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Service and Pocket Input  */}
+                            <div className="grid md:grid-cols-2 gap-4 mt-4">
+                                <div>
+                                    <Input
+                                        type="text"
+                                        placeholder="Enter Service"
+                                        value={productFormData.service}
+                                        onChange={(e) => {
+                                            setProductFormData({
+                                                ...productFormData,
+                                                service: e.target.value
+                                            })
+                                        }}
+                                    />
+                                </div>
+                                <div>
+                                    <Input
+                                        type="number"
+                                        placeholder="Enter Pocket"
+                                        value={productFormData.pocket}
+                                        onChange={(e) => {
+                                            setProductFormData({
+                                                ...productFormData,
+                                                pocket: e.target.value
                                             })
                                         }}
                                     />
@@ -400,11 +521,14 @@ function Product({ data, id }) {
                                 </div>
                             </div>
 
-                            <Button className='mt-2' onClick={handleProductFrom}>
-                                {
-                                    id ? "Update" : "Add"
-                                }
-                            </Button>
+                            <div className="flex justify-between mt-4">
+                                <Button disabled={!productFormData.price || !productFormData.discount} onClick={handleMrp}>Calculate MRP</Button>
+                                <Button disabled={!productFormData.mrp || !filename.length} className='mt-2' onClick={handleProductFrom}>
+                                    {
+                                        id ? "Update" : "Add Product"
+                                    }
+                                </Button>
+                            </div>
                         </form>
                     </div>
                 </div>

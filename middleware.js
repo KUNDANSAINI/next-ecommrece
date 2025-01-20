@@ -3,21 +3,21 @@ import { NextResponse } from 'next/server';
 import Cookies from 'js-cookie';
 
 export async function middleware(request) {
-    const path=request.nextUrl.pathname
-    const isPublicPath= path === "/login" || path === '/register' || path === "/" ;
+    const path = request.nextUrl.pathname
+    const isPublicPath = path === "/login" || path === '/register' || path === "/";
 
     const token = request.cookies.get("token");
 
     if (!isPublicPath && !token) {
         return NextResponse.redirect(new URL('/login', request.url));
     }
-    
+
 
     if (token) {
         try {
             const secretKey = new TextEncoder().encode("next-ecommrece");
-            
-            await jwtVerify(token.value, secretKey,{
+
+            await jwtVerify(token.value, secretKey, {
                 algorithms: ['HS512'],
             });
 
@@ -31,8 +31,6 @@ export async function middleware(request) {
             return NextResponse.redirect(new URL('/login', request.url));
         }
     }
-
-    return NextResponse.next();
 }
 
 export const config = {

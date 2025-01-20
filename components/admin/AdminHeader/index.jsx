@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { GlobalContext } from "@/context";
 import { AlignRight, LogOut, Vegan } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import { useContext, useState } from "react";
 import AdminLeftbar from "../Admin-Leftbar";
 import { Sheet, SheetContent, SheetHeader } from "@/components/ui/sheet";
@@ -45,7 +45,7 @@ function AdminHeader() {
                         <div className="flex gap-4">
                         <Button variant="outline" size="icon" className="hidden md:flex justify-center drop-shadow-lg" onClick={handleLogout}><LogOut /></Button>
                         <Button variant="outline" size="icon" className=" drop-shadow-lg lg:hidden" onClick={() => { setOpenNavbar(!openNavbar) }} ><AlignRight /></Button>
-                        <DropdownMenu>
+                        {/* <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <Button variant="outline" size="icon" className="shadow-lg">
                                     <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
@@ -64,7 +64,7 @@ function AdminHeader() {
                                     System
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
-                        </DropdownMenu>
+                        </DropdownMenu> */}
                         </div>
                     </div>
                 </div>

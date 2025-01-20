@@ -112,8 +112,11 @@ function Brand() {
                 }
             })
             if (response.data.success === true) {
+                const data = getBrands.filter((value)=>{
+                    return value._id !== id
+                })
+                setGetBrand(data)
                 toast.success("Brand Successfully Deleted!")
-                router.refresh()
             } else {
                 toast.error(response.data.message)
             }

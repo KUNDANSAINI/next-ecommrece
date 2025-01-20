@@ -21,6 +21,7 @@ import { GlobalContext } from "@/context";
 import { Card } from "@/components/ui/card";
 import Navbar from "@/components/includes/Navbar";
 import Footer from "@/components/includes/Footer";
+import Cookies from "js-cookie";
 
 function Page() {
     const [getBrand, setGetBrand] = useState([])
@@ -47,7 +48,7 @@ function Page() {
             const [response1, response2] = await Promise.all([
                 axios.get(`${API_URL}/api/brand`),
                 axios.get(`${API_URL}/api/category`),
-            ]);            
+            ]);
 
             if (response1.data.success === true || response2.data.success === true) {
                 setGetBrand(response1.data.getAllBrand);
@@ -58,7 +59,7 @@ function Page() {
             console.error("Error fetching data:", error);
         }
     }
-    
+
     async function fetchProduct() {
         try {
             setLoading(true)
@@ -110,28 +111,6 @@ function Page() {
 
         setFiltered(filtered);
     };
-
-    async function handleCart(product) {
-        try {
-            const data = { productID: product._id, userID }
-            if (!userID) {
-                router.push('/login')
-                return toast.error("You Are Not Login. Please Login Here")
-            }
-            const response = await axios.post('/api/cart', data, {
-                headers: {
-                    Authorization: `Bearer ${Cookies.get("token")}`
-                }
-            })
-            if (response.data.success === true) {
-                toast.success("Product Successfully Added In Cart")
-            } else {
-                toast.error(response.data.message)
-            }
-        } catch (error) {
-            console.error("Add To Cart Error:", error)
-        }
-    }
 
 
     return (
@@ -220,9 +199,10 @@ function Page() {
                                                     <div>
                                                         <Link href={`/${type}/${product.category}/${product._id}`}><h3 className="font-semibold text-lg">{product.productName}</h3></Link>
                                                         <p className="text-gray-500 text-sm mt-2">Type: {product.subCategory}</p>
-                                                        <p className="mt-2 flex items-center font-semibold"><IndianRupee size={15} className="mb-0.5" />{product.price}<span className="text-xs italic ml-2 text-green-600">{product.discount}</span></p>
-                                                        <Button variant="outline" className=" w-full mt-4" onClick={() => { handleCart(product) }}>Add To Cart</Button>
-                                                        <Button variant="outline" className=" w-full mt-2">Buy Now</Button>
+                                                        <p className="flex text-lg font-semibold items-center gap-3">
+                                                            ₹{product.mrp} <span className="text-gray-600 font-normal text-sm line-through">₹{product.price}</span><span className="text-green-600 text-sm">{product.discount}% off</span>
+                                                        </p>
+                                                        <Link href={`/${type}/${product.category}/${product._id}`}><Button className=" w-full mt-4">See Item</Button></Link>
                                                     </div>
                                                 </Card>
                                             ))

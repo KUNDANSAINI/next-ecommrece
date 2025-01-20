@@ -73,7 +73,7 @@ export function CartSheet({ cartSheetOpen, setCartSheetOpen }) {
                         <Loading />
                     ) : (
                         <>
-                            <div className=" overflow-y-auto">
+                            <div className="overflow-y-auto">
                                 {
                                     cartItems && cartItems.length > 0 ? (
                                         cartItems.map((item, index) => (
@@ -83,7 +83,7 @@ export function CartSheet({ cartSheetOpen, setCartSheetOpen }) {
                                                 </div>
                                                 <div>
                                                     <h2>{item.productID.productName}</h2>
-                                                    <p className="flex items-center mt-2"><IndianRupee size={13} className="mb-0.5" />{item.productID.price}</p>
+                                                    <p className="flex items-center mt-2"><IndianRupee size={13} className="mb-0.5" />{item.price}</p>
                                                     <Button variant="link" className="p-0 text-red-600" onClick={() => { handleRemoveItem(item._id) }}>Remove</Button>
                                                 </div>
                                             </Card>
@@ -98,7 +98,7 @@ export function CartSheet({ cartSheetOpen, setCartSheetOpen }) {
                                         {
                                             cartItems && cartItems.length > 0 ? (
                                                 cartItems.reduce((total, item) =>
-                                                    item.productID.price + total, 0
+                                                    item.price + total, 0
                                                 )
                                             ) : "0"
                                         }

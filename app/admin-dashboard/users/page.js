@@ -70,8 +70,11 @@ function User() {
                 }
             })
             if (response.data.success === true) {
+                const data = getUsers.filter((value)=>{
+                    return value._id !== id
+                })
+                setGetUsers(data)
                 toast.success("User SuccessFully Deleted!")
-                router.refresh()
             } else {
                 toast.error(response.data.message)
             }

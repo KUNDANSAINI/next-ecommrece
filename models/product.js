@@ -27,10 +27,28 @@ const productSchema = new mongoose.Schema({
         required: true
     },
     discount: {
+        type: Number,
+        required: true
+    },
+    mrp: {
+        type: Number,
+        required: true
+    },
+    stock: {
         type: String,
+        required: true
     },
     warranty: {
         type: String,
+    },
+    color: {
+        type: String,
+    },
+    service: {
+        type: String,
+    },
+    pocket: {
+        type: Number,
     },
     delivery: {
         type: String,
@@ -40,9 +58,6 @@ const productSchema = new mongoose.Schema({
     },
     desc: {
         type: String,
-    },
-    qty: {
-        type: Number,
     },
     size: [],
     filename: []

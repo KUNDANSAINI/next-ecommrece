@@ -53,14 +53,14 @@ export default function RootLayout({ children }) {
       >
         <GlobalState>
           <NextTopLoader />
-          <ThemeProvider
+          {/* <ThemeProvider
             attribute="class"
             defaultTheme="system"
             enableSystem
             disableTransitionOnChange
-          >
+          > */}
             {children}
-          </ThemeProvider>
+          {/* </ThemeProvider> */}
           <ToastContainer
             theme={theme === "dark" ? "dark" : "light"} // Dynamically set theme
             position="top-right" // Optional: Toast position

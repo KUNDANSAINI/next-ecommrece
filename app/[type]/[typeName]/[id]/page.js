@@ -13,6 +13,19 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { GlobalContext } from "@/context";
 import { API_URL } from "@/env";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import { CartSheet } from "@/components/includes/Cart-Sheet";
+import { Minus, Plus } from "lucide-react";
+import {
+    Table,
+    TableBody,
+    TableCaption,
+    TableCell,
+    TableFooter,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table"
+import Loading from "@/components/Loading";
 
 
 function Page() {
@@ -20,8 +33,11 @@ function Page() {
     const { id, type, typeName } = params
     const router = useRouter()
     const [getProduct, setGetProduct] = useState(null)
+    const [cartSheetOpen, setCartSheetOpen] = useState(false)
     const [loading, setLoading] = useState(false)
     const { userID } = useContext(GlobalContext)
+    const [qty, setQty] = useState(1)
+    const [selectedSize, setSelectedSize] = useState(null);
 
     useEffect(() => {
         if (id) {
@@ -50,12 +66,23 @@ function Page() {
         }
     }
 
+    function handleDecrement() {
+        setQty((prevQty) => (prevQty > 1 ? prevQty - 1 : prevQty));
+    }
+
+    function handleIncrement() {
+        setQty((prevQty) => prevQty + 1);
+    }
+
     async function handleCart(product) {
         try {
-            const data = { productID: product._id, userID }
+            const data = { productID: product._id, userID, qty, selectedSize, price: (product.mrp)*qty }            
             if (!userID) {
                 router.push('/login')
                 return toast.error("You Are Not Login. Please Login Here")
+            }
+            if (!selectedSize) {
+                return toast.error("Please Select A Size.")
             }
             const response = await axios.post('/api/cart', data, {
                 headers: {
@@ -64,6 +91,7 @@ function Page() {
             })
             if (response.data.success === true) {
                 toast.success("Product Successfully Added In Cart")
+                setCartSheetOpen(true)
             } else {
                 toast.error(response.data.message)
             }
@@ -77,15 +105,16 @@ function Page() {
             getProduct !== null ? (
                 <div className="mx-4 mt-10">
                     <Navbar type={type} />
-                    <Card className="my-8 p-4">
+                    <CartSheet cartSheetOpen={cartSheetOpen} setCartSheetOpen={setCartSheetOpen} />
+                    <div className="my-8 p-4">
                         <div className="w-full flex flex-col lg:flex-row">
-                            <div className="w-full lg:w-2/5 flex flex-col lg:flex-row items-center lg:justify-evenly gap-4">
-                                <div className="flex lg:flex-col gap-4">
+                            <div className="w-full lg:w-2/5 flex flex-col lg:flex-row lg:justify-evenly gap-4 items-center h-[600px]">
+                                <div className="flex lg:flex-col justify-center gap-4">
                                     {
                                         getProduct.filename && getProduct.filename.length > 0 ? (
                                             getProduct.filename.map((image, index) => (
                                                 <div key={index}>
-                                                    <img src={image.name} alt={image.name} className="w-[70px]" onClick={() => { setSideImage(image.name) }} />
+                                                    <img src={image.name} alt={image.name} className="w-[80px]" />
                                                 </div>
                                             ))
                                         ) : (
@@ -97,7 +126,7 @@ function Page() {
                                     <CarouselContent>
                                         {getProduct.filename.map((image, index) => (
                                             <CarouselItem key={index}>
-                                                <div className="flex justify-center items-center overflow-hidden h-[500px] w-[350px]">
+                                                <div className="flex overflow-hidden h-[500px] w-[350px]">
                                                     <img src={image.name} alt={image.name} className="object-cover" />
                                                 </div>
                                             </CarouselItem>
@@ -112,32 +141,81 @@ function Page() {
                                 <h2 className="text-2xl">{getProduct.productName}</h2>
                                 <p className="text-green-600 font-semibold mt-6">Special price</p>
                                 <div className="flex items-center gap-4 mt-2">
-                                    <p className="text-3xl font-semibold">₹ {getProduct.price}</p>
-                                    <p className="text-green-600 font-semibold">{getProduct.discount}</p>
+                                    <p className="text-3xl font-semibold">₹ {(getProduct.mrp)*qty}</p>
+                                    <span className="text-gray-600 font-semibold text-sm line-through">₹{getProduct.price}</span>
+                                    <p className="text-green-600 text-sm font-semibold">{getProduct.discount}% off</p>
                                 </div>
 
                                 <div className="flex flex-col gap-4 mt-8">
-                                    <p className="flex items-center gap-4 text-lg font-bold">Size:
-                                        {
-                                            getProduct && getProduct.size.length > 0 ? (
-                                                getProduct.size.map((size, index) => (
-                                                    <Button variant="outline" className="flex justify-center items-center" key={index}>
-                                                        <span>{size}</span>
-                                                    </Button>
-                                                ))
-
-                                            ) : null
-                                        }
+                                    <p className="flex items-center gap-4 font-bold">
+                                        Size:
+                                        {getProduct && getProduct.size.length > 0 ? (
+                                            getProduct.size.map((size, index) => (
+                                                <Button
+                                                    variant="outline"
+                                                    size="icon"
+                                                    className={`flex justify-center items-center ${selectedSize === size ? 'bg-black text-white' : ''
+                                                        }`}
+                                                    key={index}
+                                                    onClick={() => { setSelectedSize(size) }} // Handle click to select size
+                                                >
+                                                    <span>{size}</span>
+                                                </Button>
+                                            ))
+                                        ) : null}
+                                    </p>
+                                    <p className="flex font-semibold items-center">
+                                        <Button variant="outline" size="icon" className="" onClick={handleDecrement}>
+                                            <Minus />
+                                        </Button>
+                                        <p className="mx-3">{qty}</p>
+                                        <Button variant="outline" size="icon" onClick={handleIncrement}>
+                                            <Plus />
+                                        </Button>
                                     </p>
                                     <div className="flex flex-col gap-2">
-                                        <p><span className="font-bold">Type:</span> {getProduct.subCategory}</p>
-                                        <p><span className="font-bold">Category:</span> {getProduct.category}</p>
+                                        <p><span className="font-bold">Type: </span> {getProduct.subCategory}</p>
+                                        <div className="flex justify-between">
+                                            <p><span className="font-bold">Color:</span> {getProduct.color}</p>
+                                            <p className="text-sm">Service: {getProduct.service}</p>
+                                        </div>
+                                        <p className={`${getProduct.stock === "In-stock" ? "font-bold text-green-800" : "font-bold text-red-600"}`}>{getProduct.stock}</p>
                                     </div>
                                 </div>
+
                                 <div className="flex justify-between gap-4 mt-6">
-                                    <Button variant="outline" className="w-full" onClick={() => { handleCart(getProduct) }} >Add To Cart</Button>
-                                    <Button variant="outline" className="w-full">Buy Now</Button>
+                                    <Button className="w-full" onClick={() => { handleCart(getProduct) }} >Add To Cart</Button>
+                                    <Button className="w-full">Buy Now</Button>
                                 </div>
+
+                                <Table className="mt-6">
+                                    <TableBody>
+                                        <TableRow>
+                                            <TableCell>Brand</TableCell>
+                                            <TableCell>{getProduct.brand}</TableCell>
+                                        </TableRow>
+                                        <TableRow>
+                                            <TableCell>Type</TableCell>
+                                            <TableCell>{getProduct.subCategory}</TableCell>
+                                        </TableRow>
+                                        <TableRow>
+                                            <TableCell>Category</TableCell>
+                                            <TableCell>{getProduct.category}</TableCell>
+                                        </TableRow>
+                                        <TableRow>
+                                            <TableCell>Color</TableCell>
+                                            <TableCell>{getProduct.color}</TableCell>
+                                        </TableRow>
+                                        <TableRow>
+                                            <TableCell>Pocket</TableCell>
+                                            <TableCell>{getProduct.pocket}</TableCell>
+                                        </TableRow>
+                                        <TableRow>
+                                            <TableCell>Warranty</TableCell>
+                                            <TableCell>{getProduct.warranty}</TableCell>
+                                        </TableRow>
+                                    </TableBody>
+                                </Table>
                             </div>
                         </div>
 
@@ -176,17 +254,11 @@ function Page() {
                                 </div>
                             </div>
                         </div>
-                    </Card>
+                    </div>
                     <Footer />
                 </div>
             ) : (
-                <div className="flex flex-col h-screen justify-center items-center space-y-3">
-                    <Skeleton className="h-[125px] w-[250px] rounded-xl" />
-                    <div className="space-y-2">
-                        <Skeleton className="h-4 w-[250px]" />
-                        <Skeleton className="h-4 w-[200px]" />
-                    </div>
-                </div>
+                <Loading />
             )
         }
         </>

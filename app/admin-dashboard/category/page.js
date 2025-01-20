@@ -133,8 +133,11 @@ function Category() {
                 }
             })
             if (response.data.success === true) {
+                const data = getCategory.filter((value)=>{
+                    return value._id !== id
+                })
+                setGetCategory(data)
                 toast.success("Category Successfully Deleted!")
-                router.refresh()
             } else {
                 toast.error(response.data.message)
             }

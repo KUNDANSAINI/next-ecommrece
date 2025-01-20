@@ -4,9 +4,8 @@ import { GlobalContext } from "@/context";
 import { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "react-toastify";
-import { Skeleton } from "@/components/ui/skeleton";
 import { API_URL, PUBLISHABLE_KEY } from "@/env";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,6 +14,14 @@ import { loadStripe } from "@stripe/stripe-js";
 import Navbar from "@/components/includes/Navbar";
 import Footer from "@/components/includes/Footer";
 import Loading from "@/components/Loading";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog"
 
 
 function Checkout() {
@@ -22,7 +29,11 @@ function Checkout() {
     const [cartItems, setCartItems] = useState([])
     const [userAddress, setUserAddress] = useState(null)
     const [confirmAddress, setConfirmAddress] = useState(null)
+    const [orderSuccess, setOrderSuccess] = useState(false)
+    const [isOrderProcessing, setIsOrderProcessing] = useState(false)
+    // const [orderDialog, setOrderDialog] = useState(false)
     const router = useRouter()
+    const params = useSearchParams()    
 
     const publishable_key = PUBLISHABLE_KEY
     const stripePromise = loadStripe(publishable_key)
@@ -51,6 +62,47 @@ function Checkout() {
         }
     }
 
+    useEffect(() => {
+
+        async function createFinalOrder() {
+            const isStripe = JSON.parse(localStorage.getItem("stripe"))
+
+            if (isStripe && params.get('status') === 'success' && cartItems && cartItems.length > 0) {
+                setIsOrderProcessing(true)
+                const getCheckoutFormData = JSON.parse(localStorage.getItem("checkoutFormData"));
+
+                const createFinalCheckoutFormData = {
+                    userId: userID,
+                    shippingAddress: getCheckoutFormData.shippingAddress,
+                    orderItems: cartItems.map(item => ({
+                        qty: item.qty,
+                        product: item.productID
+                    })),
+                    paymentMethod: "Stripe",
+                    totalPrice: cartItems.reduce((total, item) =>
+                        item.price + total, 0
+                    ),
+                    isPaid: true,
+                    isProcessing: true,
+                    paidAt: new Date()
+                }
+
+                const response = await axios.post('/api/order', createFinalCheckoutFormData)
+                if (response.data.success === true) {
+                    setIsOrderProcessing(false)
+                    setOrderSuccess(true)
+                    toast.success(response.data.message)
+                } else {
+                    setIsOrderProcessing(false)
+                    setOrderSuccess(false)
+                    toast.success(response.data.message)
+                }
+            }
+        }
+
+        createFinalOrder()
+
+    }, [params.get("status"), cartItems])
 
     async function fetchUserAddress(userID) {
         try {
@@ -72,8 +124,7 @@ function Checkout() {
             totalPrice: 0,
             paidAt: new Date(),
             paymentMethod: "",
-            ShippingAddress: {
-                id: userID,
+            shippingAddress: {
                 userName: userAddress.firstName,
                 city: userAddress.city,
                 country: userAddress.country,
@@ -85,6 +136,11 @@ function Checkout() {
 
     async function handleCheckOut() {
         try {
+            if(!userID){
+                router.push('/login')
+                toast.error("You Are Not Login. Please Login Here ?")
+                return
+            }
             const stripe = await stripePromise;
             const createLineItem = cartItems.map(item => ({
                 price_data: {
@@ -92,13 +148,14 @@ function Checkout() {
                     product_data: {
                         name: item.productID.productName
                     },
-                    unit_amount: item.productID.price * 100
+                    unit_amount: item.price * 100
                 },
-                quantity: 1
+                quantity: item.qty
             }))
 
             const response = await axios.post('/api/stripe', createLineItem)
             if (response.data.success === true) {
+                setIsOrderProcessing(true)
                 localStorage.setItem("stripe", true)
                 localStorage.setItem("checkoutFormData", JSON.stringify(confirmAddress))
 
@@ -113,6 +170,30 @@ function Checkout() {
         } catch (error) {
             console.log("Checkout Error", error);
         }
+    }
+
+    if (isOrderProcessing) {
+        return (
+            <div className="h-screen">
+                <Loading />
+            </div>
+        )
+    }
+
+    if (orderSuccess) {
+
+        return (
+            <div className="mx-4 mt-10 flex h-screen flex-col justify-between">
+                <Navbar />
+                <div className="flex mx-auto gap-4 w-full md:w-1/2 p-2">
+                    <div className="flex flex-col gap-5 w-full">
+                        <h2 className="text-xl text-center font-semibold">Your Payment Is Successfull</h2>
+                        <Link href='/order'><Button className="w-full">View Your Order</Button></Link>
+                    </div>
+                </div>
+                <Footer />
+            </div>
+        )
     }
 
     return (
@@ -132,7 +213,7 @@ function Checkout() {
                                                     <div className="flex w-full flex-col gap-2">
                                                         <h2 className="my-4 text-lg">{item.productID.productName}</h2>
                                                         <p className="text-gray-600">Brand: {item.productID.brand}</p>
-                                                        <p className="text-gray-600 flex items-center"><span className="mr-2">Price:</span> <IndianRupee size={15} className="mb-0.5" />{item.productID.price}</p>
+                                                        <p className="text-gray-600 flex items-center"><span className="mr-2">Price:</span> <IndianRupee size={15} className="mb-0.5" />{item.price}</p>
                                                         <p className="text-gray-600">Quentity: {item.qty}</p>
                                                     </div>
                                                 </div>
@@ -148,7 +229,7 @@ function Checkout() {
                                             {
                                                 cartItems && cartItems.length > 0 ? (
                                                     cartItems.reduce((total, item) =>
-                                                        item.productID.price + total, 0
+                                                        item.price + total, 0
                                                     )
                                                 ) : "0"
                                             }
@@ -203,16 +284,18 @@ function Checkout() {
                                         <p>{userAddress.ifse}</p>
                                     </div>
                                 </div>
-                                <Button variant="outline" disabled={confirmAddress !== null} onClick={() => router.push('/account')} className="mt-4 w-full">Edit Details</Button>
-                                <Button variant="outline" disabled={cartItems.length === 0 || confirmAddress !== null} onClick={handleAddress} className="mt-2 w-full">Confirm</Button>
+                                <Button disabled={confirmAddress !== null} onClick={() => router.push('/account')} className="mt-4 w-full">Edit Details</Button>
+                                <Button disabled={cartItems.length === 0 || confirmAddress !== null} onClick={handleAddress} className="mt-2 w-full">Confirm</Button>
                             </Card>
 
                         </div>
-                        <Button variant="outline" disabled={confirmAddress === null || cartItems.length === 0} onClick={handleCheckOut} className="w-3/4 mx-auto mt-4 mb-8">Checkout</Button>
+                        <Button disabled={confirmAddress === null || cartItems.length === 0} onClick={handleCheckOut} className="w-3/4 mx-auto mt-4 mb-8">Order Now</Button>
                         <Footer />
                     </div>
                 ) : (
-                    <Loading />
+                    <div className="h-screen">
+                        <Loading />
+                    </div>
                 )
             }
         </>

@@ -27,18 +27,17 @@ const Footer = () => {
             </ul>
           </div>
           <div>
-            <h3 className="font-semibold text-lg mb-3">HELP</h3>
+            <h3 className="font-semibold text-lg mb-3">Other</h3>
             <ul className="space-y-2">
-              <li><Link href="#" className="hover:underline">Contact Us</Link></li>
-              <li><Link href="#" className="hover:underline">FAQ</Link></li>
+              <li><Link href="/about-us" className="hover:underline">About Us</Link></li>
+              <li><Link href="/refund-policy" className="hover:underline">Return & Refund policy</Link></li>
             </ul>
           </div>
           <div>
-            <h3 className="font-semibold text-lg mb-3">ABOUT</h3>
-            <ul className="space-y-2">
-              <li><Link href="#" className="hover:underline">Gift Cards</Link></li>
-              <li><Link href="#" className="hover:underline">Refer a Friend</Link></li>
-              <li><Link href="#" className="hover:underline">Wholesale</Link></li>
+            <h3 className="font-semibold text-lg mb-3">Get In Touch</h3>
+            <ul className="space-y-2 pr-4">
+              <li>Mail:support@zone1880.com</li>
+              <li>ZONE (🇮🇳) - ZONE | Kumba marg, Sector - 162/62, Jaipur - 302022, INDIA</li>
             </ul>
           </div>
         </div>
@@ -58,19 +57,19 @@ const Footer = () => {
           </form>
           {/* Social Icons */}
           <div className="flex justify-end space-x-4 mt-4">
-            <a href="#"><IconBrandInstagramFilled /></a>
-            <a href="#"><IconBrandMeta stroke={2} /></a>
-            <a href="#"><IconBrandTwitterFilled /></a>
+            <Link href="#"><IconBrandInstagramFilled /></Link>
+            <Link href="#"><IconBrandMeta stroke={2} /></Link>
+            <Link href="#"><IconBrandTwitterFilled /></Link>
           </div>
         </div>
       </div>
 
       {/* Footer Bottom Links */}
       <div className="mt-10 flex flex-col md:flex-row justify-between items-center text-sm space-y-4 md:space-y-0 text-gray-400">
-        <p>{`© ${currentYear} Olipop, Inc. All Rights Reserved`}</p>
+        <p>{`© ${currentYear} ZONE, Inc. All Rights Reserved`}</p>
         <div className="flex space-x-4">
-          <a href="#" className="hover:underline">Terms of Service</a>
-          <a href="#" className="hover:underline">Privacy Policy</a>
+          <Link href="/terms-of-service" className="hover:underline">Terms of Service</Link>
+          <Link href="/privacy-policy" className="hover:underline">Privacy Policy</Link>
         </div>
       </div>
     </footer>

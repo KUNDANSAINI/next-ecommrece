@@ -5,11 +5,7 @@ import Head from 'next/head'
 import { GlobalContext } from "@/context";
 import { useContext, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import axios from "axios";
-import Cookies from "js-cookie";
-import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
-import { IndianRupee } from "lucide-react";
 import Autoplay from "embla-carousel-autoplay"
 import {
     Carousel,
@@ -20,41 +16,13 @@ import {
 } from "@/components/ui/carousel"
 import Link from "next/link";
 import Footer from "../Footer";
-import { CartSheet } from "../Cart-Sheet";
 
 export default function HomePage({ getBrands, getCategory, getProduct }) {
-    const [cartSheetOpen, setCartSheetOpen] = useState(false)
-    const { userID } = useContext(GlobalContext)
     const [itemsToShow, setItemsToShow] = useState(4);
-    const router = useRouter()
 
     const handleMoreClick = () => {
         setItemsToShow((prev) => prev + 4);
     };
-
-    // Cart Item Function Data 
-    async function handleCart(product) {
-        try {
-            const data = { productID: product._id, userID }
-            if (!userID) {
-                router.push('/login')
-                return toast.error("You Are Not Login. Please Login Here")
-            }
-            const response = await axios.post('/api/cart', data, {
-                headers: {
-                    Authorization: `Bearer ${Cookies.get("token")}`
-                }
-            })
-            if (response.data.success === true) {
-                toast.success(response.data.message)
-                setCartSheetOpen(true)
-            } else {
-                toast.error(response.data.message)
-            }
-        } catch (error) {
-            console.error("Add To Cart Error", error)
-        }
-    }
 
     const plugin = useRef(
         Autoplay({ delay: 4000, stopOnInteraction: true })
@@ -70,7 +38,6 @@ export default function HomePage({ getBrands, getCategory, getProduct }) {
 
             <div className="mx-4 mt-10">
                 <Navbar />
-                <CartSheet cartSheetOpen={cartSheetOpen} setCartSheetOpen={setCartSheetOpen} />
                 <div className="flex flex-col mt-8">
 
                     {/* Banner Section */}
@@ -129,19 +96,26 @@ export default function HomePage({ getBrands, getCategory, getProduct }) {
                                 getProduct.slice(0, itemsToShow).map((product, index) => (
                                     <div className="flex flex-col sm:flex-row gap-2 border rounded-2xl p-4 sm:gap-4" key={index}>
                                         <div className="grid justify-center">
-                                        <Link href={`/${product.subCategory}/${product.category}`} className="flex items-center justify-center w-[108px] md:w-[188px] overflow-hidden">
-                                            <img src={product.filename[0].name} alt={product.filename[0].name} className="object-cover rounded-lg" />
-                                        </Link>
+                                            <Link href={`/${product.subCategory}/${product.category}`} className="flex items-center justify-center w-[108px] md:w-[188px] overflow-hidden">
+                                                <img src={product.filename[0].name} alt={product.filename[0].name} className="object-cover rounded-lg" />
+                                            </Link>
                                         </div>
                                         <div className="flex flex-col w-full gap-2">
                                             <Link href={`/${product.subCategory}/${product.category}`}><h2 className="my-4 text-lg">{product.productName}</h2></Link>
-                                            <p className="text-gray-600">{product.brand}</p>
-                                            <p className="text-gray-600 flex items-center gap-0.5">
-                                                Price: <IndianRupee size={15} className="mb-0.5" />{product.price} <span className="text-green-600 text-sm italic">{product.discount}% off</span>
+                                            <p className="text-gray-600 font-semibold">{product.brand}</p>
+                                            <p className="flex text-lg font-semibold items-center gap-3">
+                                                ₹{product.mrp} <span className="text-gray-600 font-normal text-sm line-through">₹{product.price}</span><span className="text-green-600 text-sm">{product.discount}% off</span>
                                             </p>
-                                            <p className="text-gray-600">Type: {product.category}</p>
-                                            <Button variant="outline" onClick={() => handleCart(product)}>Add To Cart</Button>
-                                            <Button variant="outline" >Buy Now</Button>
+                                            <p className="text-gray-600">{product.category}</p>
+                                            <div className="flex gap-1">
+                                                <p className="text-gray-600 font-semibold">Size:</p>
+                                            {
+                                                product.size.map((value,index) => (
+                                                    <p className="text-gray-600" key={index}>{value},</p>
+                                                ))
+                                            }
+                                            </div>
+                                            <Link className="w-full" href={`/${product.subCategory}/${product.category}`}><Button className="w-full">See Item</Button></Link>
                                         </div>
                                     </div>
                                 ))
@@ -188,7 +162,7 @@ export default function HomePage({ getBrands, getCategory, getProduct }) {
 
                 </div>
                 <Footer />
-            </div>
+            </div >
         </>
     );
 }

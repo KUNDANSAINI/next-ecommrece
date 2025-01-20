@@ -8,7 +8,7 @@ import {
     SheetContent,
     SheetHeader,
 } from "@/components/ui/sheet"
-import { usePathname, useRouter } from "next/navigation";
+import { redirect, usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { GlobalContext } from "@/context";
 import Cookies from "js-cookie";
@@ -20,6 +20,8 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { IconArrowBadgeRightFilled, IconTruckDelivery } from "@tabler/icons-react";
+// import Logo from "@/public/logo/15538960.svg"
 
 
 
@@ -45,7 +47,7 @@ function Navbar({ type }) {
                 <div className="w-full flex flex-wrap items-center justify-around">
                     {/* Logo Image */}
                     <span className="flex items-center gap-2 cursor-pointer" onClick={() => router.push('/')} >
-                        <Button variant="outline" size="icon" className=" drop-shadow-lg"><Vegan /></Button><span className="hidden md:block drop-shadow-lg" style={{ fontFamily: 'Rubik Glitch, sans-serif' }}>BAZZKIT PRO</span>
+                        <p style={{ fontFamily: 'Wallpoet, sans-serif' }} className="flex justify-center items-center rounded text-2xl shadow-lg w-10 h-10 border drop-shadow-lg font-extrabold">Z</p><span className="hidden md:block drop-shadow-lg" style={{ fontFamily: 'Rubik Glitch, sans-serif' }}>ZONE</span>
                     </span>
 
                     {/* Navbar items */}
@@ -63,8 +65,17 @@ function Navbar({ type }) {
                         {
                             isLogin && !user ? (
                                 <>
-                                    <Link href={'/order'}><Button variant="outline" className="hidden md:flex items-center drop-shadow-lg" size="icon"><Truck /></Button></Link>
-                                    <Link href={'/cart'}><Button variant="outline" className=" drop-shadow-lg" size="icon"><ShoppingBag /></Button></Link>
+                                    <Link href={'/order'}><Button variant="outline" className="hidden md:flex items-center drop-shadow-lg" size="icon"><IconTruckDelivery /></Button></Link>
+                                    <Link href={'/cart'}>
+                                        <Button variant="outline" className="drop-shadow-lg relative" size="icon">
+                                            <ShoppingBag />
+                                            <span className="absolute top-0 right-0 -mt-1 -mr-1 flex h-3 w-3">
+                                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
+                                                <span className="relative inline-flex rounded-full h-3 w-3 bg-sky-500"></span>
+                                            </span>
+                                        </Button>
+                                    </Link>
+
                                     <Link href={'/account'}><Button variant="outline" className="hidden md:flex items-center drop-shadow-lg" size="icon"><CircleUserRound /></Button></Link>
                                     <Button variant="outline" size="icon" className="hidden md:flex items-center drop-shadow-lg" onClick={() => { handleLogout() }}><LogOut /></Button>
                                 </>
@@ -75,7 +86,7 @@ function Navbar({ type }) {
                                 <Link href={'/login'}><Button variant="outline" className="rounded-full shadow-lg">Login</Button></Link>
                             ) : null
                         }
-                        <DropdownMenu>
+                        {/* <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <Button variant="outline" size="icon" className="shadow-lg">
                                     <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
@@ -94,7 +105,7 @@ function Navbar({ type }) {
                                     System
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
-                        </DropdownMenu>
+                        </DropdownMenu> */}
                     </div>
                     <Button variant="outline" size="icon" className=" drop-shadow-lg lg:hidden" onClick={() => { setOpenNavbar(!openNavbar) }} ><AlignRight /></Button>
                 </div>

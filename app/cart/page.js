@@ -8,8 +8,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
-import { IndianRupee, Minus, Plus } from "lucide-react";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Minus, Plus } from "lucide-react";
 import { API_URL } from "@/env";
 import Link from "next/link";
 import Navbar from "@/components/includes/Navbar";
@@ -48,7 +47,7 @@ function Cart() {
     async function handleRemoveItem(id) {
         try {
             if (!id) {
-                toast.error("Invalid ID")
+                return toast.error("Invalid ID")
             }
             const response = await axios.delete(`/api/cart/${id}`)
             if (response.data.success === true) {
@@ -64,12 +63,46 @@ function Cart() {
         }
     }
 
-    function handleDercrment(qty) {
-        alert(qty - 1)
-    }
+    const handleDecrement = (id) => {
+        setCartItems((prevItems) =>
+            prevItems.map((item) =>
+                item._id === id && item.qty > 1
+                    ? {
+                        ...item,
+                        qty: item.qty - 1,
+                        price: (item.qty - 1) * item.productID.mrp,
+                    }
+                    : item
+            )
+        );
+    };
 
-    function handleIncrement(qty) {
-        alert(qty + 1)
+    // Increment Function
+    const handleIncrement = (id) => {
+        setCartItems((prevItems) =>
+            prevItems.map((item) =>
+                item._id === id
+                    ? {
+                        ...item,
+                        qty: item.qty + 1,
+                        price: (item.qty + 1) * item.productID.mrp,
+                    }
+                    : item
+            )
+        );
+    };
+
+    async function handleCheckout() {
+        try {
+            const response = await axios.put('/api/cart', cartItems)
+            if (response.data.success === true) {                
+                router.push('/checkout')
+            } else {
+                toast.error(response.data.message)
+            }
+        } catch (error) {
+            console.log("Checkout Error:", error);
+        }
     }
 
     return (
@@ -94,18 +127,19 @@ function Cart() {
                                                     }
                                                 </div>
                                                 <div className="grid justify-center">
-                                                <Link href={`/shop/${item.productID._id}`} className="flex items-center justify-center w-40">
-                                                    <img src={item.productID.filename[0].name} alt={item.productID.filename[0].name} className="object-cover rounded" />
-                                                </Link>
+                                                    <Link href={`/${item.productID.subCategory}/${item.productID.category}/${item.productID._id}`} className="flex items-center justify-center w-40">
+                                                        <img src={item.productID.filename[0].name} alt={item.productID.filename[0].name} className="object-cover rounded" />
+                                                    </Link>
                                                 </div>
                                                 <div className="flex w-full flex-col gap-2">
-                                                    <h2 className="my-4 text-lg">{item.productID.productName}</h2>
+                                                    <h2 className="my-2 text-lg">{item.productID.productName}</h2>
                                                     <p className="text-gray-600">Brand: {item.productID.brand}</p>
-                                                    <p className="text-gray-600 flex items-center"><span className="mr-2">Price:</span> <IndianRupee size={15} className="mb-0.5" />{item.productID.price}</p>
-                                                    <p className="text-gray-600 flex items-center">Quentity: <Button variant="outline" size="icon" className="mx-4" onClick={() => { handleDercrment(item.qty) }}><Minus /></Button>{item.qty}<Button variant="outline" size="icon" className="ml-4" onClick={() => { handleIncrement(item.qty) }}><Plus /></Button></p>
+                                                    <p className="text-gray-600">Color: {item.productID.color}</p>
+                                                    <p className="text-gray-600 flex items-center"><span className="mr-2">Price:</span>₹ {item.price}</p>
+                                                    <p className="text-gray-600 flex items-center">Quentity: <Button variant="outline" size="icon" className="mx-4" onClick={() => { handleDecrement(item._id) }}><Minus /></Button>{item.qty}<Button variant="outline" size="icon" className="ml-4" onClick={() => { handleIncrement(item._id) }}><Plus /></Button></p>
                                                     <div className="flex w-full gap-4 mt-2">
                                                         <Button variant="destructive" className="w-1/2" onClick={() => { handleRemoveItem(item._id) }}>Remove Item</Button>
-                                                        <Button variant="outline" className="w-1/2">Buy Now</Button>
+                                                        <Button className="w-1/2">Buy Now</Button>
                                                     </div>
                                                 </div>
                                             </div>
@@ -114,7 +148,7 @@ function Cart() {
                                 ) : (
                                     <>
                                         <img src="https://img.freepik.com/free-vector/questions-concept-illustration_114360-1513.jpg?t=st=1736797388~exp=1736800988~hmac=aa4fe1b3aa013f3a609d5f0e670f75bc93ecbe2fd14118a1aaf32c7cabb873ea&w=826" alt="empaty cart" className="w-full md:w-1/4 rounded-lg dark:brightness-[0.5]" />
-                                        <Button variant="outline" onClick={() => router.push('/')}>Go To Home</Button>
+                                        <Button onClick={() => router.push('/')}>Go To Home</Button>
                                     </>
                                 )
                             }
@@ -124,17 +158,17 @@ function Cart() {
                                     <>
                                         <div className="w-full md:w-1/2 flex justify-between px-4">
                                             <p className="font-semibold text-lg">Total Amount</p>
-                                            <p className="flex items-center gap-0.5"><IndianRupee size={15} className="mb-0.5" />
+                                            <p>₹
                                                 {
                                                     cartItems && cartItems.length > 0 ? (
                                                         cartItems.reduce((total, item) =>
-                                                            item.productID.price + total, 0
+                                                            item.price + total, 0
                                                         )
                                                     ) : "0"
                                                 }
                                             </p>
                                         </div>
-                                        <Link href={'/checkout'} className="w-full md:w-1/2" ><Button variant="secondary" className="w-full">Checkout</Button></Link>
+                                        <Button onClick={handleCheckout} className="w-full md:w-1/2">Checkout</Button>
                                     </>
                                 ) : null
                             }

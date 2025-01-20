@@ -38,6 +38,7 @@ function Product() {
     const [searchName, setSearchName] = useState("")
     const [searchHns, setSearchHns] = useState("")
     const [searchCategory, setSearchCategory] = useState("")
+    const [searchStock, setSearchStock] = useState('')
     const [searchType, setSearchType] = useState("")
     const [searchBrand, setSearchBrand] = useState("")
     const [brand, setBrand] = useState([])
@@ -90,8 +91,11 @@ function Product() {
         try {
             const response = await axios.delete(`/api/product/${id}`)
             if (response.data.success === true) {
+                const data = getProduct.filter((value) => {
+                    return value._id !== id
+                })
+                setGetProduct(data)
                 toast.success("Product Successfully Deleted!")
-                router.refresh()
             } else {
                 toast.error(response.data.message)
             }
@@ -102,7 +106,7 @@ function Product() {
 
     useEffect(() => {
         filterProductData()
-    }, [getProduct, searchHns, searchCategory, searchType, searchBrand, searchName])
+    }, [getProduct, searchHns, searchCategory, searchType, searchBrand, searchStock, searchName])
 
     function filterProductData() {
         let filtered = getProduct;
@@ -130,6 +134,11 @@ function Product() {
         // Search By Brand
         if (searchBrand) {
             filtered = filtered.filter(item => item.brand.toLowerCase() === searchBrand.toLowerCase());
+        }
+
+        // Search By Stock
+        if (searchStock) {
+            filtered = filtered.filter(item => item.stock.toLowerCase() === searchStock.toLowerCase());
         }
 
         setFilteredProduct(filtered)
@@ -223,6 +232,15 @@ function Product() {
                                                 ))
                                             ) : null
                                         }
+                                    </select>
+                                    <select
+                                        value={searchStock}
+                                        onChange={(e) => { setSearchStock(e.target.value) }}
+                                        className="border h-10 px-2 rounded-lg text-sm"
+                                    >
+                                        <option value="">Search By Stock</option>
+                                        <option value={"In-stock"}>In Stock</option>
+                                        <option value={"Out-stock"}>Out Stock</option>
                                     </select>
                                 </div>
                             </div>
