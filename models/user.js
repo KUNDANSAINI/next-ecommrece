@@ -2,74 +2,35 @@ import mongoose from "mongoose";
 
 
 const userSchema = new mongoose.Schema({
-    fullName:{
-        type:String,
-        required:true
+    fullName: {
+        type: String,
     },
-    email:{
-        type:String,
-        required:true,
-        unique:true,
+    email: {
+        type: String,
+        unique: true,
     },
-    password:{
-        type:String,
-        required:true
+    password: {
+        type: String,
     },
-    isAdmin:{
-        type:Boolean,
-        default:false
+    isAdmin: {
+        type: Boolean,
+        default: false
     },
-    personalDetails:{
-        firstName:{
-            type:String,
-            default:null
-        },
-        lastName:{
-            type:String,
-            default:null
-        },
-        dob:{
-            type:Date,
-            default:null
-        },
-        phone:{
-            type:Number,
-            default:null
-        },
-        country:{
-            type:String,
-            default:null
-        },
-        city:{
-            type:String,
-            default:null
-        },
-        pincode:{
-            type:Number,
-            default:null
-        },
-        bankName:{
-            type:String,
-            default:null
-        },
-        ifse:{
-            type:String,
-            default:null
-        },
-        branch:{
-            type:String,
-            default:null
-        },
-        accountNo:{
-            type:String,
-            default:null
-        },
+    otp: {
+        type: String
+    },
+    otpExpiry: {
+        type: Date
+    },
+    isVerified: { 
+        type: Boolean, 
+        default: false 
     }
-},{
+}, {
     timestamps: true
 })
 
 
-const User = mongoose.models.User || mongoose.model("User",userSchema)
+const User = mongoose.models.User || mongoose.model("User", userSchema)
 
 export default User;

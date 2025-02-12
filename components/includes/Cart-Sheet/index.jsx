@@ -8,7 +8,6 @@ import {
     SheetContent,
 } from "@/components/ui/sheet"
 import { GlobalContext } from "@/context"
-import { API_URL } from "@/env"
 import axios from "axios"
 import Cookies from "js-cookie"
 import { ArrowRight, IndianRupee } from "lucide-react"
@@ -21,6 +20,8 @@ export function CartSheet({ cartSheetOpen, setCartSheetOpen }) {
     const [cartItems, setCartItems] = useState([])
     const router = useRouter()
     const [loading, setLoading] = useState(false)
+
+    const API_URL = process.env.NEXT_PUBLIC_CLIENT_URL
 
     useEffect(() => {
         if (userID || cartSheetOpen === true) {
@@ -53,7 +54,10 @@ export function CartSheet({ cartSheetOpen, setCartSheetOpen }) {
             }
             const response = await axios.delete(`/api/cart/${id}`)
             if (response.data.success === true) {
-                router.refresh()
+                const data = cartItems.filter((item)=>{
+                    return item._id !== id
+                })
+                setCartItems(data)
                 toast.success("Item Successfully Remove")
             }
         } catch (error) {

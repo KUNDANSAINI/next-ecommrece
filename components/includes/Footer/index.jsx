@@ -3,7 +3,6 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { IconBrandInstagramFilled, IconBrandMeta, IconBrandTwitterFilled } from '@tabler/icons-react';
-import { Facebook, Instagram, Twitter } from 'lucide-react';
 import Link from 'next/link';
 import React from 'react';
 

@@ -30,12 +30,10 @@ import {
     CarouselPrevious,
 } from "@/components/ui/carousel"
 import axios from "axios";
-import { API_URL } from "@/env";
 import { toast } from "react-toastify";
 import Loading from "@/components/Loading";
 import Link from "next/link";
-import { BadgeCheck } from "lucide-react";
-import { IconMoped, IconProgressAlert, IconProgressCheck, IconTruck } from "@tabler/icons-react";
+import { IconProgressAlert, IconProgressCheck, IconTruck } from "@tabler/icons-react";
 
 
 function Order() {
@@ -44,6 +42,8 @@ function Order() {
     const [loading, setLoading] = useState(false)
     const [visibleIndex, setVisibleIndex] = useState(0); // Default visible item index
     const [showAllItems, setShowAllItems] = useState(false);
+
+    const API_URL = process.env.NEXT_PUBLIC_CLIENT_URL
 
     useEffect(() => {
         if (userID) {
@@ -159,8 +159,8 @@ function Order() {
                                                                 <CardDescription>{order.shippingAddress.userName}</CardDescription>
                                                             </div>
                                                             <div className="flex justify-between">
-                                                                <h2>City:</h2>
-                                                                <CardDescription>{order.shippingAddress.city}</CardDescription>
+                                                                <h2>Address:</h2>
+                                                                <CardDescription>{order.shippingAddress.address}</CardDescription>
                                                             </div>
                                                             <div className="flex justify-between">
                                                                 <h2>Pincode:</h2>

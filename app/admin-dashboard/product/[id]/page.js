@@ -1,53 +1,43 @@
-'use client'
+import Product from "@/components/admin/Product";
+import { GetAllBrand, GetAllCategory, SingleProduct } from "@/action";
 
-import axios from "axios";
-import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
-import { API_URL } from "@/env";
-import Loading from "@/components/Loading";
-import Product from "@/components/includes/Product";
+async function ProductDetails({ params }) {
+    const { id } = params;
 
-function ProductDetails() {
-    const params = useParams()
-    const { id } = params
-    const [getSingleProduct, setGetSingleProduct] = useState(null)
-    const [loading,setLoading] = useState(false)    
+    try {
+        // Fetch data in parallel
+        const [getSingleProduct, getBrands, getCategory] = await Promise.all([
+            SingleProduct(id).catch((err) => {
+                console.error("Failed to fetch single product:", err);
+                return { data: null }; // Fallback for single product
+            }),
+            GetAllBrand().catch((err) => {
+                console.error("Failed to fetch brands:", err);
+                return { data: [] }; // Fallback for brands
+            }),
+            GetAllCategory().catch((err) => {
+                console.error("Failed to fetch categories:", err);
+                return { data: [] }; // Fallback for categories
+            }),
+        ]);
 
-    useEffect(() => {
-        if (id) {
-            fetchSingleProduct(id)
+        // Handle missing product
+        if (!getSingleProduct?.data) {
+            return <div>Failed to load product details. Please try again later.</div>;
         }
-    }, [id])
 
-    async function fetchSingleProduct(id) {
-        try {
-            setLoading(true)
-            const response = await axios.get(`${API_URL}/api/product/${id}`, {
-                headers: {
-                    'Cache-Control': 'no-store',
-                }
-            })
-            if (response.data.success === true) {
-                setGetSingleProduct(response.data.fetchSingleRecord)
-            } else {
-                console.log(response.data.message)
-            }
-        } catch (error) {
-            console.log(error)
-        }finally{
-            setLoading(false)
-        }
+        return (
+            <Product
+                getBrands={getBrands.data}
+                getCategory={getCategory.data}
+                data={getSingleProduct.data}
+                id={id}
+            />
+        );
+    } catch (error) {
+        console.error("An unexpected error occurred:", error);
+        return <div>Failed to load product details. Please try again later.</div>;
     }
-
-    return (
-            loading ? (
-                <div className="flex justify-center items-center h-screen">
-                    <Loading />
-                </div>
-            ) : (
-                <Product data={getSingleProduct} id={id} />
-            )
-    );
 }
 
 export default ProductDetails;

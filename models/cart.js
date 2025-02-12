@@ -9,7 +9,7 @@ const cartSchema = new mongoose.Schema({
     },
     userID: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Auth",
+        ref: "User",
         required: true
     },
     qty: {

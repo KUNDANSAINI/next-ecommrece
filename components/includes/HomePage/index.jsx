@@ -1,11 +1,8 @@
 'use client'
 
 import Navbar from "@/components/includes/Navbar";
-import Head from 'next/head'
-import { GlobalContext } from "@/context";
-import { useContext, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
 import Autoplay from "embla-carousel-autoplay"
 import {
     Carousel,
@@ -30,12 +27,6 @@ export default function HomePage({ getBrands, getCategory, getProduct }) {
 
     return (
         <>
-            <Head>
-                <title>Home Page - Bazzar Pro</title>
-                <meta name="description" content="This is the home page of Bazzar Pro." />
-                <meta name="keywords" content="home, website, SEO" />
-            </Head>
-
             <div className="mx-4 mt-10">
                 <Navbar />
                 <div className="flex flex-col mt-8">

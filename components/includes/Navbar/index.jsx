@@ -1,6 +1,6 @@
 'use client'
 
-import { AlignRight, CircleUserRound, LogOut, ShoppingBag, Truck, Vegan } from "lucide-react";
+import { AlignRight, CircleUserRound, LogOut, ShoppingBag } from "lucide-react";
 import { useContext, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -8,20 +8,12 @@ import {
     SheetContent,
     SheetHeader,
 } from "@/components/ui/sheet"
-import { redirect, usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { GlobalContext } from "@/context";
 import Cookies from "js-cookie";
-import { Moon, Sun } from "lucide-react"
 import { useTheme } from "next-themes"
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { IconArrowBadgeRightFilled, IconTruckDelivery } from "@tabler/icons-react";
-// import Logo from "@/public/logo/15538960.svg"
+import { IconTruckDelivery } from "@tabler/icons-react";
 
 
 
@@ -47,7 +39,7 @@ function Navbar({ type }) {
                 <div className="w-full flex flex-wrap items-center justify-around">
                     {/* Logo Image */}
                     <span className="flex items-center gap-2 cursor-pointer" onClick={() => router.push('/')} >
-                        <p style={{ fontFamily: 'Wallpoet, sans-serif' }} className="flex justify-center items-center rounded text-2xl shadow-lg w-10 h-10 border drop-shadow-lg font-extrabold">Z</p><span className="hidden md:block drop-shadow-lg" style={{ fontFamily: 'Rubik Glitch, sans-serif' }}>ZONE</span>
+                        <span className="drop-shadow-lg font-bold text-xl">Trendy</span>
                     </span>
 
                     {/* Navbar items */}

@@ -1,18 +1,18 @@
 'use client'
 
 import { Input } from "@/components/ui/input"
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
-import { API_URL } from "@/env";
 import { IconX } from "@tabler/icons-react";
 import AdminHeader from "@/components/admin/AdminHeader";
 import AdminLeftbar from "@/components/admin/Admin-Leftbar";
 import Tiptap from "../Tiptap/Tiptap";
+import { AddProduct, EditProduct } from "@/action";
 
-function Product({ data, id }) {
+function Product({ getCategory, getBrands, data, id }) {
     const [productFormData, setProductFormData] = useState({
         productName: data?.productName || "",
         hns: data?.hns || "",
@@ -36,12 +36,7 @@ function Product({ data, id }) {
     const [image, setImage] = useState(data?.filename || [])
     const [images, setImages] = useState([])
     const [filename, setFilename] = useState(data?.filename || [])
-    const [getCategory, setGetCategory] = useState([])
-    const [getBrands, setGetBrands] = useState([])
     const router = useRouter()
-
-    console.log(data);
-    
 
     function handleMrp(e) {
         e.preventDefault();
@@ -131,84 +126,49 @@ function Product({ data, id }) {
         }
     };
 
-    useEffect(() => {
-        fetchCategoryData()
-        fetchBrandData()
-    }, [])
-
     async function handleProductFrom(e) {
         e.preventDefault()
-        try {
-            const { productName, hns, category, subCategory, brand, price, discount, stock, mrp, color, service, pocket  } = productFormData
-            if(!productName){
-                return toast.error("Product Name Are Required!")
-            }
-            if(!hns){
-                return toast.error("Hns Code Are Required!")
-            }
-            if(!category){
-                return toast.error("Category Are Required!")
-            }
-            if(!subCategory){
-                return toast.error("Subcategory Are Required!")
-            }
-            if(!brand){
-                return toast.error("Brand Are Required!")
-            }
-            if(!stock){
-                return toast.error("Please Select Stock Type!")
-            }
-            if(!mrp){
-                return toast.error("Please Calculate a Mrp!")
-            }
-            if(!filename){
-                return toast.error("Please Upload a Image!")
-            }
-            const data = { productName, hns, category, subCategory, brand, price, discount, stock, mrp, color, service, pocket, filename, desc, offers, warranty, delivery, size }
-            const response = id ? await axios.put(`/api/product/${id}`, data)
-                : await axios.post('/api/product', data)
-
-            if (response.data.success === true) {
-                router.push('/admin-dashboard/product')
-                toast.success(response.data.message)
-            }
-        } catch (error) {
-            console.log("Product Submit Error:", error);
-            toast.error("Something Went Wrong. Please try Again!")
+        const { productName, hns, category, subCategory, brand, price, discount, stock, mrp, color, service, pocket } = productFormData
+        if (!productName) {
+            return toast.error("Product Name Are Required!")
         }
-    }
-
-    async function fetchCategoryData() {
-        try {
-            const response = await axios.get(`${API_URL}/api/category`, {
-                headers: {
-                    'Cache-Control': 'no-store'
-                }
-            })
-            if (response.data.success === true) {
-                setGetCategory(response.data.getAllCategory)
-            } else {
-                console.log(response.data.message)
-            }
-        } catch (error) {
-            console.log(error)
+        if (!hns) {
+            return toast.error("Hns Code Are Required!")
         }
-    }
+        if (!category) {
+            return toast.error("Category Are Required!")
+        }
+        if (!subCategory) {
+            return toast.error("Subcategory Are Required!")
+        }
+        if (!brand) {
+            return toast.error("Brand Are Required!")
+        }
+        if (!stock) {
+            return toast.error("Please Select Stock Type!")
+        }
+        if (!mrp) {
+            return toast.error("Please Calculate a Mrp!")
+        }
+        if (!filename) {
+            return toast.error("Please Upload a Image!")
+        }
+        const data = { productName, hns, category, subCategory, brand, price, discount, stock, mrp, color, service, pocket, filename, desc, offers, warranty, delivery, size }
 
-    async function fetchBrandData() {
         try {
-            const response = await axios.get(`${API_URL}/api/brand`, {
-                headers: {
-                    'Cache-Control': 'no-store'
-                }
-            })
-            if (response.data.success === true) {
-                setGetBrands(response.data.getAllBrand)
+            const response = id
+                ? await EditProduct(id, data, "/admin-dashboard/product")
+                : await AddProduct(data, "/admin-dashboard/product");
+
+            if (response.success) {
+                router.push('/admin-dashboard/product');
+                toast.success(response.message);
             } else {
-                console.log(response.data.message)
+                toast.error(response.message || "Something went wrong!");
             }
         } catch (error) {
-            console.log(error)
+            toast.error("An error occurred while processing your request.");
+            console.error(error); // Log error for debugging
         }
     }
 

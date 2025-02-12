@@ -2,9 +2,8 @@
 
 import "./globals.css";
 import GlobalState from "@/context";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { API_URL } from "@/env";
 import Cookies from "js-cookie";
 import axios from "axios";
 import NextTopLoader from 'nextjs-toploader';
@@ -12,7 +11,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer } from "react-toastify";
 import { ThemeProvider } from "@/components/includes/theme-provider";
 import { useTheme } from "next-themes";
-
+import Loading from "@/components/Loading";
 
 export default function RootLayout({ children }) {
   const [userEmail, setUserEmail] = useState('')
@@ -21,6 +20,8 @@ export default function RootLayout({ children }) {
   const router = useRouter()
   const token = Cookies.get("token")
   const { theme } = useTheme();
+
+  const API_URL = process.env.NEXT_PUBLIC_CLIENT_URL
 
   useEffect(() => {
 
@@ -59,10 +60,12 @@ export default function RootLayout({ children }) {
             enableSystem
             disableTransitionOnChange
           > */}
+          <Suspense fallback={<Loading />}>
             {children}
+          </Suspense>
           {/* </ThemeProvider> */}
           <ToastContainer
-            theme={theme === "dark" ? "dark" : "light"} // Dynamically set theme
+           // theme={theme === "dark" ? "dark" : "light"} // Dynamically set theme
             position="top-right" // Optional: Toast position
             autoClose={5000} // Auto-close in 5 seconds
           />

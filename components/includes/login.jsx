@@ -8,10 +8,11 @@ import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { useContext, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import axios from "axios";
 import { GlobalContext } from "@/context";
 import Cookies from "js-cookie";
 import { toast } from "react-toastify";
+import { login } from "@/action";
+import Image from "next/image";
 
 export function LoginForm({ className, ...props }) {
     const [loginFormData, setLoginFormData] = useState({
@@ -20,29 +21,62 @@ export function LoginForm({ className, ...props }) {
     })
     const router = useRouter()
     const { isLogin, setIsLogin, user, setUser } = useContext(GlobalContext)
+    const [loading, setLoading] = useState(false)
+
+    const validateEmail = (email) => {
+        const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        return regex.test(email);
+    };
+
+    const validatePassword = (password) => {
+        const regex = /^(?=.*[A-Z]).{6,20}$/;
+        return regex.test(password);
+    };
 
     async function handleLoginForm(e) {
-        e.preventDefault()
+        e.preventDefault();
+        if (!loginFormData.email) {
+            toast.error("Email Are Required!")
+            return
+        }
+        if (!validateEmail(loginFormData.email)) {
+            toast.error("Enter a valid email!")
+            return
+        }
+        if (!validatePassword(loginFormData.password)) {
+            toast.error("Password must be 6-20 characters long and contain at least one uppercase letter.")
+            return
+        }
         try {
-            const response = await axios.post('/api/login', loginFormData)
-            if (response.data.success === true) {
-                setIsLogin(true)
-                setUser(response.data.user.role)
-                Cookies.set("token", response.data.token, { expires: 1 / 24 })
-                localStorage.setItem("user", JSON.stringify(response.data.user))
-                if (response.data.user.role === true) {
-                    router.push('/admin-dashboard')
-                } else {
-                    router.push("/")
-                }
+            setLoading(true)
+            const response = await login(loginFormData, '/login');
+            if (response.success === true) {
+                setIsLogin(true);
+                setUser(response.user.role);
+                // Set token and user data in storage
+                Cookies.set("token", response.token, {
+                    expires: 1 / 24,
+                    secure: true,
+                    sameSite: 'Strict'
+                });
+                localStorage.setItem("user", JSON.stringify(response.user));
+
+                // Redirect based on role
+                const isAdmin = response.user.role === true;
+                router.push(isAdmin ? '/admin-dashboard' : '/');
             } else {
-                setIsLogin(false)
-                toast.error(response.data.message)
+                setIsLogin(false);
+                toast.error(response?.message || "Login failed. Please try again.");
             }
         } catch (error) {
-            toast.error("Something Went Wrong. Please Try Again!")
+            // Unexpected error
+            console.error("Login Error:", error);
+            toast.error("Something went wrong. Please try again!");
+        } finally {
+            setLoading(false)
         }
     }
+
 
     useEffect(() => {
         if (isLogin && !user) {
@@ -62,7 +96,7 @@ export function LoginForm({ className, ...props }) {
                             <div className="flex flex-col items-center text-center">
                                 <h1 className="text-2xl font-bold">Welcome back</h1>
                                 <p className="text-balance text-muted-foreground">
-                                    Login to your BAZZKIT account
+                                    Login to your Trendy account
                                 </p>
                             </div>
                             <div className="grid gap-2">
@@ -84,12 +118,12 @@ export function LoginForm({ className, ...props }) {
                             <div className="grid gap-2">
                                 <div className="flex items-center">
                                     <Label htmlFor="password">Password</Label>
-                                    <a
-                                        href="#"
+                                    <Link
+                                        href={'/forget-password'}
                                         className="ml-auto text-sm underline-offset-2 hover:underline"
                                     >
                                         Forgot your password?
-                                    </a>
+                                    </Link>
                                 </div>
                                 <Input
                                     id="password"
@@ -105,10 +139,10 @@ export function LoginForm({ className, ...props }) {
                                     }}
                                 />
                             </div>
-                            <Button onClick={handleLoginForm} className="w-full">
-                                Login
+                            <Button onClick={handleLoginForm} className="w-full" disabled={loading}>
+                                {loading ? "Processing..." : "Login"}
                             </Button>
-                            <hr/>
+                            <hr />
                             <div className="text-center text-sm">
                                 Don&apos;t have an account?{" "}
                                 <Link href="/register" className="underline underline-offset-4">
@@ -118,9 +152,10 @@ export function LoginForm({ className, ...props }) {
                         </div>
                     </form>
                     <div className="relative w-3/5 hidden bg-muted md:block border-l">
-                        <img
-                            src="https://img.freepik.com/free-vector/tablet-login-concept-illustration_114360-7863.jpg?t=st=1736753045~exp=1736756645~hmac=2ba194e6395c343d1009c20e81933a0647c938a119168c4cb60a5dc0d992124a&w=826"
-                            alt="Image"
+                        <Image
+                            fill
+                            src="/images/login.webp"
+                            alt="Login Image"
                             className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.5]"
                         />
                     </div>

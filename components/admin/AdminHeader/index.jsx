@@ -35,17 +35,16 @@ function AdminHeader() {
         <>
             <header>
                 <div className="w-full flex items-center justify-center">
-                    <div className="flex justify-between w-3/4">
+                    <div className="flex justify-between w-4/5">
                         {/* Logo Image */}
                         <span className="flex items-center gap-2 cursor-pointer" onClick={() => router.push('/admin-dashboard')} >
-                            <Button variant="outline" size="icon" className=" drop-shadow-lg"><Vegan /></Button>
-                            <span className="hidden md:block drop-shadow-lg" style={{ fontFamily: 'Rubik Glitch, sans-serif' }}>BAZZKIT PRO</span>
+                            <span className="drop-shadow-lg font-bold text-xl">Trendy</span>
                         </span>
 
                         <div className="flex gap-4">
-                        <Button variant="outline" size="icon" className="hidden md:flex justify-center drop-shadow-lg" onClick={handleLogout}><LogOut /></Button>
-                        <Button variant="outline" size="icon" className=" drop-shadow-lg lg:hidden" onClick={() => { setOpenNavbar(!openNavbar) }} ><AlignRight /></Button>
-                        {/* <DropdownMenu>
+                            <Button variant="outline" size="icon" className="hidden md:flex justify-center drop-shadow-lg" onClick={handleLogout}><LogOut /></Button>
+                            <Button variant="outline" size="icon" className=" drop-shadow-lg lg:hidden" onClick={() => { setOpenNavbar(!openNavbar) }} ><AlignRight /></Button>
+                            {/* <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <Button variant="outline" size="icon" className="shadow-lg">
                                     <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
