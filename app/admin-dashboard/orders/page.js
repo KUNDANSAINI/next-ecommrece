@@ -6,7 +6,6 @@ import Loading from "@/components/Loading";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { API_URL } from "@/env";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -31,6 +30,8 @@ function Order() {
         startDate: null,
         endDate: null
     });
+
+    const API_URL = process.env.NEXT_PUBLIC_CLIENT_URL
 
     useEffect(() => {
 
