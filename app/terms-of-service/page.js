@@ -3,7 +3,9 @@ import Navbar from "@/components/includes/Navbar";
 
 function TearmAndCondition() {
     return (
+        /* eslint-disable react/no-unescaped-entities */
         <>
+
             <div className="mx-4 mt-10 flex flex-col justify-between h-full">
                 <Navbar />
                 <div className="flex flex-col items-center gap-4 my-8">
@@ -147,6 +149,7 @@ function TearmAndCondition() {
                 <Footer />
             </div>
         </>
+    /* eslint-enable react/no-unescaped-entities */
     );
 }
 

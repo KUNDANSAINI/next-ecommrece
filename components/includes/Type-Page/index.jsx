@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import Navbar from "@/components/includes/Navbar";
 import Footer from "@/components/includes/Footer";
+import Image from "next/image";
 
 function Page({ getCategory, getBrand, getProduct, type }) {
     const [typeData, setTypeData] = useState([]);
@@ -156,7 +157,7 @@ function Page({ getCategory, getBrand, getProduct, type }) {
                                         <Card key={index} className="flex flex-col gap-2 p-4">
                                             <div className="flex justify-center items-center">
                                                 <Link href={`/${type}/${product.category}/${product._id}`} className="flex justify-center items-center rounded h-[300px] overflow-hidden">
-                                                    <img src={product.filename[0].name} alt={product.filename[0].name} className="object-cover rounded" />
+                                                    <Image width={300} height={300} src={product.filename[0].name} alt={product.filename[0].name} className="object-cover rounded" />
                                                 </Link>
                                             </div>
                                             <div>

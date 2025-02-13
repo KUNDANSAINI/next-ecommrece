@@ -1,42 +1,42 @@
-'use cliect'
+'use client';
 
-import { IconAlignCenter, IconAlignJustified, IconAlignLeft, IconAlignRight, IconArrowBackUp, IconArrowForwardUp, IconBlockquote, IconBold, IconCode, IconColumnInsertLeft, IconColumnInsertRight, IconColumnRemove, IconH1, IconH2, IconH3, IconHighlight, IconItalic, IconLayoutDistributeHorizontal, IconLine, IconList, IconListCheck, IconListNumbers, IconPhotoPlus, IconRowInsertBottom, IconRowInsertTop, IconRowRemove, IconStrikethrough, IconSubscript, IconSuperscript, IconTableMinus, IconTablePlus, IconUnderline } from '@tabler/icons-react'
-import BulletList from '@tiptap/extension-bullet-list'
-import Document from '@tiptap/extension-document'
-import Dropcursor from '@tiptap/extension-dropcursor'
-import ListItem from '@tiptap/extension-list-item'
-import Paragraph from '@tiptap/extension-paragraph'
-import Text from '@tiptap/extension-text'
-import { EditorContent, useEditor } from '@tiptap/react'
-import React, { useCallback } from 'react'
-import Heading from '@tiptap/extension-heading'
-import OrderedList from '@tiptap/extension-ordered-list'
-import Bold from '@tiptap/extension-bold'
-import Underline from '@tiptap/extension-underline'
-import TextAlign from '@tiptap/extension-text-align'
-import Italic from '@tiptap/extension-italic'
-import Table from '@tiptap/extension-table'
-import TableCell from '@tiptap/extension-table-cell'
-import TableHeader from '@tiptap/extension-table-header'
-import TableRow from '@tiptap/extension-table-row'
-import Blockquote from '@tiptap/extension-blockquote'
-import HorizontalRule from '@tiptap/extension-horizontal-rule'
-import HardBreak from '@tiptap/extension-hard-break'
-import Code from '@tiptap/extension-code'
-import Highlight from '@tiptap/extension-highlight'
-import Strike from '@tiptap/extension-strike'
-import History from '@tiptap/extension-history'
-import TextStyle from '@tiptap/extension-text-style'
-import { Color } from '@tiptap/extension-color'
-import TaskItem from '@tiptap/extension-task-item'
-import TaskList from '@tiptap/extension-task-list'
-import Subscript from '@tiptap/extension-subscript'
-import Superscript from '@tiptap/extension-superscript'
-import Placeholder from '@tiptap/extension-placeholder'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { Input } from '@/components/ui/input'
+import { IconAlignCenter, IconAlignJustified, IconAlignLeft, IconAlignRight, IconArrowBackUp, IconArrowForwardUp, IconBlockquote, IconBold, IconCode, IconColumnInsertLeft, IconColumnInsertRight, IconColumnRemove, IconH1, IconH2, IconH3, IconHighlight, IconItalic, IconLayoutDistributeHorizontal, IconLine, IconList, IconListCheck, IconListNumbers, IconPhotoPlus, IconRowInsertBottom, IconRowInsertTop, IconRowRemove, IconStrikethrough, IconSubscript, IconSuperscript, IconTableMinus, IconTablePlus, IconUnderline } from '@tabler/icons-react';
+import BulletList from '@tiptap/extension-bullet-list';
+import Document from '@tiptap/extension-document';
+import Dropcursor from '@tiptap/extension-dropcursor';
+import ListItem from '@tiptap/extension-list-item';
+import Paragraph from '@tiptap/extension-paragraph';
+import Text from '@tiptap/extension-text';
+import { EditorContent, useEditor } from '@tiptap/react';
+import React, { useCallback } from 'react';
+import Heading from '@tiptap/extension-heading';
+import OrderedList from '@tiptap/extension-ordered-list';
+import Bold from '@tiptap/extension-bold';
+import Underline from '@tiptap/extension-underline';
+import TextAlign from '@tiptap/extension-text-align';
+import Italic from '@tiptap/extension-italic';
+import Table from '@tiptap/extension-table';
+import TableCell from '@tiptap/extension-table-cell';
+import TableHeader from '@tiptap/extension-table-header';
+import TableRow from '@tiptap/extension-table-row';
+import Blockquote from '@tiptap/extension-blockquote';
+import HorizontalRule from '@tiptap/extension-horizontal-rule';
+import HardBreak from '@tiptap/extension-hard-break';
+import Code from '@tiptap/extension-code';
+import Highlight from '@tiptap/extension-highlight';
+import Strike from '@tiptap/extension-strike';
+import History from '@tiptap/extension-history';
+import TextStyle from '@tiptap/extension-text-style';
+import { Color } from '@tiptap/extension-color';
+import TaskItem from '@tiptap/extension-task-item';
+import TaskList from '@tiptap/extension-task-list';
+import Subscript from '@tiptap/extension-subscript';
+import Superscript from '@tiptap/extension-superscript';
+import Placeholder from '@tiptap/extension-placeholder';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Input } from '@/components/ui/input';
 
-export default ({ content, onChange }) => {
+const Tiptap = ({ content, onChange }) => {
   const editor = useEditor({
     extensions: [
       Document,
@@ -82,10 +82,9 @@ export default ({ content, onChange }) => {
     ],
     content,
     onUpdate: ({ editor }) => {
-      onChange(editor.getHTML())
+      onChange(editor.getHTML());
     },
   });
-
 
   if (!editor) {
     return null;
@@ -95,16 +94,14 @@ export default ({ content, onChange }) => {
     <>
       <div className="control-group">
         <div className="flex flex-wrap gap-4 border rounded-md p-2 border-zinc-400">
-
           {/* 1st Column */}
           <div className='h-full sm:pr-2 border-r-2'>
             <div className='flex flex-wrap gap-3 mt-1.5'>
               <button onClick={(e) => {
                 e.preventDefault();
-                editor.chain().focus().undo().run()
+                editor.chain().focus().undo().run();
               }}
-                disabled={!editor.can().undo()
-                }>
+                disabled={!editor.can().undo()}>
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger>
@@ -120,8 +117,8 @@ export default ({ content, onChange }) => {
                 </TooltipProvider>
               </button>
               <button onClick={(e) => {
-                e.preventDefault()
-                editor.chain().focus().redo().run()
+                e.preventDefault();
+                editor.chain().focus().redo().run();
               }} disabled={!editor.can().redo()}>
                 <TooltipProvider>
                   <Tooltip>
@@ -140,7 +137,7 @@ export default ({ content, onChange }) => {
               <button
                 onClick={(e) => {
                   e.preventDefault();
-                  editor.chain().focus().toggleBold().run()
+                  editor.chain().focus().toggleBold().run();
                 }}
                 className={editor.isActive('bold') ? 'is-active' : ''}
               >
@@ -159,8 +156,8 @@ export default ({ content, onChange }) => {
               </button>
               <button
                 onClick={(e) => {
-                  e.preventDefault()
-                  editor.chain().focus().toggleUnderline().run()
+                  e.preventDefault();
+                  editor.chain().focus().toggleUnderline().run();
                 }}
                 className={editor.isActive('underline') ? 'is-active' : ''}
               >
@@ -180,8 +177,8 @@ export default ({ content, onChange }) => {
               </button>
               <button
                 onClick={(e) => {
-                  e.preventDefault()
-                  editor.chain().focus().toggleItalic().run()
+                  e.preventDefault();
+                  editor.chain().focus().toggleItalic().run();
                 }}
                 className={editor.isActive('italic') ? 'is-active' : ''}
               >
@@ -201,8 +198,8 @@ export default ({ content, onChange }) => {
               </button>
               <button
                 onClick={(e) => {
-                  e.preventDefault()
-                  editor.chain().focus().toggleStrike().run()
+                  e.preventDefault();
+                  editor.chain().focus().toggleStrike().run();
                 }}
                 className={editor.isActive('strike') ? 'is-active' : ''}
               >
@@ -227,8 +224,8 @@ export default ({ content, onChange }) => {
           <div className='h-full sm:pr-3.5 border-r-2'>
             <div className='flex flex-wrap gap-3 mt-1.5'>
               <button onClick={(e) => {
-                e.preventDefault()
-                editor.chain().focus().setHardBreak().run()
+                e.preventDefault();
+                editor.chain().focus().setHardBreak().run();
               }}>
                 <TooltipProvider>
                   <Tooltip>
@@ -248,8 +245,8 @@ export default ({ content, onChange }) => {
 
               <button
                 onClick={(e) => {
-                  e.preventDefault()
-                  editor.chain().focus().toggleCode().run()
+                  e.preventDefault();
+                  editor.chain().focus().toggleCode().run();
                 }}
                 className={editor.isActive('code') ? 'is-active' : ''}
               >
@@ -271,8 +268,8 @@ export default ({ content, onChange }) => {
 
               <button
                 onClick={(e) => {
-                  e.preventDefault()
-                  editor.chain().focus().toggleHighlight().run()
+                  e.preventDefault();
+                  editor.chain().focus().toggleHighlight().run();
                 }}
                 className={editor.isActive('highlight') ? 'is-active' : ''}
               >
@@ -293,8 +290,8 @@ export default ({ content, onChange }) => {
               </button>
 
               <button onClick={(e) => {
-                e.preventDefault()
-                editor.chain().focus().setHorizontalRule().run()
+                e.preventDefault();
+                editor.chain().focus().setHorizontalRule().run();
               }}>
                 <TooltipProvider>
                   <Tooltip>
@@ -314,8 +311,8 @@ export default ({ content, onChange }) => {
 
               <button
                 onClick={(e) => {
-                  e.preventDefault()
-                  editor.chain().focus().toggleSubscript().run()
+                  e.preventDefault();
+                  editor.chain().focus().toggleSubscript().run();
                 }}
                 className={editor.isActive('subscript') ? 'is-active' : ''}
               >
@@ -337,8 +334,8 @@ export default ({ content, onChange }) => {
 
               <button
                 onClick={(e) => {
-                  e.preventDefault()
-                  editor.chain().focus().toggleSuperscript().run()
+                  e.preventDefault();
+                  editor.chain().focus().toggleSuperscript().run();
                 }}
                 className={editor.isActive('superscript') ? 'is-active' : ''}
               >
@@ -365,15 +362,14 @@ export default ({ content, onChange }) => {
             <div className='flex flex-wrap gap-3 mt-1.5'>
               <button
                 onClick={(e) => {
-                  e.preventDefault()
-                  editor.chain().focus().toggleBulletList().run()
+                  e.preventDefault();
+                  editor.chain().focus().toggleBulletList().run();
                 }}
                 className={editor.isActive('bulletList') ? 'is-active' : ''}
               >
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger>
-
                       <IconList
                         stroke={2}
                         size={25}
@@ -389,8 +385,8 @@ export default ({ content, onChange }) => {
 
               <button
                 onClick={(e) => {
-                  e.preventDefault()
-                  editor.chain().focus().toggleOrderedList().run()
+                  e.preventDefault();
+                  editor.chain().focus().toggleOrderedList().run();
                 }}
                 className={editor.isActive('orderedList') ? 'is-active' : ''}
               >
@@ -411,8 +407,8 @@ export default ({ content, onChange }) => {
               </button>
               <button
                 onClick={(e) => {
-                  e.preventDefault()
-                  editor.chain().focus().toggleTaskList().run()
+                  e.preventDefault();
+                  editor.chain().focus().toggleTaskList().run();
                 }}
                 className={editor.isActive('taskList') ? 'is-active' : ''}
               >
@@ -434,8 +430,8 @@ export default ({ content, onChange }) => {
 
               <button
                 onClick={(e) => {
-                  e.preventDefault()
-                  editor.chain().focus().toggleBlockquote().run()
+                  e.preventDefault();
+                  editor.chain().focus().toggleBlockquote().run();
                 }}
                 className={editor.isActive('blockquote') ? 'is-active' : ''}
               >
@@ -457,8 +453,8 @@ export default ({ content, onChange }) => {
 
               <button
                 onClick={(e) => {
-                  e.preventDefault()
-                  editor.chain().focus().toggleHeading({ level: 1 }).run()
+                  e.preventDefault();
+                  editor.chain().focus().toggleHeading({ level: 1 }).run();
                 }}
                 className={editor.isActive('heading', { level: 1 }) ? 'is-active' : ''}
               >
@@ -479,8 +475,8 @@ export default ({ content, onChange }) => {
               </button>
               <button
                 onClick={(e) => {
-                  e.preventDefault()
-                  editor.chain().focus().toggleHeading({ level: 2 }).run()
+                  e.preventDefault();
+                  editor.chain().focus().toggleHeading({ level: 2 }).run();
                 }}
                 className={editor.isActive('heading', { level: 2 }) ? 'is-active' : ''}
               >
@@ -501,8 +497,8 @@ export default ({ content, onChange }) => {
               </button>
               <button
                 onClick={(e) => {
-                  e.preventDefault()
-                  editor.chain().focus().toggleHeading({ level: 3 }).run()
+                  e.preventDefault();
+                  editor.chain().focus().toggleHeading({ level: 3 }).run();
                 }}
                 className={editor.isActive('heading', { level: 3 }) ? 'is-active' : ''}
               >
@@ -522,7 +518,6 @@ export default ({ content, onChange }) => {
                 </TooltipProvider>
               </button>
             </div>
-
           </div>
 
           {/* 4nd Column */}
@@ -530,8 +525,8 @@ export default ({ content, onChange }) => {
             <div className='flex flex-wrap gap-3 mt-1.5'>
               <button
                 onClick={(e) => {
-                  e.preventDefault()
-                  editor.chain().focus().setTextAlign('left').run()
+                  e.preventDefault();
+                  editor.chain().focus().setTextAlign('left').run();
                 }}
                 className={editor.isActive({ textAlign: 'left' }) ? 'is-active' : ''}
               >
@@ -552,8 +547,8 @@ export default ({ content, onChange }) => {
               </button>
               <button
                 onClick={(e) => {
-                  e.preventDefault()
-                  editor.chain().focus().setTextAlign('center').run()
+                  e.preventDefault();
+                  editor.chain().focus().setTextAlign('center').run();
                 }}
                 className={editor.isActive({ textAlign: 'center' }) ? 'is-active' : ''}
               >
@@ -574,8 +569,8 @@ export default ({ content, onChange }) => {
               </button>
               <button
                 onClick={(e) => {
-                  e.preventDefault()
-                  editor.chain().focus().setTextAlign('right').run()
+                  e.preventDefault();
+                  editor.chain().focus().setTextAlign('right').run();
                 }}
                 className={editor.isActive({ textAlign: 'right' }) ? 'is-active' : ''}
               >
@@ -596,8 +591,8 @@ export default ({ content, onChange }) => {
               </button>
               <button
                 onClick={(e) => {
-                  e.preventDefault()
-                  editor.chain().focus().setTextAlign('justify').run()
+                  e.preventDefault();
+                  editor.chain().focus().setTextAlign('justify').run();
                 }}
                 className={editor.isActive({ textAlign: 'justify' }) ? 'is-active' : ''}
               >
@@ -622,8 +617,8 @@ export default ({ content, onChange }) => {
                     <Input
                       type="color"
                       onInput={(e) => {
-                        e.preventDefault()
-                        editor.chain().focus().setColor(event.target.value).run()
+                        e.preventDefault();
+                        editor.chain().focus().setColor(event.target.value).run();
                       }}
                       value={editor.getAttributes('textStyle').color}
                       data-testid="setColor"
@@ -642,8 +637,8 @@ export default ({ content, onChange }) => {
           <div className='h-full sm:pr-3.5'>
             <div className='flex flex-wrap gap-3 mt-1.5'>
               <button onClick={(e) => {
-                e.preventDefault()
-                editor.chain().focus().insertTable({ rows: 2, cols: 2, withHeaderRow: true }).run()
+                e.preventDefault();
+                editor.chain().focus().insertTable({ rows: 2, cols: 2, withHeaderRow: true }).run();
               }}>
                 <TooltipProvider>
                   <Tooltip>
@@ -662,8 +657,8 @@ export default ({ content, onChange }) => {
               </button>
 
               <button onClick={(e) => {
-                e.preventDefault()
-                editor.chain().focus().deleteTable().run()
+                e.preventDefault();
+                editor.chain().focus().deleteTable().run();
               }}>
                 <TooltipProvider>
                   <Tooltip>
@@ -682,8 +677,8 @@ export default ({ content, onChange }) => {
               </button>
 
               <button onClick={(e) => {
-                e.preventDefault()
-                editor.chain().focus().addColumnBefore().run()
+                e.preventDefault();
+                editor.chain().focus().addColumnBefore().run();
               }}>
                 <TooltipProvider>
                   <Tooltip>
@@ -702,8 +697,8 @@ export default ({ content, onChange }) => {
               </button>
 
               <button onClick={(e) => {
-                e.preventDefault()
-                editor.chain().focus().addColumnAfter().run()
+                e.preventDefault();
+                editor.chain().focus().addColumnAfter().run();
               }}>
                 <TooltipProvider>
                   <Tooltip>
@@ -722,8 +717,8 @@ export default ({ content, onChange }) => {
               </button>
 
               <button onClick={(e) => {
-                e.preventDefault()
-                editor.chain().focus().deleteColumn().run()
+                e.preventDefault();
+                editor.chain().focus().deleteColumn().run();
               }}>
                 <TooltipProvider>
                   <Tooltip>
@@ -742,8 +737,8 @@ export default ({ content, onChange }) => {
               </button>
 
               <button onClick={(e) => {
-                e.preventDefault()
-                editor.chain().focus().addRowBefore().run()
+                e.preventDefault();
+                editor.chain().focus().addRowBefore().run();
               }}>
                 <TooltipProvider>
                   <Tooltip>
@@ -761,8 +756,8 @@ export default ({ content, onChange }) => {
                 </TooltipProvider>
               </button>
               <button onClick={(e) => {
-                e.preventDefault()
-                editor.chain().focus().addRowAfter().run()
+                e.preventDefault();
+                editor.chain().focus().addRowAfter().run();
               }}>
                 <TooltipProvider>
                   <Tooltip>
@@ -781,8 +776,8 @@ export default ({ content, onChange }) => {
               </button>
 
               <button onClick={(e) => {
-                e.preventDefault()
-                editor.chain().focus().deleteRow().run()
+                e.preventDefault();
+                editor.chain().focus().deleteRow().run();
               }}>
                 <TooltipProvider>
                   <Tooltip>
@@ -801,11 +796,14 @@ export default ({ content, onChange }) => {
               </button>
             </div>
           </div>
-
         </div>
       </div>
 
       <EditorContent editor={editor} className='mt-4' />
     </>
-  )
-}
+  );
+};
+
+Tiptap.displayName = 'Tiptap';
+
+export default Tiptap;

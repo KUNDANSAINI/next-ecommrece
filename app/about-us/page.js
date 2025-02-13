@@ -4,6 +4,7 @@
 import Footer from "@/components/includes/Footer";
 import Navbar from "@/components/includes/Navbar";
 import { motion } from "framer-motion";
+import Image from "next/image";
 import React from "react";
 
 const AboutPage = () => {
@@ -22,9 +23,11 @@ const AboutPage = () => {
                         viewport={{ once: false, margin: "-100px 0px" }}
                         transition={{ duration: 0.8 }}
                     >
-                        <img
-                            src={"https://jkmstores.com/cdn/shop/files/offer2.png?v=1710494051&width=1944"}
-                            alt="Men Image"
+                        <Image
+                            width={300}
+                            height={300}
+                            src={"/about-us/offer2.webp"}
+                            alt="Banner Image"
                             className="w-full h-full rounded-xl"
                             initial={{ opacity: 0, y: 50 }}
                             whileInView={{ opacity: 1, y: 0 }}
@@ -42,17 +45,17 @@ const AboutPage = () => {
                         transition={{ duration: 0.8 }}
                     >
                         <div className="w-full flex justify-center">
-                            <div>
-                                <img
-                                    src={"https://images.pexels.com/photos/157675/fashion-men-s-individuality-black-and-white-157675.jpeg?auto=compress&cs=tinysrgb&w=600"}
-                                    alt="Men Image"
-                                    className="rounded-xl"
-                                    initial={{ opacity: 0, y: 50 }}
-                                    whileInView={{ opacity: 1, y: 0 }}
-                                    viewport={{ once: false, margin: "-100px 0px" }}
-                                    transition={{ duration: 0.8 }}
-                                />
-                            </div>
+                            <Image
+                                width={600}
+                                height={600}
+                                src={"/about-us/fashion-men-s-individuality-black-and-white-157675.webp"}
+                                alt="Men Image"
+                                className="rounded-xl"
+                                initial={{ opacity: 0, y: 50 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: false, margin: "-100px 0px" }}
+                                transition={{ duration: 0.8 }}
+                            />
                         </div>
 
                         <motion.div
@@ -102,9 +105,11 @@ const AboutPage = () => {
                         >
                             <div className="w-full flex justify-center">
                                 <div className="w-2/3 h-full">
-                                    <img
-                                        src={"https://images.pexels.com/photos/2043590/pexels-photo-2043590.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"}
-                                        alt="Men Image"
+                                    <Image
+                                        width={400}
+                                        height={500}
+                                        src={"/about-us/pexels-photo-2043590.jpeg"}
+                                        alt="Women Image"
                                         className="w-full h-full rounded-xl"
                                         initial={{ opacity: 0, y: 50 }}
                                         whileInView={{ opacity: 1, y: 0 }}
@@ -116,8 +121,10 @@ const AboutPage = () => {
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <div className="h-[50px]">
-                                        <img
-                                            src="https://images.pexels.com/photos/2853909/pexels-photo-2853909.jpeg?auto=compress&cs=tinysrgb&w=600"
+                                        <Image
+                                            width={400}
+                                            height={400}
+                                            src="/about-us/pexels-photo-2853909.webp"
                                             alt="Women Image"
                                             className="rounded-xl"
                                             initial={{ opacity: 0, y: 50 }}
@@ -131,8 +138,10 @@ const AboutPage = () => {
                                 <div></div>
                                 <div className="rounded-xl">
                                     <div className="h-[200px]">
-                                        <img
-                                            src="https://images.pexels.com/photos/1926769/pexels-photo-1926769.jpeg?auto=compress&cs=tinysrgb&w=600"
+                                        <Image
+                                            width={400}
+                                            height={200}
+                                            src="/about-us/pexels-photo-1926769.webp"
                                             alt="Women Image"
                                             className="rounded-xl"
                                             initial={{ opacity: 0, y: 50 }}

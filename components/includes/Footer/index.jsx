@@ -11,6 +11,7 @@ const Footer = () => {
   const currentYear = new Date().getFullYear();
 
   return (
+    /* eslint-disable react/no-unescaped-entities */
     <footer className="py-10 px-5 md:px-20 border-t">
       <div className="flex flex-col md:flex-row justify-between items-start space-y-6 md:space-y-0">
 
@@ -72,6 +73,7 @@ const Footer = () => {
         </div>
       </div>
     </footer>
+    /* eslint-disable react/no-unescaped-entities */
   );
 };
 

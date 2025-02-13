@@ -34,6 +34,7 @@ import { toast } from "react-toastify";
 import Loading from "@/components/Loading";
 import Link from "next/link";
 import { IconProgressAlert, IconProgressCheck, IconTruck } from "@tabler/icons-react";
+import Image from "next/image";
 
 
 function Order() {
@@ -72,7 +73,9 @@ function Order() {
 
 
     return (
+        /* eslint-disable react/no-unescaped-entities */
         <>
+
             <div className="mx-4 mt-10">
                 <Navbar />
                 <div className="flex p-4 border-b mt-8">
@@ -115,7 +118,7 @@ function Order() {
                                                                                             className="md:basis-1/2 lg:basis-1/3"
                                                                                         >
                                                                                             <div>
-                                                                                                <img src={image.name} alt="Product Image" className="rounded" />
+                                                                                                <Image width={400} height={400} src={image.name} alt="Product Image" className="rounded" />
                                                                                             </div>
                                                                                         </CarouselItem>
                                                                                     ))}
@@ -279,6 +282,7 @@ function Order() {
                 <Footer />
             </div>
         </>
+            /* eslint-disable react/no-unescaped-entities */
     );
 }
 

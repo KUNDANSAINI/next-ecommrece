@@ -84,7 +84,7 @@ export function LoginForm({ className, ...props }) {
         } else if (isLogin && user) {
             router.push('/admin-dashboard')
         }
-    }, [isLogin, user])
+    }, [isLogin, user, router])
 
 
     return (
