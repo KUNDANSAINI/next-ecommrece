@@ -23,10 +23,11 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import AdminHeader from "@/components/admin/AdminHeader"
 import AdminLeftbar from "@/components/admin/Admin-Leftbar"
 
+// Chart configuration object
 const chartConfig = {
     visitors: {
         label: "Visitors",
@@ -39,24 +40,28 @@ const chartConfig = {
         label: "Mobile",
         color: "hsl(var(--chart-2))",
     },
-}
+};
 
-async function Dashboard() {
-    const [timeRange, setTimeRange] = useState("90d")
-    const filteredData = chartData.filter((item) => {
-        const date = new Date(item.date)
-        const referenceDate = new Date("2024-06-30")
-        let daysToSubtract = 90
-        if (timeRange === "30d") {
-            daysToSubtract = 30
-        } else if (timeRange === "7d") {
-            daysToSubtract = 7
-        }
-        const startDate = new Date(referenceDate)
-        startDate.setDate(startDate.getDate() - daysToSubtract)
-        return date >= startDate
-    })
+const Dashboard = () => {
+    const [timeRange, setTimeRange] = useState("90d");
+    const [filteredData, setFilteredData] = useState([]);
 
+    useEffect(() => {
+        const filtered = chartData.filter((item) => {
+            const date = new Date(item.date);
+            const referenceDate = new Date("2024-06-30");
+            let daysToSubtract = 90;
+            if (timeRange === "30d") {
+                daysToSubtract = 30;
+            } else if (timeRange === "7d") {
+                daysToSubtract = 7;
+            }
+            const startDate = new Date(referenceDate);
+            startDate.setDate(startDate.getDate() - daysToSubtract);
+            return date >= startDate;
+        });
+        setFilteredData(filtered);
+    }, [timeRange]); // Runs when `timeRange` changes
 
     return (
         <>
@@ -136,11 +141,11 @@ async function Dashboard() {
                                             tickMargin={8}
                                             minTickGap={32}
                                             tickFormatter={(value) => {
-                                                const date = new Date(value)
+                                                const date = new Date(value);
                                                 return date.toLocaleDateString("en-US", {
                                                     month: "short",
                                                     day: "numeric",
-                                                })
+                                                });
                                             }}
                                         />
                                         <ChartTooltip
@@ -151,7 +156,7 @@ async function Dashboard() {
                                                         return new Date(value).toLocaleDateString("en-US", {
                                                             month: "short",
                                                             day: "numeric",
-                                                        })
+                                                        });
                                                     }}
                                                     indicator="dot"
                                                 />
@@ -184,6 +189,7 @@ async function Dashboard() {
 }
 
 export default Dashboard;
+
 
 
 const chartData = [
