@@ -2,28 +2,27 @@
 
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { GlobalContext } from "@/context";
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
-import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 import { Minus, Plus } from "lucide-react";
 import Link from "next/link";
 import Navbar from "@/components/includes/Navbar";
 import Footer from "@/components/includes/Footer";
 import CartLoader from "@/components/Loader/CartLoader";
+import Image from "next/image";
+import { useSelector } from "react-redux";
+import { FetchCart } from "@/action";
 
 
 function Cart() {
-    const { userID } = useContext(GlobalContext)
     const [cartItems, setCartItems] = useState([])
     const [loading, setLoading] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
     const [isLoader, setIsLoader] = useState(false)
     const router = useRouter()
-
-    const API_URL = process.env.NEXT_PUBLIC_CLIENT_URL
+    const userID = useSelector((state) => state.auth.user)
 
     useEffect(() => {
         if (userID) {
@@ -34,16 +33,11 @@ function Cart() {
     async function fetchCartItems(userID) {
         try {
             setIsLoader(true)
-            const response = await axios.get(`${API_URL}/api/cart?userID=${userID}`, {
-                headers: {
-                    Authorization: `Bearer ${Cookies.get("token")}`
-                }
-            })
-            if (response.status === 200) {
-                setCartItems(response.data.getCartProduct)
+            const response = await FetchCart(userID)
+            if (response.success === true) {
+                setCartItems(response.getCartProduct)
             }
         } catch (error) {
-            router.push('/')
             toast.error("Something Went Wrong. Please Try Again")
             console.log("Fetching Error:", error);
         } finally {
@@ -102,19 +96,19 @@ function Cart() {
         );
     };
 
-    async function handleCheckout(e) {
-        e.preventDefault()
+    async function handleCheckout() {
         try {
             setIsLoading(true)
             const response = await axios.put('/api/cart', cartItems)
             if (response.data.success === true) {
                 router.push('/checkout')
-                setIsLoading(false)
             } else {
                 toast.error(response.data.message)
             }
         } catch (error) {
             console.log("Checkout Error:", error);
+        } finally {
+            setIsLoading(false)
         }
     }
 
@@ -135,15 +129,15 @@ function Cart() {
                                                 <div className="flex md:flex-col gap-4 justify-center">
                                                     {
                                                         item.productID.filename.map((image, index) => (
-                                                            <div className="w-[40px] rounded" key={index}>
-                                                                <img src={image.name} alt={image.name} className="w-10 rounded" />
+                                                            <div className="w-[30px] rounded" key={index}>
+                                                                <Image width={30} height={30} src={image.name} alt={image.name} className="rounded" />
                                                             </div>
                                                         ))
                                                     }
                                                 </div>
                                                 <div className="grid justify-center">
                                                     <Link href={`/${item.productID.subCategory}/${item.productID.category}/${item.productID._id}`} className="flex items-center justify-center w-40">
-                                                        <img src={item.productID.filename[0].name} alt={item.productID.filename[0].name} className="object-cover rounded" />
+                                                        <Image width={160} height={160} src={item.productID.filename[0].name} alt={item.productID.filename[0].name} className="object-cover rounded" />
                                                     </Link>
                                                 </div>
                                                 <div className="flex w-full flex-col gap-2">
@@ -162,7 +156,7 @@ function Cart() {
                                     ))
                                 ) : (
                                     <>
-                                        <img src="/images/empty.webp" alt="Empaty Cart" className="w-full md:w-1/4 rounded-lg dark:brightness-[0.5]" />
+                                        <Image width={500} height={500} src="/images/empty.webp" alt="Empaty Cart" className="rounded-lg dark:brightness-[0.5]" />
                                         <Button onClick={() => router.push('/')}>Go To Home</Button>
                                     </>
                                 )

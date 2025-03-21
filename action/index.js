@@ -1,9 +1,8 @@
 'use server'
 
-import { decryptPayload, encryptPayload } from "@/app/utils/authFunction";
+import Razorpay from "razorpay";
 import connectToDB from "@/db/db";
 import User from "@/models/user";
-import jwt from "jsonwebtoken";
 import bcrypt from 'bcrypt';
 import { revalidatePath } from "next/cache";
 import Product from "@/models/product";
@@ -14,6 +13,10 @@ import path from 'path';
 import nodemailer from "nodemailer";
 import crypto from "crypto";
 import Profile from "@/models/profile";
+import { generateToken, verifyToken } from "@/app/utils/auth";
+import { cookies } from "next/headers";
+import Order from "@/models/order";
+import Cart from "@/models/cart";
 
 
 // All Authcation Functions
@@ -22,17 +25,7 @@ import Profile from "@/models/profile";
 export async function login(formData, pathToRevalidate) {
     await connectToDB();
     try {
-        const { email, password, token } = formData;
-        if (token) {
-            try {
-                const decoded = jwt.verify(token, process.env.NEXT_PUBLIC_SECRAT_KEY, { algorithms: ['HS512'] });
-                const encryptedPayload = decoded.data;
-                const decryptedPayload = decryptPayload(encryptedPayload);
-                return { success: true, decryptedPayload };
-            } catch (err) {
-                return ({ success: false, message: "Invalid Token!" });
-            }
-        }
+        const { email, password } = formData;
 
         if (!email || !password) {
             return ({ success: false, message: "All Fields Are Required!" });
@@ -52,22 +45,50 @@ export async function login(formData, pathToRevalidate) {
             email: user.email,
             role: user.isAdmin,
         };
-        const encryptedPayload = encryptPayload(payload);
-        const newToken = jwt.sign({ data: encryptedPayload }, process.env.NEXT_PUBLIC_SECRAT_KEY, { expiresIn: "1h", algorithm: 'HS512' });
+
+        const token = generateToken(payload)
+
+        cookies().set('authToken', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            maxAge: 60 * 60, // 1 hour
+            path: '/',
+        });
+
         revalidatePath(pathToRevalidate);
         return ({
             success: true,
-            token: JSON.parse(JSON.stringify(newToken)),
-            user: {
-                id: JSON.parse(JSON.stringify(user._id)),
-                email: JSON.parse(JSON.stringify(user.email)),
-                role: JSON.parse(JSON.stringify(user.isAdmin)),
-            },
+            id: JSON.parse(JSON.stringify(user._id)),
+            role: JSON.parse(JSON.stringify(user.isAdmin)),
+            message: "Login Successfully!"
         });
     } catch (error) {
         console.error("Login Error:", error);
         return ({ success: false, message: "Bad Request" });
     }
+}
+
+export async function verifyUserToken() {
+    const token = cookies().get("authToken")?.value;
+
+    if (!token) {
+        return { success: false, user: null, error: "Unauthorized: No token provided" };
+    }
+
+    try {
+        const decoded = await verifyToken(token);
+
+        return { success: true, user: decoded };
+    } catch (error) {
+        return { success: false, user: null, error: "Unauthorized: Invalid token" };
+    }
+}
+
+// Logout Action
+export async function logoutUser() {
+    cookies().delete('authToken');
+    cookies().delete("userData")
+    return { success: true, message: "successfully logout" };
 }
 
 // User Signup Function
@@ -889,7 +910,7 @@ export async function UpdateProfile(formData, id, pathToRevalidate) {
                 message: "User Not Found"
             })
         }
-        const updated = await Profile.findByIdAndUpdate(id, formData, { new: true })        
+        const updated = await Profile.findByIdAndUpdate(id, formData, { new: true })
         if (!updated) {
             return ({
                 success: false,
@@ -908,6 +929,168 @@ export async function UpdateProfile(formData, id, pathToRevalidate) {
         return ({
             success: false,
             message: "An error occurred during profile. Please try again later."
+        })
+    }
+}
+
+// Rozorpay function
+export async function Rozorpay(formData) {
+    await connectToDB()
+    try {
+        const { amount, customer, product, userId } = formData;
+
+        const razorpay = new Razorpay({
+            key_id: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+            key_secret: process.env.NEXT_PUBLIC_RAZORPAY_KEY_SECRET,
+        });
+
+        const options = {
+            amount: amount * 100,
+            currency: "INR",
+            receipt: `receipt_${Math.random() * 1000}`,
+            payment_capture: 1,
+        };
+
+        const order = await razorpay.orders.create(options);
+
+        const newOrder = new Order({
+            order_id: order.id,
+            customer,
+            product,
+            amount,
+            isProcessing: Date.now(),
+            payment: "Pending"
+        });
+
+        await newOrder.save();
+
+        if (newOrder) {
+            await Cart.deleteMany({ userID: userId })
+            return ({ success: true, order: JSON.parse(JSON.stringify(order)) });
+        } else {
+            return ({
+                success: false,
+                message: "Failed To Create To Order ! Please Try Again."
+            })
+        }
+    } catch (error) {
+        console.error(error);
+        return ({ success: false, error: error.message });
+    }
+}
+
+// WebHook Function
+export async function handleWebhook(req) {
+    try {
+        const body = await req.text();
+        const signature = req.headers.get("x-razorpay-signature");
+
+        const secret = process.env.NEXT_PUBLIC_RAZORPAY_WEBHOOK_SECRET;
+
+        const expectedSignature = crypto
+            .createHmac("sha256", secret)
+            .update(body)
+            .digest("hex");
+
+        if (expectedSignature !== signature) {
+            return { success: false, message: "Invalid Signature" };
+        }
+
+        const webhookData = JSON.parse(body);
+        await connectToDB();
+
+        if (webhookData.event === "payment.captured") {
+            await Order.findOneAndUpdate(
+                { order_id: webhookData.payload.payment.entity.order_id },
+                {
+                    $set: { status: "Paid", payment_id: webhookData.payload.payment.entity.id },
+                }
+            );
+
+            return { success: true, message: "Payment Verified & Order Updated" };
+        }
+
+        return { success: false, message: "No Action Taken" };
+    } catch (error) {
+        return { success: false, error: error.message };
+    }
+}
+
+// Cart Product get Function 
+export async function FetchCart(userID) {
+    connectToDB()
+    try {
+        if (!userID) {
+            return ({ success: false, message: "Invalid ID!" })
+        }
+        const getCartProduct = await Cart.find({ userID }).populate("productID")
+        if (getCartProduct) {
+            return ({ success: true, getCartProduct: JSON.parse(JSON.stringify(getCartProduct)) })
+        } else {
+            return ({ success: false, message: "Something Went Wrong. Please Try Again!" })
+        }
+    } catch (error) {
+        console.log(error);
+        return ({ success: false, message: "Bad Request" })
+    }
+}
+
+// Order Fetch Function
+export async function FetchOrder() {
+    connectToDB()
+    try {
+        const getOrders = await Order.find().populate("product")
+
+        if (!getOrders) {
+            return ({
+                success: false,
+                message: "Error Fetching To Ordered Products"
+            })
+        }
+
+        return ({
+            success: true,
+            getOrders: JSON.parse(JSON.stringify(getOrders))
+        })
+
+    } catch (error) {
+        console.log(error);
+        return ({
+            success: false,
+            message: "Something Went Wrong, Please Try Again."
+        })
+    }
+}
+
+// Order Fetch by userID function
+export async function GetOrderByID(userID) {
+    try {
+        if (!userID) {
+            return ({
+                success: false,
+                message: "Invalid ID"
+            })
+        }
+
+        const getAllOrder = await Order.find({ userId: userID }).populate("product")
+
+        if (!getAllOrder) {
+            return ({
+                success: false,
+                message: "Error Fetching To Ordered Products"
+            })
+        }
+
+        return ({
+            success: true,
+            getAllOrder: JSON.parse(JSON.stringify(getAllOrder))
+        })
+
+    } catch (error) {
+        console.log(error);
+        return ({
+            success: false,
+            message: "Something Went Wrong, Please Try Again."
         })
     }
 }

@@ -21,12 +21,13 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useEffect, useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 import axios from "axios";
 import { Trash2 } from "lucide-react";
 import AdminHeader from "@/components/admin/AdminHeader";
 import { IconPencil, IconX } from "@tabler/icons-react";
 import { AddBrand, DeleteBrand, UpdateBrand } from "@/action";
+import Image from "next/image";
 
 function Brand({ getBrands }) {
     const [openBrandDialog, setOpenBrandDialog] = useState(false)
@@ -227,7 +228,7 @@ function Brand({ getBrands }) {
                                                     <TableCell>{brand.brand}</TableCell>
                                                     <TableCell>
                                                         <div className="w-[100px] h-[100px] grid items-center overflow-hidden ">
-                                                            <img src={brand.filename} alt={brand.filename} className="object-cover" />
+                                                            <Image width={100} height={100} src={brand.filename} alt={brand.filename} className="object-cover" />
                                                         </div>
                                                     </TableCell>
                                                     <TableCell>{brand.desc}</TableCell>
@@ -345,7 +346,9 @@ function Brand({ getBrands }) {
                             {
                                 image && (
                                     <div className="relative w-[140px] h-[140px] p-2 border rounded-lg grid items-center overflow-hidden">
-                                        <img
+                                        <Image
+                                            width={140}
+                                            height={140}
                                             src={image}
                                             alt="Category Image"
                                             className="object-cover rounded-lg"

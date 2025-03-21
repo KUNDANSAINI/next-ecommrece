@@ -11,7 +11,7 @@ import {
     TableRow,
 } from "@/components/ui/table"
 import { Trash2 } from "lucide-react";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 import { useEffect, useState } from "react";
 import AdminHeader from "@/components/admin/AdminHeader";
 import { IconEye } from "@tabler/icons-react";

@@ -6,13 +6,13 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
-import { useContext, useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { GlobalContext } from "@/context";
-import Cookies from "js-cookie";
-import { toast } from "react-toastify";
 import { login } from "@/action";
 import Image from "next/image";
+import { useDispatch } from "react-redux";
+import { loginState } from "@/slices/authSlice";
+import toast from "react-hot-toast";
 
 export function LoginForm({ className, ...props }) {
     const [loginFormData, setLoginFormData] = useState({
@@ -20,8 +20,8 @@ export function LoginForm({ className, ...props }) {
         password: "",
     })
     const router = useRouter()
-    const { isLogin, setIsLogin, user, setUser } = useContext(GlobalContext)
     const [loading, setLoading] = useState(false)
+    const dispatch = useDispatch()
 
     const validateEmail = (email) => {
         const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -50,20 +50,12 @@ export function LoginForm({ className, ...props }) {
         try {
             setLoading(true)
             const response = await login(loginFormData, '/login');
-            if (response.success === true) {
-                setIsLogin(true);
-                setUser(response.user.role);
-                // Set token and user data in storage
-                Cookies.set("token", response.token, {
-                    expires: 1 / 24,
-                    secure: true,
-                    sameSite: 'Strict'
-                });
-                localStorage.setItem("user", JSON.stringify(response.user));
 
-                // Redirect based on role
-                const isAdmin = response.user.role === true;
-                router.push(isAdmin ? '/admin-dashboard' : '/');
+            if (response.success === true) {
+                dispatch(loginState({user: response.id}))
+                const isAdmin = response.role === true;
+                router.replace(isAdmin ? '/admin-dashboard' : '/')
+                toast.success(response.message)
             } else {
                 setIsLogin(false);
                 toast.error(response?.message || "Login failed. Please try again.");
@@ -76,16 +68,6 @@ export function LoginForm({ className, ...props }) {
             setLoading(false)
         }
     }
-
-
-    useEffect(() => {
-        if (isLogin && !user) {
-            router.push('/')
-        } else if (isLogin && user) {
-            router.push('/admin-dashboard')
-        }
-    }, [isLogin, user, router])
-
 
     return (
         <div className={cn("flex flex-col gap-6 bg-transparent")} {...props}>

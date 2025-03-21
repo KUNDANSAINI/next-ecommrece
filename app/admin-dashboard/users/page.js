@@ -1,22 +1,19 @@
-import { GetAllUsers } from "@/action";
+import { GetAllUsers, verifyUserToken } from "@/action";
 import User from "@/components/admin/Users";
+import { redirect } from "next/navigation";
 
 async function UserPage() {
-    try {
-        // Fetch the users
-        const getUsers = await GetAllUsers().catch((err) => {
-            console.error("Failed to fetch users:", err);
-            return { data: [] }; // Fallback to empty array
-        });
+    const { success, error, user } = await verifyUserToken()
 
-        // Render the `User` component with fetched data
-        return <User getUsers={getUsers.data} />;
-    } catch (error) {
-        console.error("An unexpected error occurred:", error);
-
-        // Render a fallback UI if an error occurs
-        return <div>Failed to load users. Please try again later.</div>;
+    if (!user) {
+        redirect('/login')
     }
+
+    const getUsers = await GetAllUsers()
+
+    return (
+        <User getUsers={getUsers.data} />
+    )
 }
 
 export default UserPage;

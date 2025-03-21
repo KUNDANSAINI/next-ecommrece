@@ -5,12 +5,13 @@ import { useState } from "react";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 import { IconX } from "@tabler/icons-react";
 import AdminHeader from "@/components/admin/AdminHeader";
 import AdminLeftbar from "@/components/admin/Admin-Leftbar";
 import Tiptap from "../Tiptap/Tiptap";
 import { AddProduct, EditProduct } from "@/action";
+import Image from "next/image";
 
 function Product({ getCategory, getBrands, data, id }) {
     const [productFormData, setProductFormData] = useState({
@@ -462,7 +463,9 @@ function Product({ getCategory, getBrands, data, id }) {
                                             image && image.length > 0 ? (
                                                 image.map((preview, index) => (
                                                     <div key={index} className="relative w-[140px] h-[140px] p-2 border rounded-lg grid items-center overflow-hidden ">
-                                                        <img
+                                                        <Image
+                                                            width={140}
+                                                            height={140}
                                                             src={typeof preview === 'string' ? preview : preview.name}
                                                             alt={typeof preview === 'string' ? preview : preview.name}
                                                             className="object-cover rounded-lg"

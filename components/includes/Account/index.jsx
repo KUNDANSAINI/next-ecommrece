@@ -1,9 +1,8 @@
 'use client'
 
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { toast } from "react-toastify";
-import { GlobalContext } from "@/context";
+import { toast } from "react-hot-toast";
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -22,11 +21,12 @@ import Footer from "@/components/includes/Footer";
 import { CreateProfile, fetchProfile, SingleUser, UpdateProfile } from "@/action";
 import AccountLoader from "@/components/Loader/AccountLoader";
 import axios from "axios";
+import Image from "next/image";
+import { useSelector } from "react-redux";
 
 
 function Account() {
     const router = useRouter()
-    const { userID } = useContext(GlobalContext)
     const [personalDetail, setPersonalDetail] = useState({
         firstName: "",
         lastName: "",
@@ -44,6 +44,7 @@ function Account() {
     const [isEditID, setIsEditID] = useState(null)
     const [image, setImage] = useState(null)
     const [filename, setFilename] = useState(null)
+    const userID = useSelector((state) => state.auth.user);
 
     useEffect(() => {
         if (userID) {
@@ -239,17 +240,27 @@ function Account() {
                                         />
                                         {
                                             image ? (
-                                                <img
-                                                    src={image}
-                                                    alt="Profile"
-                                                    className="w-20 h-20 rounded-full object-cover border"
-                                                />
+                                                <div className="w-[100px] h-[100px] border rounded-full overflow-hidden">
+                                                    <Image
+                                                        width={300}
+                                                        height={300}
+                                                        src={image}
+                                                        alt="Profile"
+                                                        className="w-full h-full object-cover object-center"
+                                                        unoptimized
+                                                    />
+                                                </div>
                                             ) : filename ? (
-                                                <img
-                                                    src={filename}
-                                                    alt="Profile"
-                                                    className="w-20 h-20 rounded-full object-cover border"
-                                                />
+                                                <div className="w-[100px] h-[100px] border rounded-full overflow-hidden">
+                                                    <Image
+                                                        width={300}
+                                                        height={300}
+                                                        src={filename}
+                                                        alt="Profile"
+                                                        className="w-full h-full object-cover object-center"
+                                                        unoptimized
+                                                    />
+                                                </div>
                                             ) : (
                                                 <div className="w-20 h-20 rounded-full border flex items-center justify-center text-2xl font-bold">
                                                     {getUser.fullName?.charAt(0).toUpperCase()}

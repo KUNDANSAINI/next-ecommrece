@@ -4,16 +4,16 @@ import Footer from "@/components/includes/Footer";
 import Navbar from "@/components/includes/Navbar";
 import Loading from "@/components/Loading";
 import { Button } from "@/components/ui/button";
-import { GlobalContext } from "@/context";
 import axios from "axios";
 import Cookies from "js-cookie";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 
 function Status() {
-    const { userID } = useContext(GlobalContext)
+    const userID = useSelector((state) => state.auth.user);
     const [cartItems, setCartItems] = useState([])
     const router = useRouter()
     const params = useSearchParams()

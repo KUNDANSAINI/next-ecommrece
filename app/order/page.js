@@ -3,8 +3,7 @@
 import React from "react";
 import Footer from "@/components/includes/Footer";
 import Navbar from "@/components/includes/Navbar";
-import { GlobalContext } from "@/context";
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button"
 import {
     Card,
@@ -29,22 +28,21 @@ import {
     CarouselNext,
     CarouselPrevious,
 } from "@/components/ui/carousel"
-import axios from "axios";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 import Loading from "@/components/Loading";
 import Link from "next/link";
 import { IconProgressAlert, IconProgressCheck, IconTruck } from "@tabler/icons-react";
 import Image from "next/image";
+import { GetOrderByID } from "@/action";
+import { useSelector } from "react-redux";
 
 
 function Order() {
-    const { userID } = useContext(GlobalContext)
+    const userID = useSelector((state) => state.auth.user);
     const [getOrder, setGetOrder] = useState([])
     const [loading, setLoading] = useState(false)
     const [visibleIndex, setVisibleIndex] = useState(0); // Default visible item index
     const [showAllItems, setShowAllItems] = useState(false);
-
-    const API_URL = process.env.NEXT_PUBLIC_CLIENT_URL
 
     useEffect(() => {
         if (userID) {
@@ -55,14 +53,14 @@ function Order() {
     async function fetchOrderData(userID) {
         try {
             setLoading(true)
-            const response = await axios.get(`${API_URL}/api/order/${userID}`)
-            if (response.data.success === true) {
-                const data = response.data.getAllOrder.filter((value) => {
+            const response = await GetOrderByID(userID)
+            if (response.success === true) {
+                const data = response.getAllOrder.filter((value) => {
                     return value.status !== "Delivered"
                 })
                 setGetOrder(data)
             } else {
-                toast.error(response.data.message)
+                toast.error(response.message)
             }
         } catch (error) {
             console.log(error);

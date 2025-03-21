@@ -1,58 +1,47 @@
-'use client'
-
 import "./globals.css";
-import GlobalState from "@/context";
-import { Suspense, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import Cookies from "js-cookie";
-import axios from "axios";
+import { Suspense } from "react";
 import NextTopLoader from 'nextjs-toploader';
-import 'react-toastify/dist/ReactToastify.css';
-import { ToastContainer } from "react-toastify";
 import { ThemeProvider } from "@/components/includes/theme-provider";
 import { useTheme } from "next-themes";
 import Loading from "@/components/Loading";
+import { Providers } from "./providers";
+import { Toaster } from "react-hot-toast";
+
+export const metadata = {
+  title: "Trendy - Shop Latest Fashion Trends Online",
+  description: "Discover the latest fashion trends at Trendy. Shop clothing, accessories, and more with amazing deals. Fast delivery and secure payments.",
+  keywords: "fashion, online shopping, trendy clothes, latest trends, best deals, stylish outfits",
+  // openGraph: {
+  //   title: "Trendy - Shop Latest Fashion Trends Online",
+  //   description: "Discover the latest fashion trends at Trendy. Shop clothing, accessories, and more with amazing deals.",
+  //   url: "https://yourwebsite.com",
+  //   type: "website",
+  //   images: [
+  //     {
+  //       url: "https://yourwebsite.com/default-og-image.jpg",
+  //       width: 1200,
+  //       height: 630,
+  //       alt: "Trendy - Latest Fashion Trends",
+  //     },
+  //   ],
+  // },
+  // twitter: {
+  //   card: "summary_large_image",
+  //   title: "Trendy - Shop Latest Fashion Trends Online",
+  //   description: "Find the latest fashion trends and shop stylish outfits at Trendy. Best deals available now!",
+  //   images: ["https://yourwebsite.com/default-twitter-image.jpg"],
+  // },
+};
+
 
 export default function RootLayout({ children }) {
-  const [userEmail, setUserEmail] = useState('')
-  const [userID, setUserID] = useState('')
-  const [role, setRole] = useState('')
-  const router = useRouter()
-  const token = Cookies.get("token")
-  const { theme } = useTheme();
-
-  const API_URL = process.env.NEXT_PUBLIC_CLIENT_URL
-
-  useEffect(() => {
-
-    async function fetchTokenData() {
-      if (typeof window !== 'undefined') {
-
-        if (token) {
-          try {
-            const response = await axios.post(`${API_URL}/api/login`, { token })
-            setUserEmail(response.data.decryptedPayload.email);
-            setUserID(response.data.decryptedPayload.id);
-            setRole(response.data.decryptedPayload.isAdmin);
-          } catch (error) {
-            console.error('Error decoding token:', error)
-          }
-        } else {
-          // Handle the case where no token is present
-          console.warn('No token found in cookies.')
-        }
-      }
-    }
-
-    fetchTokenData()
-  }, [router])
 
   return (
     <html lang="en">
       <body
         className={`antialiased`}
       >
-        <GlobalState>
+        <Providers>
           <NextTopLoader />
           {/* <ThemeProvider
             attribute="class"
@@ -60,16 +49,16 @@ export default function RootLayout({ children }) {
             enableSystem
             disableTransitionOnChange
           > */}
+          <Toaster
+            // theme={theme === "dark" ? "dark" : "light"} // Dynamically set theme
+            position="top-right" // Optional: Toast position
+            reverseOrder={true}
+          />
           <Suspense fallback={<Loading />}>
             {children}
           </Suspense>
           {/* </ThemeProvider> */}
-          <ToastContainer
-           // theme={theme === "dark" ? "dark" : "light"} // Dynamically set theme
-            position="top-right" // Optional: Toast position
-            autoClose={5000} // Auto-close in 5 seconds
-          />
-        </GlobalState>
+        </Providers>
       </body>
     </html>
   );

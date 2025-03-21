@@ -20,13 +20,14 @@ import {
 import { Input } from "@/components/ui/input"
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 import { Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import AdminHeader from "@/components/admin/AdminHeader";
 import { IconPencil, IconX } from "@tabler/icons-react";
 import Loading from "@/components/Loading";
 import { AddCategory, DeleteCategory, UpdateCategory } from "@/action";
+import Image from "next/image";
 
 
 function Category({getCategory}) {
@@ -241,7 +242,7 @@ function Category({getCategory}) {
                                                             <TableCell>{category.category}</TableCell>
                                                             <TableCell>
                                                                 <div className="w-[80px] h-[80px] grid items-center overflow-hidden">
-                                                                    <img src={category.filename} alt={category.filename} className="object-cover" />
+                                                                    <Image width={80} height={80} src={category.filename} alt={category.filename} className="object-cover" />
                                                                 </div>
                                                             </TableCell>
                                                             <TableCell>{category.type}</TableCell>
@@ -368,9 +369,11 @@ function Category({getCategory}) {
                             {
                                 image && (
                                     <div className="relative w-[140px] h-[140px] p-2 border rounded-lg grid items-center overflow-hidden ">
-                                        <img
+                                        <Image
+                                            width={140}
+                                            height={140}
                                             src={image}
-                                            alt="Brand Image"
+                                            alt="Category Image"
                                             className="object-cover rounded-lg"
                                         />
                                         <span

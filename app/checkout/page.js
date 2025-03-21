@@ -1,7 +1,6 @@
 'use client'
 
-import { GlobalContext } from "@/context";
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
@@ -14,10 +13,11 @@ import Navbar from "@/components/includes/Navbar";
 import Footer from "@/components/includes/Footer";
 import Loading from "@/components/Loading";
 import { fetchProfile } from "@/action";
+import { useSelector } from "react-redux";
 
 
 function Checkout() {
-    const { userID } = useContext(GlobalContext)
+    const userID = useSelector((state) => state.auth.user);
     const [cartItems, setCartItems] = useState([])
     const [userAddress, setUserAddress] = useState(null)
     const [confirmAddress, setConfirmAddress] = useState(null)

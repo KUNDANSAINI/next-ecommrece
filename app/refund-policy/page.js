@@ -1,9 +1,36 @@
 import Footer from "@/components/includes/Footer";
 import Navbar from "@/components/includes/Navbar";
 
+export const metadata = {
+    title: "Refund Policy - Hassle-Free Returns | Trendy",
+    description: "Learn about Trendy's easy and hassle-free refund policy. Get details on returns, exchanges, and refunds for a worry-free shopping experience.",
+    keywords: "refund policy, returns, exchange, money-back guarantee, online shopping, customer support",
+    // openGraph: {
+    //   title: "Refund Policy - Hassle-Free Returns | Trendy",
+    //   description: "Understand Trendy's refund and return policies. Shop with confidence knowing you can return or exchange items easily.",
+    //   url: "https://yourwebsite.com/refund-policy",
+    //   type: "website",
+    //   images: [
+    //     {
+    //       url: "https://yourwebsite.com/refund-policy-image.jpg",
+    //       width: 1200,
+    //       height: 630,
+    //       alt: "Trendy Refund Policy - Hassle-Free Returns",
+    //     },
+    //   ],
+    // },
+    // twitter: {
+    //   card: "summary_large_image",
+    //   title: "Refund Policy - Hassle-Free Returns | Trendy",
+    //   description: "Trendy offers a smooth refund and exchange process. Read our policy and shop stress-free!",
+    //   images: ["https://yourwebsite.com/refund-policy-image.jpg"],
+    // },
+};
+
+
 function RefundPolicy() {
     return (
-          /* eslint-disable react/no-unescaped-entities */
+        /* eslint-disable react/no-unescaped-entities */
         <>
             <div className="mx-4 mt-10 flex flex-col justify-between h-full">
                 <Navbar />
@@ -82,7 +109,7 @@ function RefundPolicy() {
                 <Footer />
             </div>
         </>
-         /* eslint-disable react/no-unescaped-entities */
+        /* eslint-disable react/no-unescaped-entities */
     );
 }
 

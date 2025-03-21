@@ -1,7 +1,7 @@
 'use client'
 
 import { AlignRight, CircleUserRound, LogOut, ShoppingBag } from "lucide-react";
-import { useContext, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
     Sheet,
@@ -10,28 +10,25 @@ import {
 } from "@/components/ui/sheet"
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
-import { GlobalContext } from "@/context";
-import Cookies from "js-cookie";
 import { useTheme } from "next-themes"
 import { IconTruckDelivery } from "@tabler/icons-react";
-
-
+import { logoutUser } from "@/action";
+import { useDispatch, useSelector } from "react-redux";
+import { logoutState } from "@/slices/authSlice";
 
 function Navbar({ type }) {
     const [openNavbar, setOpenNavbar] = useState(false)
     const router = useRouter()
     const pathname = usePathname()
-    const { user, isLogin, setIsLogin, setUser } = useContext(GlobalContext)
     const { setTheme } = useTheme()
+    const userID = useSelector((state) => state.auth.user); 
+    const dispatch = useDispatch()
 
-    function handleLogout() {
-        setIsLogin(false)
-        setUser(null)
-        localStorage.removeItem("user")
-        Cookies.remove("token")
-        router.push('/login')
+    async function handleLogout() {
+        dispatch(logoutState())
+        await logoutUser()
+        router.replace('/login')
     }
-
 
     return (
         <>
@@ -55,7 +52,7 @@ function Navbar({ type }) {
 
                     <div className="flex gap-4 items-center">
                         {
-                            isLogin && !user ? (
+                            userID ? (
                                 <>
                                     <Link href={'/order'}><Button variant="outline" className="hidden md:flex items-center drop-shadow-lg" size="icon"><IconTruckDelivery /></Button></Link>
                                     <Link href={'/cart'}>
@@ -71,12 +68,9 @@ function Navbar({ type }) {
                                     <Link href={'/account'}><Button variant="outline" className="hidden md:flex items-center drop-shadow-lg" size="icon"><CircleUserRound /></Button></Link>
                                     <Button variant="outline" size="icon" className="hidden md:flex items-center drop-shadow-lg" onClick={() => { handleLogout() }}><LogOut /></Button>
                                 </>
-                            ) : null
-                        }
-                        {
-                            !isLogin ? (
+                            ) : (
                                 <Link href={'/login'}><Button variant="outline" className="rounded-full shadow-lg">Login</Button></Link>
-                            ) : null
+                            )
                         }
                         {/* <DropdownMenu>
                             <DropdownMenuTrigger asChild>
@@ -114,26 +108,22 @@ function Navbar({ type }) {
                 <SheetContent>
                     <SheetHeader className={'mt-4'}>
                         <ul className="flex flex-col p-1 justify-center items-center gap-4">
-                            {
-                                !user ? (
-                                    <>
-                                        <Link href="/" className="w-full"><li className={`cursor-pointer block rounded-lg py-2 ${pathname === "/" ? "bg-blue-400" : ""}`}>Home</li></Link>
-                                        <Link href="/shop" className="w-full"><li className={`cursor-pointer block rounded-lg py-2 ${pathname === "/shop" ? "bg-blue-400" : ""}`}>Shop</li></Link>
-                                        <Link href="/men" className="w-full"><li className={`cursor-pointer block rounded-lg py-2 ${pathname === "/men" ? "bg-blue-400" : ""}`}>Men</li></Link>
-                                        <Link href="/women" className="w-full"><li className={`cursor-pointer block rounded-lg py-2 ${pathname === "/women" ? "bg-blue-400" : ""}`}>Women</li></Link>
-                                        <Link href="/kids" className="w-full"><li className={`cursor-pointer block rounded-lg py-2 ${pathname === "/kids" ? "bg-blue-400" : ""}`}>Kids</li></Link>
-                                    </>
-                                ) : null
-                            }
+                            <>
+                                <Link href="/" className="w-full"><li className={`cursor-pointer block rounded-lg py-2 ${pathname === "/" ? "bg-blue-400" : ""}`}>Home</li></Link>
+                                <Link href="/shop" className="w-full"><li className={`cursor-pointer block rounded-lg py-2 ${pathname === "/shop" ? "bg-blue-400" : ""}`}>Shop</li></Link>
+                                <Link href="/men" className="w-full"><li className={`cursor-pointer block rounded-lg py-2 ${pathname === "/men" ? "bg-blue-400" : ""}`}>Men</li></Link>
+                                <Link href="/women" className="w-full"><li className={`cursor-pointer block rounded-lg py-2 ${pathname === "/women" ? "bg-blue-400" : ""}`}>Women</li></Link>
+                                <Link href="/kids" className="w-full"><li className={`cursor-pointer block rounded-lg py-2 ${pathname === "/kids" ? "bg-blue-400" : ""}`}>Kids</li></Link>
+                            </>
 
                             {
-                                isLogin && !user ? (
+                                userID && (
                                     <>
                                         <Link href="/account" className="w-full"><li className={`md:hidden cursor-pointer block rounded-lg py-2 ${pathname === "/account" ? "bg-blue-400" : ""}`}>Account</li></Link>
                                         <Link href="/order" className="w-full"><li className={`md:hidden cursor-pointer block rounded-lg py-2 ${pathname === "/order" ? "bg-blue-400" : ""}`}>Order</li></Link>
                                         <li onClick={() => { handleLogout() }} className={`md:hidden cursor-pointer block rounded-lg py-2 w-full`}>Logout</li>
                                     </>
-                                ) : null
+                                )
                             }
                         </ul>
                     </SheetHeader>

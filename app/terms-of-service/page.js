@@ -1,6 +1,33 @@
 import Footer from "@/components/includes/Footer";
 import Navbar from "@/components/includes/Navbar";
 
+export const metadata = {
+    title: "Terms & Conditions - Your Shopping Agreement | Trendy",
+    description: "Read Trendy's terms and conditions to understand your rights, responsibilities, and our policies for a secure shopping experience.",
+    keywords: "terms and conditions, user agreement, shopping policy, online shopping rules, trendy fashion policies",
+    // openGraph: {
+    //   title: "Terms & Conditions - Your Shopping Agreement | Trendy",
+    //   description: "Stay informed about Trendy's terms and conditions, ensuring a safe and secure shopping experience.",
+    //   url: "https://yourwebsite.com/terms-and-conditions",
+    //   type: "website",
+    //   images: [
+    //     {
+    //       url: "https://yourwebsite.com/terms-and-conditions-image.jpg",
+    //       width: 1200,
+    //       height: 630,
+    //       alt: "Trendy Terms and Conditions - Secure Shopping",
+    //     },
+    //   ],
+    // },
+    // twitter: {
+    //   card: "summary_large_image",
+    //   title: "Terms & Conditions - Your Shopping Agreement | Trendy",
+    //   description: "Know your rights and responsibilities when shopping at Trendy. Read our terms for a secure experience.",
+    //   images: ["https://yourwebsite.com/terms-and-conditions-image.jpg"],
+    // },
+  };
+  
+
 function TearmAndCondition() {
     return (
         /* eslint-disable react/no-unescaped-entities */

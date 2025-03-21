@@ -1,5 +1,6 @@
 'use client'
 
+import { FetchCart } from "@/action"
 import Loading from "@/components/Loading"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -7,21 +8,19 @@ import {
     Sheet,
     SheetContent,
 } from "@/components/ui/sheet"
-import { GlobalContext } from "@/context"
 import axios from "axios"
-import Cookies from "js-cookie"
 import { ArrowRight, IndianRupee } from "lucide-react"
+import Image from "next/image"
 import { useRouter } from "next/navigation"
-import { useContext, useEffect, useState } from "react"
-import { toast } from "react-toastify"
+import { useEffect, useState } from "react"
+import { useSelector } from "react-redux"
+import { toast } from "react-hot-toast"
 
 export function CartSheet({ cartSheetOpen, setCartSheetOpen }) {
-    const { userID } = useContext(GlobalContext)
+    const userID = useSelector((state) => state.auth.user)
     const [cartItems, setCartItems] = useState([])
     const router = useRouter()
     const [loading, setLoading] = useState(false)
-
-    const API_URL = process.env.NEXT_PUBLIC_CLIENT_URL
 
     useEffect(() => {
         if (userID || cartSheetOpen === true) {
@@ -32,13 +31,9 @@ export function CartSheet({ cartSheetOpen, setCartSheetOpen }) {
     async function fetchCartItems(userID) {
         try {
             setLoading(true)
-            const response = await axios.get(`${API_URL}/api/cart?userID=${userID}`, {
-                headers: {
-                    Authorization: `Bearer ${Cookies.get("token")}`
-                }
-            })
-            if (response.status === 200) {
-                setCartItems(response.data.getCartProduct)
+            const response = await FetchCart(userID)
+            if (response.success === true) {
+                setCartItems(response.getCartProduct)
             }
         } catch (error) {
             console.log(error);
@@ -83,7 +78,7 @@ export function CartSheet({ cartSheetOpen, setCartSheetOpen }) {
                                         cartItems.map((item, index) => (
                                             <Card className="flex gap-4 p-4 mt-4" key={index}>
                                                 <div>
-                                                    <img src={item.productID.filename[0].name} alt={item.productID.filename[0].name} className="w-[100px] border rounded" />
+                                                    <Image width={150} height={150} src={item.productID.filename[0].name} alt={item.productID.filename[0].name} className="border rounded" />
                                                 </div>
                                                 <div>
                                                     <h2>{item.productID.productName}</h2>

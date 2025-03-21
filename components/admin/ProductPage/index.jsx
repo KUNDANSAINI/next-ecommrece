@@ -12,13 +12,14 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { useEffect, useState } from "react";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 import { Trash2 } from "lucide-react";
 import Link from "next/link";
 import AdminHeader from "@/components/admin/AdminHeader";
 import { IconPencil } from "@tabler/icons-react";
 import { Input } from "@/components/ui/input";
 import { DeleteProduct } from "@/action";
+import Image from "next/image";
 
 
 function ProductPage({ getProduct, brand, category }) {
@@ -216,7 +217,7 @@ function ProductPage({ getProduct, brand, category }) {
                                                     <TableCell className="font-medium">{index + 1}</TableCell>
                                                     <TableCell>
                                                         <div className="w-[100px] h-[100px] grid items-center overflow-hidden">
-                                                            <img src={product.filename[0].name} alt={product.filename[0].name} className="object-cover" />
+                                                            <Image width={100} height={100} src={product.filename[0].name} alt={product.filename[0].name} className="object-cover" />
                                                         </div>
                                                     </TableCell>
                                                     <TableCell>{product.productName}</TableCell>

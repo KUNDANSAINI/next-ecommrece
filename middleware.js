@@ -1,36 +1,56 @@
-import { jwtVerify } from 'jose';
 import { NextResponse } from 'next/server';
-import Cookies from 'js-cookie';
+import { verifyToken } from './app/utils/auth';
+import { redirect } from 'next/navigation';
 
 export async function middleware(request) {
-    const path = request.nextUrl.pathname
-    const isPublicPath = path === "/login" || path === '/register' || path === "/";
+    const path = request.nextUrl.pathname;
 
-    const token = request.cookies.get("token");
-
-    if (!isPublicPath && !token) {
-        return NextResponse.redirect(new URL('/login', request.url));
+    if (path.startsWith("/api/")) {
+        return NextResponse.next();
     }
 
+    const publicRoutes = ["/login", "/register"];
+    const clientRoutes = ["/checkout", "/cart", "/account", "/order"];
+    const adminRoutes = ["/admin-dashboard"];
 
-    if (token) {
-        try {
-            const secretKey = new TextEncoder().encode("next-ecommrece");
+    const token = request.cookies.get("authToken")?.value;
+    const existingUserData = request.cookies.get("userData")?.value;
 
-            await jwtVerify(token.value, secretKey, {
-                algorithms: ['HS512'],
-            });
-
-            if (isPublicPath) {
-                return NextResponse.next();
-            }
-
-            return NextResponse.next();
-        } catch (error) {
-            Cookies.remove("token")
+    if (!token) {
+        if (![...publicRoutes, ...clientRoutes, "/"].includes(path)) {
             return NextResponse.redirect(new URL('/login', request.url));
         }
+        return NextResponse.next();
     }
+
+    try {
+        const decode = await verifyToken(token);
+        const isAdmin = decode.role === true;
+
+        if (isAdmin && path === "/") {
+            return NextResponse.redirect(new URL("/admin-dashboard", request.url));
+        }
+
+        if (publicRoutes.includes(path)) {
+            return NextResponse.redirect(new URL(isAdmin ? "/admin-dashboard" : "/", request.url));
+        }
+
+        if (!isAdmin && adminRoutes.includes(path)) {
+            return NextResponse.redirect(new URL("/", request.url));
+        }
+
+        if (!existingUserData || JSON.parse(existingUserData).id !== decode.id) {
+            const response = NextResponse.next();
+            response.cookies.set("userData", JSON.stringify(decode), { httpOnly: true });
+            return response;
+        }
+
+    } catch (error) {
+        console.log("Token verification failed:", error.message);
+        redirect('/login')
+    }
+
+    return NextResponse.next();
 }
 
 export const config = {

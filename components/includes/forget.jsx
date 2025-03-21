@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 import Image from "next/image";
 import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp"
 import {

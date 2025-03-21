@@ -7,12 +7,14 @@ import Loading from "@/components/Loading";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import axios from "axios";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Datepicker from "react-tailwindcss-datepicker";
 import { toast } from "react-hot-toast";
+import { Badge } from "../ui/badge";
 
-
-function Delivered() {
+function Order() {
     const [getOrders, setGetOrders] = useState([])
     const [filteredOrder, setFilteredOrder] = useState([])
     const [loading, setLoading] = useState(false)
@@ -38,7 +40,7 @@ function Delivered() {
                 const response = await FetchOrder()
                 if (response.success === true) {
                     const data = response.getOrders.filter((value) => {
-                        return value.status === "Delivered"
+                        return value.status !== "Delivered"
                     })
                     setGetOrders(data)
                 } else {
@@ -54,6 +56,26 @@ function Delivered() {
         fetchOrderData()
     }, [])
 
+    async function handleOrder(id) {
+        try {
+            if (!id) {
+                return toast.error("Invalid ID!")
+            }
+            const response = await axios.put(`/api/order/${id}`)
+            if (response.data.success === true) {
+                const data = getOrders.filter((value) => {
+                    return value._id !== id
+                })
+                setGetOrders(data)
+                toast.success(response.data.message)
+            } else {
+                toast.error(response.data.message)
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
     useEffect(() => {
         filterOrderData()
     }, [getOrders, searchDate, searchOrderID, searchStatus, searchUserID])
@@ -63,12 +85,12 @@ function Delivered() {
 
         // Search By Order ID
         if (searchOrderID) {
-            filtered = filtered.filter(item => item._id.toLowerCase().includes(searchOrderID.trim().toLowerCase()));
+            filtered = filtered.filter(item => item.order_id.toLowerCase().includes(searchOrderID.trim().toLowerCase()));
         }
 
         // Search By User ID
         if (searchUserID) {
-            filtered = filtered.filter(item => item.userId.toLowerCase().includes(searchUserID.trim().toLowerCase()));
+            filtered = filtered.filter(item => item.customer.toLowerCase().includes(searchUserID.trim().toLowerCase()));
         }
 
         // Search By Status
@@ -118,33 +140,37 @@ function Delivered() {
                     </div>
                     <div className="flex flex-col w-full px-1 md:px-4 mt-4">
                         <div className="space-y-4">
-                            <h1 className="text-center text-3xl font-semibold">Delivered</h1>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <Input
-                                    type="text"
-                                    placeholder="Search By Order ID"
-                                    value={searchOrderID}
-                                    onChange={(e) => { setSearchOrderID(e.target.value) }}
-                                />
-                                <Input
-                                    type="text"
-                                    placeholder="Search By User ID"
-                                    value={searchUserID}
-                                    onChange={(e) => { setSearchUserID(e.target.value) }}
-                                />
-                                <select
-                                    value={searchStatus}
-                                    onChange={(e) => { setSearchStatus(e.target.value) }}
-                                    className="border h-10 px-2 rounded-lg text-sm"
-                                >
-                                    <option value="">Search By Status</option>
-                                    <option value="Delivered">Delivered</option>
-                                </select>
-                                <div className="border rounded-lg">
-                                    <Datepicker
-                                        value={searchDate}
-                                        onChange={newValue => setSearchDate(newValue)}
+                            <h1 className="text-center text-3xl font-semibold">Orders</h1>
+                            <div className="p-4 rounded-lg shadow-md space-y-1">
+                                <h4 className="text-lg font-semibold">Filter</h4>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <Input
+                                        type="text"
+                                        placeholder="Search By Order ID"
+                                        value={searchOrderID}
+                                        onChange={(e) => { setSearchOrderID(e.target.value) }}
                                     />
+                                    <Input
+                                        type="text"
+                                        placeholder="Search By User ID"
+                                        value={searchUserID}
+                                        onChange={(e) => { setSearchUserID(e.target.value) }}
+                                    />
+                                    <select
+                                        value={searchStatus}
+                                        onChange={(e) => { setSearchStatus(e.target.value) }}
+                                        className="border h-10 px-2 rounded-lg text-sm"
+                                    >
+                                        <option value="">Search By Status</option>
+                                        <option value="Processing">Processing</option>
+                                        <option value="Out Of Delivery">Out Of Delivery</option>
+                                    </select>
+                                    <div className="border rounded-lg">
+                                        <Datepicker
+                                            value={searchDate}
+                                            onChange={newValue => setSearchDate(newValue)}
+                                        />
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -153,18 +179,18 @@ function Delivered() {
                                 loading ? (
                                     <Loading />
                                 ) : (
-                                    <Table>
-                                        <TableCaption>Only Delivery Product Are Included.</TableCaption>
+                                    <Table className=" overflow-x-scroll">
+                                        <TableCaption>Only Pending Ordered Are Included.</TableCaption>
                                         <TableHeader>
                                             <TableRow>
                                                 <TableHead className="w-[100px]">No.</TableHead>
                                                 <TableHead>Order ID</TableHead>
-                                                <TableHead>User ID</TableHead>
+                                                <TableHead>User</TableHead>
+                                                <TableHead className="w-[800px] border">Product</TableHead>
                                                 <TableHead>Total Price</TableHead>
                                                 <TableHead>Payment</TableHead>
                                                 <TableHead>Order Date</TableHead>
-                                                <TableHead>Address</TableHead>
-                                                <TableHead>Status</TableHead>
+                                                <TableHead>Details</TableHead>
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
@@ -174,23 +200,49 @@ function Delivered() {
                                                         <TableRow key={index}>
                                                             <TableCell className="font-medium">{index + 1}</TableCell>
                                                             <TableCell>
-                                                                {order._id}
+                                                                {order.order_id}
                                                             </TableCell>
-                                                            <TableCell>{order.userId}</TableCell>
-                                                            <TableCell>₹ {order.totalPrice}</TableCell>
-                                                            <TableCell>{order.isPaid ? "Paid" : "Pending"}</TableCell>
-                                                            <TableCell>{order.paidAt}</TableCell>
+                                                            <TableCell>{order.customer}</TableCell>
                                                             <TableCell>
-                                                                {order.shippingAddress.city}, {order.shippingAddress.country}
+                                                                {
+                                                                    order && order.product.length > 0 ? (
+                                                                        order.product.map((value, index) => (
+                                                                            <li key={index}>{value.productName}</li>
+                                                                        ))
+                                                                    ) : (
+                                                                        <p>No Product</p>
+                                                                    )
+                                                                }
+                                                            </TableCell>
+                                                            <TableCell>{order.customer}</TableCell>
+                                                            <TableCell>₹ {order.amount}</TableCell>
+                                                            <TableCell>
+                                                                {
+                                                                    order.payment === "Pending" ? (
+                                                                        <Badge variant="destructive">{order.payment}</Badge>
+                                                                    ) : (
+                                                                        <span>{order.payment}</span>
+                                                                    )
+                                                                }
+                                                            </TableCell>
+                                                            <TableCell>₹ {order.isProcessing}</TableCell>
+                                                            <TableCell>
+                                                                {
+                                                                    order.status === "Processing" ? (
+                                                                        <Button onClick={() => { handleOrder(order._id) }}>{order.status}</Button>
+                                                                    ) : (
+                                                                        <Button variant="destructive" >{order.status}</Button>
+                                                                    )
+                                                                }
                                                             </TableCell>
                                                             <TableCell>
-                                                                <Button variant="destructive">{order.status}</Button>
+                                                                <Button>Get Details</Button>
                                                             </TableCell>
                                                         </TableRow>
                                                     ))
                                                 ) : (
                                                     <TableRow>
-                                                        <TableCell colSpan={8} className="text-center">No Record Found!</TableCell>
+                                                        <TableCell colSpan={9} className="text-center">No Record Found!</TableCell>
                                                     </TableRow>
                                                 )
                                             }
@@ -241,4 +293,4 @@ function Delivered() {
     );
 }
 
-export default Delivered;
+export default Order;

@@ -1,13 +1,11 @@
 'use client'
 
 import { Button } from "@/components/ui/button";
-import { GlobalContext } from "@/context";
-import { AlignRight, LogOut, Vegan } from "lucide-react";
-import { redirect, useRouter } from "next/navigation";
-import { useContext, useState } from "react";
+import { AlignRight, LogOut } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import AdminLeftbar from "../Admin-Leftbar";
 import { Sheet, SheetContent, SheetHeader } from "@/components/ui/sheet";
-import Cookies from "js-cookie";
 import { Moon, Sun } from "lucide-react"
 import { useTheme } from "next-themes"
 import {
@@ -16,19 +14,20 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { logoutUser } from "@/action";
+import { useDispatch } from "react-redux";
+import { logoutState } from "@/slices/authSlice";
 
 function AdminHeader() {
     const router = useRouter()
     const [openNavbar, setOpenNavbar] = useState(false)
-    const { user, isLogin, setIsLogin, setUser } = useContext(GlobalContext)
     const { setTheme } = useTheme()
+    const dispatch = useDispatch()
 
-    function handleLogout() {
-        setIsLogin(false)
-        setUser(null)
-        localStorage.removeItem("user")
-        Cookies.remove("token")
-        router.push('/login')
+    async function handleLogout() {
+        dispatch(logoutState())
+        await logoutUser()
+        router.replace('/login')
     }
 
     return (
@@ -77,11 +76,7 @@ function AdminHeader() {
             >
                 <SheetContent>
                     <SheetHeader className={'mt-4'}>
-                        {
-                            user && isLogin ? (
-                                <AdminLeftbar />
-                            ) : null
-                        }
+                        <AdminLeftbar />
                     </SheetHeader>
                 </SheetContent>
             </Sheet>

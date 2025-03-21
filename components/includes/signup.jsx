@@ -9,7 +9,7 @@ import Link from "next/link";
 import { useContext, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { GlobalContext } from "@/context";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 import { sendEmail, Signup, verifyOtp } from "@/action";
 import Image from "next/image";
 import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp"

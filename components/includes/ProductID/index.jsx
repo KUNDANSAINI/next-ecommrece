@@ -2,13 +2,12 @@
 
 import { useContext, useEffect, useState } from "react";
 import axios from "axios";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/includes/Navbar";
 import Footer from "@/components/includes/Footer";
-import { GlobalContext } from "@/context";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { CartSheet } from "@/components/includes/Cart-Sheet";
 import { Minus, Plus, Star } from "lucide-react";
@@ -21,12 +20,14 @@ import {
 import { SingleProduct } from "@/action";
 import DetailsLoader from "@/components/Loader/DetailsLoader";
 import { Card, CardContent } from "@/components/ui/card";
+import Image from "next/image";
+import { useSelector } from "react-redux";
 
 function ProductID({ id, type }) {
     const router = useRouter()
     const [getProduct, setGetProduct] = useState("")
     const [cartSheetOpen, setCartSheetOpen] = useState(false)
-    const { userID } = useContext(GlobalContext)
+    const userID = useSelector((state) => state.auth.user)
     const [qty, setQty] = useState(1)
     const [selectedSize, setSelectedSize] = useState(null);
 
@@ -100,7 +101,7 @@ function ProductID({ id, type }) {
                                             getProduct && getProduct.filename.length > 0 ? (
                                                 getProduct.filename.map((image, index) => (
                                                     <div key={index}>
-                                                        <img src={image.name} alt={image.name} className="w-[80px]" />
+                                                        <Image width={80} height={80} src={image.name} alt={image.name} />
                                                     </div>
                                                 ))
                                             ) : (
@@ -115,7 +116,7 @@ function ProductID({ id, type }) {
                                                     getProduct.filename.map((image, index) => (
                                                         <CarouselItem key={index}>
                                                             <div className="flex overflow-hidden h-[500px] w-[350px]">
-                                                                <img src={image.name} alt={image.name} className="object-cover" />
+                                                                <Image width={350} height={500} src={image.name} alt={image.name} className="object-cover" />
                                                             </div>
                                                         </CarouselItem>
                                                     ))
@@ -267,7 +268,16 @@ function ProductID({ id, type }) {
                                 {reviews.map((review, index) => (
                                     <Card key={index} className="mb-4 p-4">
                                         <CardContent className="flex space-x-4">
-                                            <img src={review.avatar} alt={review.name} className="w-12 h-12 rounded-full" />
+                                            <div className="w-[100px] h-[100px] border rounded-full overflow-hidden">
+                                                <Image
+                                                    width={300}
+                                                    height={300}
+                                                    src={review.avatar}
+                                                    alt={review.name}
+                                                    className="w-full h-full object-cover object-center"
+                                                    unoptimized
+                                                />
+                                            </div>
                                             <div>
                                                 <p className="font-bold">{review.name}</p>
                                                 <div className="flex items-center mt-1">
@@ -305,14 +315,6 @@ const reviews = [
         date: "24-10-2022",
         comment:
             "My first and only mala ordered on Etsy, and I'm beyond delighted! I requested a custom mala based on two stones I was called to invite together in this kind of creation. The fun and genuine joy I invite together in this kind of creation. The fun and genuine joy.",
-        avatar: "https://randomuser.me/api/portraits/men/1.jpg",
-    },
-    {
-        name: "Krisma",
-        rating: 3,
-        date: "24-10-2022",
-        comment:
-            "My first and only mala ordered on Etsy, and I'm beyond delighted! I requested a custom mala based on two stones I was called to invite together in this kind of creation. The fun and genuine joy I invite together in this kind of creation. The fun and genuine joy.",
-        avatar: "https://randomuser.me/api/portraits/men/2.jpg",
+        avatar: "/profile/1739290679505.jpg",
     },
 ];
