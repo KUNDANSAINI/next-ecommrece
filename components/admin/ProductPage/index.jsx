@@ -53,44 +53,45 @@ function ProductPage({ getProduct, brand, category }) {
     }
 
     useEffect(() => {
+
+        function filterProductData() {
+            let filtered = getProduct;
+    
+            // Search By Name
+            if (searchName) {
+                filtered = filtered.filter(item => item.productName.toLowerCase().includes(searchName.trim().toLowerCase()));
+            }
+    
+            // Search By Hns Code
+            if (searchHns) {
+                filtered = filtered.filter(item => item.hns.toLowerCase().includes(searchHns.trim().toLowerCase()));
+            }
+    
+            // Search By Category
+            if (searchCategory) {
+                filtered = filtered.filter(item => item.category.toLowerCase() === searchCategory.toLowerCase());
+            }
+    
+            // Search By Type
+            if (searchType) {
+                filtered = filtered.filter(item => item.subCategory.toLowerCase() === searchType.toLowerCase());
+            }
+    
+            // Search By Brand
+            if (searchBrand) {
+                filtered = filtered.filter(item => item.brand.toLowerCase() === searchBrand.toLowerCase());
+            }
+    
+            // Search By Stock
+            if (searchStock) {
+                filtered = filtered.filter(item => item.stock.toLowerCase() === searchStock.toLowerCase());
+            }
+    
+            setFilteredProduct(filtered)
+        }
+
         filterProductData()
     }, [getProduct, searchHns, searchCategory, searchType, searchBrand, searchStock, searchName])
-
-    function filterProductData() {
-        let filtered = getProduct;
-
-        // Search By Name
-        if (searchName) {
-            filtered = filtered.filter(item => item.productName.toLowerCase().includes(searchName.trim().toLowerCase()));
-        }
-
-        // Search By Hns Code
-        if (searchHns) {
-            filtered = filtered.filter(item => item.hns.toLowerCase().includes(searchHns.trim().toLowerCase()));
-        }
-
-        // Search By Category
-        if (searchCategory) {
-            filtered = filtered.filter(item => item.category.toLowerCase() === searchCategory.toLowerCase());
-        }
-
-        // Search By Type
-        if (searchType) {
-            filtered = filtered.filter(item => item.subCategory.toLowerCase() === searchType.toLowerCase());
-        }
-
-        // Search By Brand
-        if (searchBrand) {
-            filtered = filtered.filter(item => item.brand.toLowerCase() === searchBrand.toLowerCase());
-        }
-
-        // Search By Stock
-        if (searchStock) {
-            filtered = filtered.filter(item => item.stock.toLowerCase() === searchStock.toLowerCase());
-        }
-
-        setFilteredProduct(filtered)
-    }
 
     // Next page handler
     const handleNext = (e) => {

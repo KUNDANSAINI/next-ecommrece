@@ -17,13 +17,15 @@ import {
     TableCell,
     TableRow,
 } from "@/components/ui/table"
-import { SingleProduct } from "@/action";
+import { CreateItem, SingleProduct } from "@/action";
 import DetailsLoader from "@/components/Loader/DetailsLoader";
 import { Card, CardContent } from "@/components/ui/card";
 import Image from "next/image";
 import { useSelector } from "react-redux";
 
 function ProductID({ id, type }) {
+    console.log("fdsds");
+    
     const router = useRouter()
     const [getProduct, setGetProduct] = useState("")
     const [cartSheetOpen, setCartSheetOpen] = useState(false)
@@ -60,7 +62,6 @@ function ProductID({ id, type }) {
 
     async function handleCart(product) {
         try {
-            const data = { productID: product._id, userID, qty, selectedSize, price: (product.mrp) * qty }
             if (!userID) {
                 router.push('/login')
                 return toast.error("You Are Not Login. Please Login Here")
@@ -68,16 +69,13 @@ function ProductID({ id, type }) {
             if (!selectedSize) {
                 return toast.error("Please Select A Size.")
             }
-            const response = await axios.post('/api/cart', data, {
-                headers: {
-                    Authorization: `Bearer ${Cookies.get("token")}`
-                }
-            })
-            if (response.data.success === true) {
-                toast.success("Product Successfully Added In Cart")
+            const data = { productID: product._id, userID, qty, selectedSize, price: (product.mrp) * qty }
+            const response = await CreateItem(data)
+            if (response.success === true) {
+                toast.success(response.message)
                 setCartSheetOpen(true)
             } else {
-                toast.error(response.data.message)
+                toast.error(response.message)
             }
         } catch (error) {
             console.error("Add To Cart Error:", error)

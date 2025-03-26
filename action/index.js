@@ -17,6 +17,7 @@ import { generateToken, verifyToken } from "@/app/utils/auth";
 import { cookies } from "next/headers";
 import Order from "@/models/order";
 import Cart from "@/models/cart";
+import Review from "@/models/review";
 
 
 // All Authcation Functions
@@ -52,6 +53,8 @@ export async function login(formData, pathToRevalidate) {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             maxAge: 60 * 60, // 1 hour
+            sameSite: "Strict", // Prevents CSRF
+            // maxAge: 7 * 24 * 60 * 60 * 1000,
             path: '/',
         });
 
@@ -815,6 +818,8 @@ export async function UpdateCategory(id, formData, pathToRevalidate) {
     }
 }
 
+// Profile All Function
+
 // Profile Create function
 export async function CreateProfile(formData, pathToRevalidate) {
     await connectToDB()
@@ -933,6 +938,418 @@ export async function UpdateProfile(formData, id, pathToRevalidate) {
     }
 }
 
+// Cart Function
+
+// Fetch All Cart Item By User ID Function
+export async function FetchCart(userID) {
+    await connectToDB()
+    try {
+        if (!userID) {
+            return ({ success: false, message: "Invalid ID!" })
+        }
+        const getCartProduct = await Cart.find({ userID }).populate("productID")
+        if (getCartProduct) {
+            return ({ success: true, getCartProduct: JSON.parse(JSON.stringify(getCartProduct)) })
+        } else {
+            return ({ success: false, message: "Something Went Wrong. Please Try Again!" })
+        }
+    } catch (error) {
+        console.log(error);
+        return ({ success: false, message: "Bad Request" })
+    }
+}
+
+// Create Cart Item Function
+export async function CreateItem(data) {
+    await connectToDB()
+    try {
+
+        const { productID, userID, qty, selectedSize, price } = data
+
+        if (!productID || !userID) {
+            return ({ success: false, message: "Invalid ID!" })
+        }
+
+        const checkData = await Cart.findOne({ productID: productID, userID: userID })
+
+        if (checkData) {
+            return ({ success: false, message: "Product Already Added In Cart!" })
+        }
+
+        const newRecord = await Cart.create({ productID, userID, qty, size: selectedSize, price })
+
+        if (!newRecord) {
+            return ({ success: false, message: "Something Went Wrong. Please Try Again!" })
+        }
+
+        return ({ success: true, message: "Product Successfully Added In Cart!" })
+    } catch (error) {
+        console.log("item add error:", error);
+        return ({
+            success: false,
+            message: error.message
+        })
+    }
+}
+
+// Remove Cart Item By ID Function
+export async function DeleteCart(id) {
+    await connectToDB();
+    try {
+        if (!id) {
+            return ({
+                success: false,
+                message: "Cart ID is required to delete a cart.",
+            });
+        }
+
+        const deleteRecord = await Cart.findByIdAndDelete(id);
+        if (!deleteRecord) {
+            return ({
+                success: false,
+                message: "Item not found or could not be deleted.",
+            });
+        }
+
+        return ({
+            success: true,
+            message: "Item successfully Removed.",
+        });
+    } catch (error) {
+        console.error("Error deleting cart:", error);
+        return ({
+            success: false,
+            message: "An error occurred while deleting the cart. Please try again later.",
+        });
+    }
+}
+
+// Update Cart Item Function
+export async function UpdateCart(data) {
+    await connectToDB()
+    try {
+        if (!data) {
+            return ({
+                success: false,
+                message: "Data not found"
+            })
+        }
+
+        const bulkOperations = data.map((item) => ({
+            updateOne: {
+                filter: { _id: item._id },
+                update: {
+                    $set: {
+                        qty: item.qty,
+                        price: item.price,
+                    },
+                },
+            },
+        }));
+
+        const result = await Cart.bulkWrite(bulkOperations);
+
+        if (!result) {
+            return ({ success: false, message: "Quantities not updated" });
+        }
+
+        return ({
+            success: true,
+            message: "Quantities updated successfully"
+        })
+
+    } catch (error) {
+        console.log("Error updating quantities", error);
+        return ({
+            success: false,
+            message: error.message
+        })
+    }
+}
+
+// Order Function
+
+// Create Order function
+export async function CreateOrder(data) {
+    await connectToDB()
+    try {
+        const { userId } = data
+
+        if (!userId) {
+            return ({
+                success: false,
+                message: "user not found"
+            })
+        }
+
+        const newRecord = await Order.create(data)
+
+        if (!newRecord) {
+            return ({
+                success: false,
+                message: "Failed To Create To Order ! Please Try Again."
+            })
+        }
+
+        await Cart.deleteMany({ userID: userId })
+
+        return ({
+            success: true,
+            message: "Products Are On The Way."
+        })
+
+    } catch (error) {
+        console.log("order createing error:", error);
+        return ({
+            success: false,
+            message: error.message
+        })
+    }
+}
+
+// Fetch All Order function
+export async function FetchOrder() {
+    await connectToDB()
+    try {
+        const getOrders = await Order.find().populate([
+            { path: "shipping", strictPopulate: false },
+            { path: "items.product", strictPopulate: false }
+        ]);
+
+        if (!getOrders) {
+            return ({
+                success: false,
+                message: "Error Fetching To Ordered Products"
+            })
+        }
+
+        return ({
+            success: true,
+            getOrders: JSON.parse(JSON.stringify(getOrders))
+        })
+
+    } catch (error) {
+        console.log(error);
+        return ({
+            success: false,
+            message: "Something Went Wrong, Please Try Again."
+        })
+    }
+}
+
+// Fetch Order By ID Function
+export async function GetOrderByID(userID) {
+    await connectToDB()
+    try {
+        if (!userID) {
+            return ({
+                success: false,
+                message: "Invalid ID"
+            })
+        }
+
+        const getAllOrder = await Order.find({ userId: userID }).populate([
+            { path: "shipping", strictPopulate: false },
+            { path: "items.product", strictPopulate: false }
+        ]);
+
+        if (!getAllOrder) {
+            return ({
+                success: false,
+                message: "Error Fetching To Ordered Products"
+            })
+        }
+
+        return ({
+            success: true,
+            getAllOrder: JSON.parse(JSON.stringify(getAllOrder))
+        })
+
+    } catch (error) {
+        console.log(error);
+        return ({
+            success: false,
+            message: "Something Went Wrong, Please Try Again."
+        })
+    }
+}
+
+// Update Order Function
+export async function UpdateOrder(id) {
+    await connectToDB()
+    try {
+        if (!id) {
+            return ({
+                success: false,
+                message: "Invalid ID"
+            })
+        }
+
+        const updateOrder = await Order.findByIdAndUpdate(
+            id,
+            { status: "Out Of Delivery" }
+        )
+
+        return ({
+            success: true,
+            message: "Order Is Out of Delivery."
+        })
+
+    } catch (error) {
+        console.log(error);
+        return ({
+            success: false,
+            message: "Something Went Wrong, Please Try Again."
+        })
+    }
+}
+
+// Order Delivered Function
+export async function DeliveredOrder(id) {
+    await connectToDB()
+    try {
+        if (!id) {
+            return NextResponse.json({
+                success: false,
+                message: "Invalid ID!"
+            })
+        }
+
+        const updateOrder = await Order.findByIdAndUpdate(
+            id,
+            { status: "Delivered" }
+        )
+
+        return ({
+            success: true,
+            message: "Order Successfully Delivered."
+        })
+
+    } catch (error) {
+        console.log(error);
+        return ({
+            success: false,
+            message: "Something Went Wrong, Please Try Again."
+        })
+    }
+}
+
+// Order Cancel Function
+export async function CancelOrder(orderData, reason) {
+    await connectToDB()
+    try {
+        if (!orderData._id) {
+            return NextResponse.json({
+                success: false,
+                message: "Invalid ID!"
+            })
+        }
+
+        const order = await Order.findOne({ _id: orderData._id, userId: orderData.userId });
+
+        if (!order) {
+            return NextResponse.json({
+                success: false,
+                message: "Order Not Found!"
+            })
+        }
+
+        if (order.status === "Out Of Delivery") {
+            return NextResponse.json({
+                success: false,
+                message: "Order already out of delivery. Request a return instead."
+            })
+        }
+
+        order.status = "Canceled";
+        order.cancellation_reason = reason;
+        await order.save();
+
+        return ({
+            success: true,
+            message: "Order canceled successfully."
+        })
+
+    } catch (error) {
+        console.log(error);
+        return ({
+            success: false,
+            message: "Something Went Wrong, Please Try Again."
+        })
+    }
+}
+
+// Review Function
+
+// Create Review function
+export async function CreateReview(data) {
+    await connectToDB()
+    try {
+        if (!data) {
+            return ({
+                success: false,
+                message: "Review not found."
+            })
+        }
+
+        const newRecord = await Review.create(data)
+
+        if (!newRecord) {
+            return ({
+                success: false,
+                message: "Recored not found."
+            })
+        }
+
+        return ({
+            success: true,
+            message: "Review Submited."
+        })
+    } catch (error) {
+        console.log("review createing error:", error);
+        return ({
+            success: false,
+            message: error.message
+        })
+    }
+}
+
+// fetch customer review function
+export async function FetchReview(){
+    await connectToDB()
+    try {
+        const fecthData = await Review.find()
+
+        if (!fecthData) {
+            return ({
+                success: false,
+                message: "Recored not found."
+            })
+        }
+
+        return ({
+            success: true,
+            getReview: JSON.parse(JSON.stringify(fecthData))
+        })
+    } catch (error) {
+        console.log("review fetching error:", error);
+        return ({
+            success: false,
+            message: error.message
+        })
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
 // Rozorpay function
 export async function Rozorpay(formData) {
     await connectToDB()
@@ -1013,84 +1430,5 @@ export async function handleWebhook(req) {
         return { success: false, message: "No Action Taken" };
     } catch (error) {
         return { success: false, error: error.message };
-    }
-}
-
-// Cart Product get Function 
-export async function FetchCart(userID) {
-    connectToDB()
-    try {
-        if (!userID) {
-            return ({ success: false, message: "Invalid ID!" })
-        }
-        const getCartProduct = await Cart.find({ userID }).populate("productID")
-        if (getCartProduct) {
-            return ({ success: true, getCartProduct: JSON.parse(JSON.stringify(getCartProduct)) })
-        } else {
-            return ({ success: false, message: "Something Went Wrong. Please Try Again!" })
-        }
-    } catch (error) {
-        console.log(error);
-        return ({ success: false, message: "Bad Request" })
-    }
-}
-
-// Order Fetch Function
-export async function FetchOrder() {
-    connectToDB()
-    try {
-        const getOrders = await Order.find().populate("product")
-
-        if (!getOrders) {
-            return ({
-                success: false,
-                message: "Error Fetching To Ordered Products"
-            })
-        }
-
-        return ({
-            success: true,
-            getOrders: JSON.parse(JSON.stringify(getOrders))
-        })
-
-    } catch (error) {
-        console.log(error);
-        return ({
-            success: false,
-            message: "Something Went Wrong, Please Try Again."
-        })
-    }
-}
-
-// Order Fetch by userID function
-export async function GetOrderByID(userID) {
-    try {
-        if (!userID) {
-            return ({
-                success: false,
-                message: "Invalid ID"
-            })
-        }
-
-        const getAllOrder = await Order.find({ userId: userID }).populate("product")
-
-        if (!getAllOrder) {
-            return ({
-                success: false,
-                message: "Error Fetching To Ordered Products"
-            })
-        }
-
-        return ({
-            success: true,
-            getAllOrder: JSON.parse(JSON.stringify(getAllOrder))
-        })
-
-    } catch (error) {
-        console.log(error);
-        return ({
-            success: false,
-            message: "Something Went Wrong, Please Try Again."
-        })
     }
 }

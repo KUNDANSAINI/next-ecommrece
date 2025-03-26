@@ -6,9 +6,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
-import { useContext, useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { GlobalContext } from "@/context";
 import { toast } from "react-hot-toast";
 import { sendEmail, Signup, verifyOtp } from "@/action";
 import Image from "next/image";
@@ -26,7 +25,6 @@ export function SignupForm({ className, ...props }) {
     const [otp, setOtp] = useState("")
     const [password, setPassword] = useState("")
     const [confirm_password, setConfirmPassword] = useState("")
-    const { isLogin, user } = useContext(GlobalContext)
     const [activeStep, setActiveStep] = useState(0)
     const [loading, setLoading] = useState(false)
 

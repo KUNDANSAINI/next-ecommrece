@@ -48,24 +48,25 @@ function TypeNamePage({ getBrand, getProduct, type, typeName }) {
 
 
     useEffect(() => {
+
+        const filterItems = () => {
+            let filtered = typeNameData;
+    
+            // Filter by Sub Category
+            if (selectSubCategory) {
+                filtered = filtered.filter(item => item.subCategory.toLowerCase() === selectSubCategory.toLowerCase());
+            }
+    
+            // Filter by Brand
+            if (selectBrand) {
+                filtered = filtered.filter(item => item.brand.toLowerCase() === selectBrand.toLowerCase());
+            }
+    
+            setFiltered(filtered);
+        };
+
         filterItems();
     }, [selectBrand, selectSubCategory, typeNameData]);
-
-    const filterItems = () => {
-        let filtered = typeNameData;
-
-        // Filter by Sub Category
-        if (selectSubCategory) {
-            filtered = filtered.filter(item => item.subCategory.toLowerCase() === selectSubCategory.toLowerCase());
-        }
-
-        // Filter by Brand
-        if (selectBrand) {
-            filtered = filtered.filter(item => item.brand.toLowerCase() === selectBrand.toLowerCase());
-        }
-
-        setFiltered(filtered);
-    };
 
 
     return (

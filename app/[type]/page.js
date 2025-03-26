@@ -1,9 +1,16 @@
 import { GetAllBrand, GetAllCategory, GetAllProduct } from "@/action";
 import Page from "@/components/includes/Type-Page";
+import { notFound } from "next/navigation";
+
+const validTypes = ["Shop", "Men", "Women", "Kids"];
 
 // Dynamic Metadata for SEO
 export async function generateMetadata({ params }) {
     const dataType = params.type;
+
+    if (!validTypes.includes(dataType)) {
+        notFound();
+    }
     
     return {
         title: dataType === "Shop" 
@@ -19,6 +26,10 @@ export async function generateMetadata({ params }) {
 
 async function Type({ params }) {
     const { type } = params;
+
+    if (!type || !validTypes.includes(type)) {
+        notFound();
+    }
 
     try {
         // Fetch all data concurrently

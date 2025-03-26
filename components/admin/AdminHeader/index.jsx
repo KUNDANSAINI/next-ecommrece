@@ -17,6 +17,7 @@ import {
 import { logoutUser } from "@/action";
 import { useDispatch } from "react-redux";
 import { logoutState } from "@/slices/authSlice";
+import toast from "react-hot-toast";
 
 function AdminHeader() {
     const router = useRouter()
@@ -25,9 +26,16 @@ function AdminHeader() {
     const dispatch = useDispatch()
 
     async function handleLogout() {
-        dispatch(logoutState())
-        await logoutUser()
-        router.replace('/login')
+        try{
+            const response = await logoutUser()
+            if(response.success === true){
+                dispatch(logoutState())
+                router.push('/login')
+                toast.success(response.message)
+            }
+        }catch(error){
+            console.log("logout error:", error);
+        }
     }
 
     return (

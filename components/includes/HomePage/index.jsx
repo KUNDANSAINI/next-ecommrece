@@ -33,16 +33,19 @@ export default function HomePage({ getBrands, getCategory, getProduct }) {
                 <div className="flex flex-col mt-8">
 
                     {/* Banner Section */}
-                    <div className="h-[200px] md:h-[700px]">
-                        <Carousel
-                            plugins={[plugin.current]}
-                            className="w-full"
-                        >
+                    <div className="h-[200px] md:h-[700px] relative">
+                        <Carousel plugins={[plugin.current]} className="w-full">
                             <CarouselContent>
                                 {imageArray.map((image, index) => (
-                                    <CarouselItem key={index}>
-                                        <div className="w-full h-[200px] md:h-[700px]">
-                                            <Image fill src={image.src} alt={image.alt} className="object-cover object-center" sizes="(max-width: 768px) 100vw, 100vw" />
+                                    <CarouselItem key={index} className="relative w-full">
+                                        <div className="relative w-full h-[200px] md:h-[700px]">
+                                            <Image
+                                                src={image.src}
+                                                alt={image.alt}
+                                                fill
+                                                className="object-cover object-center"
+                                                sizes="(max-width: 768px) 100vw, 100vw"
+                                            />
                                         </div>
                                     </CarouselItem>
                                 ))}
@@ -51,6 +54,7 @@ export default function HomePage({ getBrands, getCategory, getProduct }) {
                             <CarouselNext className="mr-16" />
                         </Carousel>
                     </div>
+
 
                     {/* Category Section */}
                     <div className="w-full md:w-3/4 mx-auto mt-10 px-4 md:px-0">

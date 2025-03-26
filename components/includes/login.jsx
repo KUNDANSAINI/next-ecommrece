@@ -13,6 +13,7 @@ import Image from "next/image";
 import { useDispatch } from "react-redux";
 import { loginState } from "@/slices/authSlice";
 import toast from "react-hot-toast";
+import { IconEye, IconEyeOff, IconLock, IconLockOpen2 } from "@tabler/icons-react";
 
 export function LoginForm({ className, ...props }) {
     const [loginFormData, setLoginFormData] = useState({
@@ -21,6 +22,7 @@ export function LoginForm({ className, ...props }) {
     })
     const router = useRouter()
     const [loading, setLoading] = useState(false)
+    const [showPassword, setShowPassword] = useState(false);
     const dispatch = useDispatch()
 
     const validateEmail = (email) => {
@@ -52,12 +54,11 @@ export function LoginForm({ className, ...props }) {
             const response = await login(loginFormData, '/login');
 
             if (response.success === true) {
-                dispatch(loginState({user: response.id}))
+                dispatch(loginState({ user: response.id }))
                 const isAdmin = response.role === true;
-                router.replace(isAdmin ? '/admin-dashboard' : '/')
+                router.push(isAdmin ? '/admin-dashboard' : '/')
                 toast.success(response.message)
             } else {
-                setIsLogin(false);
                 toast.error(response?.message || "Login failed. Please try again.");
             }
         } catch (error) {
@@ -107,19 +108,35 @@ export function LoginForm({ className, ...props }) {
                                         Forgot your password?
                                     </Link>
                                 </div>
-                                <Input
-                                    id="password"
-                                    type="password"
-                                    required
-                                    placeholder="6+ Charaters, 1 Capital Charater"
-                                    value={loginFormData.password}
-                                    onChange={(e) => {
-                                        setLoginFormData({
-                                            ...loginFormData,
-                                            password: e.target.value
-                                        })
-                                    }}
-                                />
+                                <div className="relative">
+                                    <Input
+                                        id="password"
+                                        type={showPassword ? "text" : "password"}
+                                        required
+                                        placeholder="6+ Charaters, 1 Capital Charater"
+                                        value={loginFormData.password}
+                                        onChange={(e) => {
+                                            setLoginFormData({
+                                                ...loginFormData,
+                                                password: e.target.value
+                                            })
+                                        }}
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => { setShowPassword(!showPassword) }}
+                                        className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer"
+                                    >
+                                        {
+                                            showPassword
+                                                ?
+                                                <IconEyeOff stroke={2} className="text-gray-400" width={20} height={20} />
+                                                :
+                                                <IconEye stroke={2} width={20} className="text-gray-600" height={20} />
+
+                                        }
+                                    </button>
+                                </div>
                             </div>
                             <Button onClick={handleLoginForm} className="w-full" disabled={loading}>
                                 {loading ? "Processing..." : "Login"}

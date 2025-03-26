@@ -18,78 +18,31 @@ import {
 } from "@/components/ui/popover"
 import Navbar from "@/components/includes/Navbar";
 import Footer from "@/components/includes/Footer";
-import { CreateProfile, fetchProfile, SingleUser, UpdateProfile } from "@/action";
+import { CreateProfile, UpdateProfile } from "@/action";
 import AccountLoader from "@/components/Loader/AccountLoader";
 import axios from "axios";
 import Image from "next/image";
 import { useSelector } from "react-redux";
 
 
-function Account() {
+function Account( { getProfile, getUser} ) {    
     const router = useRouter()
     const [personalDetail, setPersonalDetail] = useState({
-        firstName: "",
-        lastName: "",
-        dob: "",
-        phone: "",
-        address: "",
-        pincode: "",
-        bankName: "",
-        ifse: "",
-        branch: "",
-        accountNo: ""
+        firstName: getProfile?.firstName || "",
+        lastName: getProfile?.lastName || "",
+        dob: getProfile?.dob || "",
+        phone: getProfile?.phone || "",
+        address: getProfile?.address || "",
+        pincode: getProfile?.pincode || "",
+        bankName: getProfile?.bankName || "",
+        ifse: getProfile?.ifse || "",
+        branch: getProfile?.branch || "",
+        accountNo: getProfile?.accountNo || ""
     })
-    const [getUser, setGetUser] = useState(null)
-    const [loading, setLoading] = useState(false)
-    const [isEditID, setIsEditID] = useState(null)
+    const [isEditID, setIsEditID] = useState(getProfile?._id || null)
     const [image, setImage] = useState(null)
-    const [filename, setFilename] = useState(null)
+    const [filename, setFilename] = useState(getProfile?.filename || null)
     const userID = useSelector((state) => state.auth.user);
-
-    useEffect(() => {
-        if (userID) {
-            fetchData()
-        }
-    }, [userID])
-
-    async function fetchData() {
-        if (!userID) {
-            router.push('/login')
-            return toast.error("You are not login. please login in again ?")
-        }
-        try {
-            setLoading(true)
-            const [getProfile, getUser] = await Promise.all([
-                fetchProfile(userID),
-                SingleUser(userID)
-            ]);
-
-            if (getProfile.success === true && getUser.success === true) {
-                setPersonalDetail({
-                    firstName: getProfile.data.firstName,
-                    lastName: getProfile.data.lastName,
-                    dob: getProfile.data.dob,
-                    phone: getProfile.data.phone,
-                    address: getProfile.data.address,
-                    pincode: getProfile.data.pincode,
-                    bankName: getProfile.data.bankName,
-                    ifse: getProfile.data.ifse,
-                    branch: getProfile.data.branch,
-                    accountNo: getProfile.data.accountNo,
-                })
-                setFilename(getProfile.data.filename)
-                setGetUser(getUser.data)
-                setIsEditID(getProfile.data._id)
-            } else if (getProfile.success === false && getUser.success === true) {
-                setGetUser(getUser.data)
-                setIsEditID(null)
-            }
-        } catch (error) {
-            console.log("Fetching Error:", error);
-        } finally {
-            setLoading(false)
-        }
-    }
 
     function handleDivClick() {
         document.getElementById("profile-file").click()

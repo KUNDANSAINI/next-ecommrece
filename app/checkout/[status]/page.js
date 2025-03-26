@@ -1,25 +1,26 @@
 'use client'
 
+import { CreateOrder, FetchCart } from "@/action";
 import Footer from "@/components/includes/Footer";
 import Navbar from "@/components/includes/Navbar";
 import Loading from "@/components/Loading";
 import { Button } from "@/components/ui/button";
 import axios from "axios";
-import Cookies from "js-cookie";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
+import { WEB_URL } from "@/utils/API";
 
-function Status() {
+function StatusPage() {
     const userID = useSelector((state) => state.auth.user);
     const [cartItems, setCartItems] = useState([])
     const router = useRouter()
-    const params = useSearchParams()
-    const [orderLoading, setOrderLoading] = useState(false)
-    const [isProcessing, setIsProcessing] = useState(false)
-    const API_URL = process.env.NEXT_PUBLIC_CLIENT_URL
+    const params = useParams()
+    const session = useSearchParams()
+    const [isProcessing, setIsProcessing] = useState(true)
+    const [orderCreated, setOrderCreated] = useState(false); 
 
     useEffect(() => {
         if (userID) {
@@ -27,59 +28,51 @@ function Status() {
         }
     }, [userID])
 
-
     useEffect(() => {
-        if (params.get('session_id') && cartItems && cartItems.length > 0) {
-            createFinalOrder(params, cartItems)
+        if (params.status === "success" && cartItems.length > 0 && !orderCreated) {
+            setOrderCreated(true);
+            createFinalOrder(cartItems)
+        }else{
+            setIsProcessing(false)
         }
-    }, [params.get("session_id"), cartItems])
-
+    }, [params.status, cartItems, orderCreated])
+    
     // Order Create Function
-    async function createFinalOrder(params, cartItems) {
-        const session_id = params.get("session_id")
+    async function createFinalOrder(cartItems) {
         try {
-            setIsProcessing(true)
-            if (!session_id) {
-                setOrderLoading(true)
-                setIsProcessing(false)
-                return
-            }
-
-            const { data: stripeSession } = await axios.get(`${API_URL}/api/verify-session?session_id=${session_id}`);
-
-            if (stripeSession.payment_status === 'paid') {
+            const session_id = session.get("session_id")
+            const { data: stripeSession } = await axios.get(`${WEB_URL}/api/verify-session?session_id=${session_id}`);
+            
+            if (stripeSession.payment_status === 'paid') {                
                 const userId = stripeSession.metadata.userId;
 
-                const getCheckoutFormData = JSON.parse(localStorage.getItem("checkoutFormData"));
+                const getCheckoutData = localStorage.getItem("checkoutData");
 
                 const createFinalCheckoutFormData = {
                     userId: userId,
-                    shippingAddress: getCheckoutFormData.shippingAddress,
-                    orderItems: cartItems.map(item => ({
-                        qty: item.qty,
-                        product: item.productID
+                    shipping: getCheckoutData,
+                    items: cartItems.map(item => ({
+                        product: item.productID._id,
+                        quantity: item.qty,
                     })),
-                    paymentMethod: "Stripe",
                     totalPrice: cartItems.reduce((total, item) =>
                         item.price + total, 0
                     ),
-                    isPaid: true,
-                    isProcessing: true,
-                    paidAt: new Date()
+                    isProcessing: true
                 }
 
-                const response = await axios.post('/api/order', createFinalCheckoutFormData)
-                if (response.data.success === true) {
-                    setIsProcessing(false)
-                    setOrderLoading(false)
-                    toast.success(response.data.message)
+                const response = await CreateOrder(createFinalCheckoutFormData)
+                if (response.success === true) {
+                    toast.success(response.message)
                 } else {
-                    toast.success(response.data.message)
+                    toast.error(response.message)
                 }
             }
         } catch (error) {
             console.error("Payment verification failed:", error);
             toast.error("Payment verification failed");
+        } finally {
+            setIsProcessing(false)
         }
     }
 
@@ -91,13 +84,11 @@ function Status() {
             return toast.error("You are not login. Please login again ?")
         }
         try {
-            const response = await axios.get(`${API_URL}/api/cart?userID=${userID}`, {
-                headers: {
-                    Authorization: `Bearer ${Cookies.get("token")}`
-                }
-            })
-            if (response.status === 200) {
-                setCartItems(response.data.getCartProduct)
+            const response = await FetchCart(userID)
+            if (response.success === true) {
+                setCartItems(response.getCartProduct)
+            } else {
+                toast.error(response.message)
             }
         } catch (error) {
             console.log("Fetching Error:", error);
@@ -112,7 +103,7 @@ function Status() {
         )
     }
 
-    if (orderLoading) {
+    if (params.status === "cancel" && !isProcessing) {
         return (
             <div className="mx-4 mt-10 flex h-screen flex-col justify-between">
                 <Navbar />
@@ -125,21 +116,21 @@ function Status() {
                 <Footer />
             </div>
         )
-    } else {
-        return (
-            <div className="mx-4 mt-10 flex h-screen flex-col justify-between">
-                <Navbar />
-                <div className="flex mx-auto gap-4 w-full md:w-1/2 p-2">
-                    <div className="flex flex-col gap-5 w-full">
-                        <h2 className="text-xl text-center font-semibold">Your Payment Is Successfull</h2>
-                        <Link href='/order'><Button className="w-full">View Your Order</Button></Link>
-                    </div>
-                </div>
-                <Footer />
-            </div>
-        )
     }
+
+    return (
+        <div className="mx-4 mt-10 flex h-screen flex-col justify-between">
+            <Navbar />
+            <div className="flex mx-auto gap-4 w-full md:w-1/2 p-2">
+                <div className="flex flex-col gap-5 w-full">
+                    <h2 className="text-xl text-center font-semibold">Your Payment Is Successful</h2>
+                    <Link href='/order'><Button className="w-full">View Your Order</Button></Link>
+                </div>
+            </div>
+            <Footer />
+        </div>
+    )
 
 }
 
-export default Status;
+export default StatusPage;

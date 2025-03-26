@@ -146,19 +146,20 @@ function Brand({ getBrands }) {
     }
 
     useEffect(() => {
-        filterBrandData()
-    }, [getBrands, searchName])
 
-    function filterBrandData() {
-        let filtered = getBrands;
-
-        // Search By Name
-        if (searchName) {
-            filtered = filtered.filter(item => item.brand.toLowerCase().includes(searchName.trim().toLowerCase()));
+        function filterBrandData() {
+            let filtered = getBrands;
+    
+            // Search By Name
+            if (searchName) {
+                filtered = filtered.filter(item => item.brand.toLowerCase().includes(searchName.trim().toLowerCase()));
+            }
+    
+            setFilteredBrands(filtered)
         }
 
-        setFilteredBrands(filtered)
-    }
+        filterBrandData()
+    }, [getBrands, searchName])
 
     // Next page handler
     const handleNext = (e) => {

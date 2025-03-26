@@ -1,14 +1,12 @@
 'use client'
 
-import { FetchOrder, UpdateOrder } from "@/action";
+import { FetchOrder } from "@/action";
 import AdminLeftbar from "@/components/admin/Admin-Leftbar";
 import AdminHeader from "@/components/admin/AdminHeader";
 import Loading from "@/components/Loading";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import axios from "axios";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Datepicker from "react-tailwindcss-datepicker";
 import { toast } from "react-hot-toast";
@@ -21,7 +19,7 @@ function convertToISTDate(utcDateString) {
     return istDate.toLocaleDateString("en-IN", { timeZone: "Asia/Kolkata" });
 }
 
-function Order() {
+function DeliveredPage() {
     const [getOrders, setGetOrders] = useState([])
     const [filteredOrder, setFilteredOrder] = useState([])
     const [loading, setLoading] = useState(false)
@@ -33,54 +31,34 @@ function Order() {
     const totalPages = Math.ceil(filteredOrder.length / recordPerPages)
     const [searchOrderID, setSearchOrderID] = useState('')
     const [searchUserID, setSearchUserID] = useState('')
-    const [searchStatus, setSearchStatus] = useState('')
     const [searchDate, setSearchDate] = useState({
         startDate: null,
         endDate: null
     });
 
     useEffect(() => {
+
+        async function fetchOrderData() {
+            try {
+                setLoading(true)
+                const response = await FetchOrder()
+                if (response.success === true) {
+                    const data = response.getOrders.filter((value) => {
+                        return value.status === "Delivered"
+                    })
+                    setGetOrders(data)
+                } else {
+                    toast.error(response.message)
+                }
+            } catch (error) {
+                console.log(error);
+            } finally {
+                setLoading(false)
+            }
+        }
+
         fetchOrderData()
     }, [])
-
-    async function fetchOrderData() {
-        try {
-            setLoading(true)
-            const response = await FetchOrder()
-            console.log(response);
-            
-            if (response.success === true) {
-                const data = response.getOrders.filter((value) => {
-                    return value.status !== "Delivered"
-                })
-                setGetOrders(data)
-            } else {
-                toast.error(response.message)
-            }
-        } catch (error) {
-            console.log(error);
-        } finally {
-            setLoading(false)
-        }
-    }
-
-    async function handleOrder(id) {
-        if (!id) {
-            return toast.error("Invalid ID!")
-        }
-        try {
-            const response = await UpdateOrder(id)
-            if (response.success === true) {
-                fetchOrderData()
-                toast.success(response.message)
-            } else {
-                toast.error(response.message)
-            }
-        } catch (error) {
-            console.log(error);
-            toast.error("Something Went Wrong, Please Try Again ?")
-        }
-    }
 
     useEffect(() => {
 
@@ -89,17 +67,12 @@ function Order() {
     
             // Search By Order ID
             if (searchOrderID) {
-                filtered = filtered.filter(item => item.order_id.toLowerCase().includes(searchOrderID.trim().toLowerCase()));
+                filtered = filtered.filter(item => item._id.toLowerCase().includes(searchOrderID.trim().toLowerCase()));
             }
     
             // Search By User ID
             if (searchUserID) {
-                filtered = filtered.filter(item => item.customer.toLowerCase().includes(searchUserID.trim().toLowerCase()));
-            }
-    
-            // Search By Status
-            if (searchStatus) {
-                filtered = filtered.filter(item => item.status.toLowerCase() === searchStatus.toLowerCase());
+                filtered = filtered.filter(item => item.userId.toLowerCase().includes(searchUserID.trim().toLowerCase()));
             }
     
             // Search By Date Range
@@ -116,7 +89,7 @@ function Order() {
         }
 
         filterOrderData()
-    }, [getOrders, searchDate, searchOrderID, searchStatus, searchUserID])
+    }, [getOrders, searchDate, searchOrderID, searchUserID])
 
     // Next page handler
     const handleNext = () => {
@@ -147,37 +120,25 @@ function Order() {
                     </div>
                     <div className="flex flex-col w-full px-1 md:px-4 mt-4">
                         <div className="space-y-4">
-                            <h1 className="text-center text-3xl font-semibold">Orders</h1>
-                            <div className="p-4 rounded-lg shadow-md space-y-1">
-                                <h4 className="text-lg font-semibold">Filter</h4>
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <Input
-                                        type="text"
-                                        placeholder="Search By Order ID"
-                                        value={searchOrderID}
-                                        onChange={(e) => { setSearchOrderID(e.target.value) }}
+                            <h1 className="text-center text-3xl font-semibold">Delivered</h1>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <Input
+                                    type="text"
+                                    placeholder="Search By Order ID"
+                                    value={searchOrderID}
+                                    onChange={(e) => { setSearchOrderID(e.target.value) }}
+                                />
+                                <Input
+                                    type="text"
+                                    placeholder="Search By User ID"
+                                    value={searchUserID}
+                                    onChange={(e) => { setSearchUserID(e.target.value) }}
+                                />
+                                <div className="border rounded-lg">
+                                    <Datepicker
+                                        value={searchDate}
+                                        onChange={newValue => setSearchDate(newValue)}
                                     />
-                                    <Input
-                                        type="text"
-                                        placeholder="Search By User ID"
-                                        value={searchUserID}
-                                        onChange={(e) => { setSearchUserID(e.target.value) }}
-                                    />
-                                    <select
-                                        value={searchStatus}
-                                        onChange={(e) => { setSearchStatus(e.target.value) }}
-                                        className="border h-10 px-2 rounded-lg text-sm"
-                                    >
-                                        <option value="">Search By Status</option>
-                                        <option value="Pending">Pending</option>
-                                        <option value="Out Of Delivery">Out Of Delivery</option>
-                                    </select>
-                                    <div className="border rounded-lg">
-                                        <Datepicker
-                                            value={searchDate}
-                                            onChange={newValue => setSearchDate(newValue)}
-                                        />
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -186,18 +147,18 @@ function Order() {
                                 loading ? (
                                     <Loading />
                                 ) : (
-                                    <Table className=" overflow-x-scroll">
-                                        <TableCaption>Only Pending Ordered Are Included.</TableCaption>
+                                    <Table>
+                                        <TableCaption>Only Delivery Product Are Included.</TableCaption>
                                         <TableHeader>
                                             <TableRow>
                                                 <TableHead className="w-[100px]">No.</TableHead>
                                                 <TableHead>Order ID</TableHead>
-                                                <TableHead>User</TableHead>
-                                                <TableHead >Product</TableHead>
+                                                <TableHead>User ID</TableHead>
                                                 <TableHead>Total Price</TableHead>
-                                                <TableHead>Status</TableHead>
+                                                {/* <TableHead>Payment</TableHead> */}
                                                 <TableHead>Order Date</TableHead>
-                                                <TableHead>Details</TableHead>
+                                                <TableHead>Address</TableHead>
+                                                <TableHead>Status</TableHead>
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
@@ -206,39 +167,24 @@ function Order() {
                                                     records.map((order, index) => (
                                                         <TableRow key={index}>
                                                             <TableCell className="font-medium">{index + 1}</TableCell>
-                                                            <TableCell>#{order._id}</TableCell>
-                                                            <TableCell>{order.shipping.firstName}</TableCell>
                                                             <TableCell>
-                                                                {
-                                                                    order && order.items.length > 0 ? (
-                                                                        order.items.map((value, index) => (
-                                                                            <li key={index}>{value.product.productName}</li>
-                                                                        ))
-                                                                    ) : (
-                                                                        <p>No Product</p>
-                                                                    )
-                                                                }
+                                                                #{order._id}
                                                             </TableCell>
-                                                            {/* <TableCell>{order.customer}</TableCell> */}
+                                                            <TableCell>#{order.userId}</TableCell>
                                                             <TableCell>₹ {order.totalPrice}</TableCell>
-                                                            <TableCell>
-                                                                {
-                                                                    order.status === "Pending" ? (
-                                                                        <Badge className={" cursor-pointer bg-blue-600"} onClick={() => { handleOrder(order._id) }}>{order.status}</Badge>
-                                                                    ) : (
-                                                                        <Badge variant="destructive" className={" cursor-pointer"} >{order.status}</Badge>
-                                                                    )
-                                                                }
-                                                            </TableCell>
+                                                            {/* <TableCell>{order.isPaid ? "Paid" : "Pending"}</TableCell> */}
                                                             <TableCell>{convertToISTDate(order.createdAt)}</TableCell>
                                                             <TableCell>
-                                                            <Badge className={" cursor-pointer bg-[#3A83F6]"} >Get Details</Badge>
+                                                                {order.shipping.address}
+                                                            </TableCell>
+                                                            <TableCell>
+                                                                <Badge >{order.status}</Badge>
                                                             </TableCell>
                                                         </TableRow>
                                                     ))
                                                 ) : (
                                                     <TableRow>
-                                                        <TableCell colSpan={9} className="text-center">No Record Found!</TableCell>
+                                                        <TableCell colSpan={8} className="text-center">No Record Found!</TableCell>
                                                     </TableRow>
                                                 )
                                             }
@@ -289,4 +235,4 @@ function Order() {
     );
 }
 
-export default Order;
+export default DeliveredPage;

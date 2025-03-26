@@ -1,6 +1,6 @@
 'use client'
 
-import { FetchOrder, UpdateOrder } from "@/action";
+import { DeliveredOrder, FetchOrder, UpdateOrder } from "@/action";
 import AdminLeftbar from "@/components/admin/Admin-Leftbar";
 import AdminHeader from "@/components/admin/AdminHeader";
 import Loading from "@/components/Loading";
@@ -21,7 +21,7 @@ function convertToISTDate(utcDateString) {
     return istDate.toLocaleDateString("en-IN", { timeZone: "Asia/Kolkata" });
 }
 
-function Order() {
+function OutOfDeliveryPage() {
     const [getOrders, setGetOrders] = useState([])
     const [filteredOrder, setFilteredOrder] = useState([])
     const [loading, setLoading] = useState(false)
@@ -51,7 +51,7 @@ function Order() {
             
             if (response.success === true) {
                 const data = response.getOrders.filter((value) => {
-                    return value.status !== "Delivered"
+                    return value.status !== "Pending"
                 })
                 setGetOrders(data)
             } else {
@@ -69,7 +69,7 @@ function Order() {
             return toast.error("Invalid ID!")
         }
         try {
-            const response = await UpdateOrder(id)
+            const response = await DeliveredOrder(id)
             if (response.success === true) {
                 fetchOrderData()
                 toast.success(response.message)
@@ -169,8 +169,8 @@ function Order() {
                                         className="border h-10 px-2 rounded-lg text-sm"
                                     >
                                         <option value="">Search By Status</option>
-                                        <option value="Pending">Pending</option>
                                         <option value="Out Of Delivery">Out Of Delivery</option>
+                                        <option value="Delivered">Delivered</option>
                                     </select>
                                     <div className="border rounded-lg">
                                         <Datepicker
@@ -223,7 +223,7 @@ function Order() {
                                                             <TableCell>₹ {order.totalPrice}</TableCell>
                                                             <TableCell>
                                                                 {
-                                                                    order.status === "Pending" ? (
+                                                                    order.status === "Out Of Delivery" ? (
                                                                         <Badge className={" cursor-pointer bg-blue-600"} onClick={() => { handleOrder(order._id) }}>{order.status}</Badge>
                                                                     ) : (
                                                                         <Badge variant="destructive" className={" cursor-pointer"} >{order.status}</Badge>
@@ -289,4 +289,4 @@ function Order() {
     );
 }
 
-export default Order;
+export default OutOfDeliveryPage;

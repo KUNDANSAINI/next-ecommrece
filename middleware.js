@@ -61,7 +61,7 @@ export const config = {
         "/register",
         "/account",
         "/cart",
-        "/checkout",
+        "/checkout/:path*",
         "/order",
     ],
 };

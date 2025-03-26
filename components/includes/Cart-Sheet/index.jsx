@@ -23,24 +23,29 @@ export function CartSheet({ cartSheetOpen, setCartSheetOpen }) {
     const [loading, setLoading] = useState(false)
 
     useEffect(() => {
-        if (userID || cartSheetOpen === true) {
+
+        async function fetchCartItems(userID) {
+            if (!userID) {
+                router.push('/login')
+                return toast.error("You are not login. please login in again ?")
+            }
+            try {
+                setLoading(true)
+                const response = await FetchCart(userID)
+                if (response.success === true) {
+                    setCartItems(response.getCartProduct)
+                }
+            } catch (error) {
+                console.log(error);
+            } finally {
+                setLoading(false)
+            }
+        }
+
+        if (userID && cartSheetOpen) {
             fetchCartItems(userID)
         }
-    }, [cartSheetOpen])
-
-    async function fetchCartItems(userID) {
-        try {
-            setLoading(true)
-            const response = await FetchCart(userID)
-            if (response.success === true) {
-                setCartItems(response.getCartProduct)
-            }
-        } catch (error) {
-            console.log(error);
-        } finally {
-            setLoading(false)
-        }
-    }
+    }, [userID, cartSheetOpen])
 
     async function handleRemoveItem(id) {
         try {
@@ -49,7 +54,7 @@ export function CartSheet({ cartSheetOpen, setCartSheetOpen }) {
             }
             const response = await axios.delete(`/api/cart/${id}`)
             if (response.data.success === true) {
-                const data = cartItems.filter((item)=>{
+                const data = cartItems.filter((item) => {
                     return item._id !== id
                 })
                 setCartItems(data)

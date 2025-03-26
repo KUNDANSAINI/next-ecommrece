@@ -1,4 +1,6 @@
+import { verifyUserToken } from "@/action";
 import Cart from "@/components/includes/Cart";
+import { redirect } from "next/navigation";
 
 export const metadata = {
     title: "Your Cart - Trendy | Review & Checkout",
@@ -24,15 +26,22 @@ export const metadata = {
     //   description: "Ready to checkout? Review your cart and enjoy amazing fashion deals at Trendy.",
     //   images: ["https://yourwebsite.com/cart-twitter-image.jpg"],
     // },
-  };
-  
+};
 
-function CartPage() {
-    return ( 
+
+async function CartPage() {
+
+    const { user, success, error } = await verifyUserToken();
+
+    if (!user) {
+        redirect('/login')
+    }
+
+    return (
         <>
             <Cart />
         </>
-     );
+    );
 }
 
 export default CartPage;

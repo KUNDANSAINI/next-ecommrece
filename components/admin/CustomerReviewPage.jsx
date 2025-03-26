@@ -18,9 +18,10 @@ import { IconEye } from "@tabler/icons-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { DeleteUser } from "@/action";
+import { FetchReview } from "@/action";
 
-function User({ getUsers }) {
+function CustomerReviewPage() {
+    const [reviews, setReviews] = useState([])
     const [filteredUser, setFilteredUser] = useState([])
     const [currentPage, setCurrentPage] = useState(1)
     const recordPerPages = 10
@@ -31,44 +32,59 @@ function User({ getUsers }) {
     const [searchEmail, setSearchEmail] = useState('')
     const [searchUser, setSearchUser] = useState('')
 
-    async function handleUserDelete(e, id) {
-        e.preventDefault()
+    // async function handleUserDelete(e, id) {
+    //     e.preventDefault()
+    //     try {
+    //         if (!id) {
+    //             toast.error("User ID is required to delete a user.");
+    //             return;
+    //         }
+    //         const response = await DeleteUser(id, '/users')
+    //         if (response.success === true) {
+    //             toast.success(response.message)
+    //         } else {
+    //             toast.error(response.message)
+    //         }
+    //     } catch (error) {
+    //         toast.error("Something Went Wrong. Please Try Again!")
+    //     }
+    // }
+
+    useEffect(() => {
+        fetchReviewData()
+    }, [])
+
+    async function fetchReviewData() {
         try {
-            if (!id) {
-                toast.error("User ID is required to delete a user.");
-                return;
-            }
-            const response = await DeleteUser(id, '/users')
-            if (response.success === true) {
-                toast.success(response.message)
-            } else {
-                toast.error(response.message)
+            const response = await FetchReview()
+            if(response.success === true){
+                setReviews(response.getReview)
             }
         } catch (error) {
-            toast.error("Something Went Wrong. Please Try Again!")
+            console.log("fetching error for customer review ?");
         }
     }
 
     useEffect(() => {
 
         function filterUserData() {
-            let filtered = getUsers;
+            let filtered = reviews;
     
             // Search By Username
-            if (searchUser) {
-                filtered = filtered.filter(item => item.fullName.toLowerCase().includes(searchUser.trim().toLowerCase()));
-            }
+            // if (searchUser) {
+            //     filtered = filtered.filter(item => item.fullName.toLowerCase().includes(searchUser.trim().toLowerCase()));
+            // }
     
             // Search By email
-            if (searchEmail) {
-                filtered = filtered.filter(item => item.email.toLowerCase().includes(searchEmail.trim().toLowerCase()));
-            }
+            // if (searchEmail) {
+            //     filtered = filtered.filter(item => item.email.toLowerCase().includes(searchEmail.trim().toLowerCase()));
+            // }
     
             setFilteredUser(filtered)
         }
 
         filterUserData()
-    }, [getUsers, searchUser, searchEmail])
+    }, [reviews, searchUser, searchEmail])
 
     // Next page handler
     const handleNext = () => {
@@ -89,6 +105,9 @@ function User({ getUsers }) {
         setCurrentPage(page)
     }
 
+    console.log(reviews);
+    
+
     return (
         <>
             <div className="my-10 mx-4">
@@ -99,7 +118,7 @@ function User({ getUsers }) {
                     </div>
                     <div className="flex flex-col w-full px-1 md:px-4 mt-4">
                         <div className="space-y-4">
-                            <h1 className="text-center text-3xl font-semibold">Users page</h1>
+                            <h1 className="text-center text-3xl font-semibold">Customer Reviews</h1>
                             <div className="p-4 rounded-lg shadow-md space-y-1">
                                 <h4 className="text-lg font-semibold">Filter</h4>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -120,7 +139,7 @@ function User({ getUsers }) {
                         </div>
                         <div className="mt-10">
                             <Table>
-                                <TableCaption>Only User Include Not Admin Included.</TableCaption>
+                                <TableCaption>Customer Review Data Show</TableCaption>
                                 <TableHeader>
                                     <TableRow>
                                         <TableHead className="w-[100px]">No.</TableHead>
@@ -135,7 +154,7 @@ function User({ getUsers }) {
                                         records && records.length > 0 ? (
                                             records.map((users, index) => (
                                                 <TableRow key={index}>
-                                                    <TableCell className="font-medium">{index + 1}</TableCell>
+                                                    {/* <TableCell className="font-medium">{index + 1}</TableCell>
                                                     <TableCell>{users.fullName}</TableCell>
                                                     <TableCell>{users.email}</TableCell>
                                                     <TableCell>
@@ -143,7 +162,7 @@ function User({ getUsers }) {
                                                     </TableCell>
                                                     <TableCell>
                                                         <Trash2 size={18} className=" cursor-pointer" onClick={(e) => { handleUserDelete(e, users._id) }} />
-                                                    </TableCell>
+                                                    </TableCell> */}
                                                 </TableRow>
                                             ))
                                         ) : (
@@ -197,4 +216,4 @@ function User({ getUsers }) {
     );
 }
 
-export default User;
+export default CustomerReviewPage;

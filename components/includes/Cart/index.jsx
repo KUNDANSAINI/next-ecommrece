@@ -13,7 +13,7 @@ import Footer from "@/components/includes/Footer";
 import CartLoader from "@/components/Loader/CartLoader";
 import Image from "next/image";
 import { useSelector } from "react-redux";
-import { FetchCart } from "@/action";
+import { DeleteCart, FetchCart, UpdateCart } from "@/action";
 
 
 function Cart() {
@@ -36,6 +36,8 @@ function Cart() {
             const response = await FetchCart(userID)
             if (response.success === true) {
                 setCartItems(response.getCartProduct)
+            }else{
+                toast.error(response?.message || "Something Went Wrong. Please Try Again");
             }
         } catch (error) {
             toast.error("Something Went Wrong. Please Try Again")
@@ -51,13 +53,12 @@ function Cart() {
         }
         try {
             setLoading(true)
-            const response = await axios.delete(`/api/cart/${id}`)
-            if (response.data.success === true) {
-                const filterData = cartItems.filter((value) => {
-                    return value._id !== id
-                })
-                setCartItems(filterData)
-                toast.success("Item Successfully Remove")
+            const response = await DeleteCart(id)
+            if (response.success === true) {
+                fetchCartItems(userID)
+                toast.success(response.message)
+            }else{
+                toast.error(response?.message || "Something Went Wrong. Please Try Again");
             }
         } catch (error) {
             console.error("deleteing Error", error);
@@ -99,11 +100,11 @@ function Cart() {
     async function handleCheckout() {
         try {
             setIsLoading(true)
-            const response = await axios.put('/api/cart', cartItems)
-            if (response.data.success === true) {
+            const response = await UpdateCart(cartItems)
+            if (response.success === true) {
                 router.push('/checkout')
             } else {
-                toast.error(response.data.message)
+                toast.error(response.message)
             }
         } catch (error) {
             console.log("Checkout Error:", error);
@@ -177,7 +178,7 @@ function Cart() {
                                                 }
                                             </p>
                                         </div>
-                                        <Button onClick={handleCheckout} disabled={isLoading} className="w-full md:w-1/2">{isLoading ? "Processing" : "Checkout"}</Button>
+                                        <Button onClick={handleCheckout} disabled={isLoading} className="w-full md:w-1/2">{isLoading ? "Processing..." : "Checkout"}</Button>
                                     </>
                                 ) : null
                             }
